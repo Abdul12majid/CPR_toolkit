@@ -53,7 +53,7 @@
 
     {% for thread in all_threads %}
 	<div class="comment-box">
-        <div class="profile-icon">{{ thread.owner.first_name| sdefault:''|slice:":1" }}{{ thread.owner.last_name| default:''|slice:":1" }}</div>
+        <div class="profile-icon">{{ thread.owner.first_name| default:''|slice:":1" }}{{ thread.owner.last_name| default:''|slice:":1" }}</div>
         <div class="comment-content">
             <div class="comment-header">{{thread.owner}} {{ thread.title }}<span class="timestamp">-{{thread.date_created }}</span></div>
             <div class="comment-text">

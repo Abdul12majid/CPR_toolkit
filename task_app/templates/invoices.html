@@ -2,28 +2,43 @@
 
 {% block content %}
 
-	<h2 style="text-align: center;">All Tasks</h2></br>
-	<table class="table table-striped">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Task Name</th>
-      <th scope="col">Description</th>
-      <th scope="col">Status</th>
-      <th scope="col">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-  	{% for task in all_task %}
-    <tr>
-      <th scope="row">{{ forloop.counter }}</th>
-      <td>{{ task.name }}</td>
-      <td>{{ task.description }}</td>
-      <td>{{ task.status }}</td>
-      <td><a href="{% url 'update_task' task.id %}" class="btn btn-primary">Update</a></td>
-    </tr>
-    {% endfor %}
-    
-  </tbody>
-</table>
+	<div class="container mt-4">
+    <h2 style="text-align: center;" class="mb-4">Invoices</h2>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4 class="card-title">Invoice Summary</h4>
+            <p><strong>Total Invoiced Amount:</strong> ${{ total }}</p>
+            <p><strong>7-Day Average:</strong> ${{ seven_day_avg }}</p>
+            <p><strong>30-Day Average:</strong> ${{ thirty_day_avg }}</p>
+        </div>
+    </div></br></br>
+    <hr>
+
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Dispatch No</th>
+                <th>Name</th>
+                <th>Invoiced Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in all_invoices %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ invoice.dispatch_no }}</td>
+                <td>{{ invoice.name }}</td>
+                <td>${{ invoice.invoiced_amount }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">No invoices available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
 {% endblock %}

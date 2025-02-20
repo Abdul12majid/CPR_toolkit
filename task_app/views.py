@@ -1,6 +1,10 @@
 from django.shortcuts import render, HttpResponse, redirect
-from .models import Task, Journal
+from .models import Task, Journal, Invoice
 from django.contrib import messages
+from django.utils.timezone import now
+from datetime import timedelta
+from django.db.models import Sum, Avg
+
 
 # Create your views here.
 def index(request):
@@ -45,4 +49,23 @@ def thread(request):
 	"all_threads":all_threads,
 	"get_user":get_user,
 	}
-	return render(request, 'thread.html', context) 
+	return render(request, 'thread.html', context)
+
+
+def invoices(request):
+    all_invoices = Invoice.objects.all().order_by("-id")
+    total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    seven_day_avg = Invoice.objects.filter(
+        created_at__gte=now() - timedelta(days=7)
+    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+    thirty_day_avg = Invoice.objects.filter(
+        created_at__gte=now() - timedelta(days=30)
+    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+
+    context = {
+        "all_invoices": all_invoices,
+        "total": total,
+        "seven_day_avg": seven_day_avg,
+        "thirty_day_avg": thirty_day_avg,
+    }
+    return render(request, "invoices.html", context)
