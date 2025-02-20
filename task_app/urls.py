@@ -7,4 +7,5 @@ urlpatterns = [
     path('update_task/<int:pk>', views.update_task, name="update_task"),  
     path('journal', views.thread, name="journal"),
     path('invoices', views.invoices, name="invoices"),
+    path('create_invoice', views.create_invoice, name="create_invoice"),
 ]

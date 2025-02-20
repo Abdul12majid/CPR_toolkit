@@ -54,26 +54,50 @@ def thread(request):
 
 def invoices(request):
     all_invoices = Invoice.objects.all().order_by("-id")
-    total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-    seven_day_avg = Invoice.objects.filter(
-        created_at__gte=now() - timedelta(days=7)
-    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
-    thirty_day_avg = Invoice.objects.filter(
-        created_at__gte=now() - timedelta(days=30)
-    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
-    six_month_avg = Invoice.objects.filter(
-        created_at__gte=now() - timedelta(days=180)
-    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
-    twelve_month_avg = Invoice.objects.filter(
-        created_at__gte=now() - timedelta(days=365)
-    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+
+    today = now()
+    seven_days_ago = today - timedelta(days=7)
+    thirty_days_ago = today - timedelta(days=30)
+    six_months_ago = today - timedelta(days=180)
+    twelve_months_ago = today - timedelta(days=365)
+
+    
+    def get_avg_total(queryset):
+        total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+        avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+        return round(avg, 2), round(total, 2)
+
+    
+    seven_day_avg, seven_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=seven_days_ago))
+    thirty_day_avg, thirty_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=thirty_days_ago))
+    six_month_avg, six_month_total = get_avg_total(Invoice.objects.filter(created_at__gte=six_months_ago))
+    twelve_month_avg, twelve_month_total = get_avg_total(Invoice.objects.filter(created_at__gte=twelve_months_ago))
+    overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    overall_total = round(overall_total, 2)
 
     context = {
         "all_invoices": all_invoices,
-        "total": total,
         "seven_day_avg": seven_day_avg,
+        "seven_day_total": seven_day_total,
         "thirty_day_avg": thirty_day_avg,
+        "thirty_day_total": thirty_day_total,
         "six_month_avg": six_month_avg,
+        "six_month_total": six_month_total,
         "twelve_month_avg": twelve_month_avg,
+        "twelve_month_total": twelve_month_total,
+        "overall_total": overall_total,
     }
     return render(request, "invoices.html", context)
+
+
+def create_invoice(request):
+	if request.method == "POST":
+		dispatch_no = request.POST['dispatch_no']
+		name = request.POST['name']
+		invoiced_amount = request.POST["invoiced_amount"]
+		invoice = Invoice.objects.create(dispatch_no=dispatch_no, name=name, invoiced_amount=invoiced_amount)
+		invoice.save()
+		print("Invoice created", flush=True)
+		messages.success(request, ("Invoice Added"))
+		return redirect('invoices')
+	return render(request, 'create_invoice.html')

@@ -5,16 +5,43 @@
 	<div class="container mt-4">
     <h2 style="text-align: center;" class="mb-4">Invoices</h2>
 
-    <div class="card mt-4">
-        <div class="card-body">
-            <h4 class="card-title">Invoice Summary</h4>
-            <p><strong>Total Invoiced Amount:</strong> ${{ total }}</p>
-            <p><strong>7-Day Average:</strong> ${{ seven_day_avg }}</p>
-            <p><strong>30-Day Average:</strong> ${{ thirty_day_avg }}</p>
-            <p><strong>6-months Average:</strong> ${{ six_month_avg }}</p>
-            <p><strong>12-months Average:</strong> ${{ twelve_month_avg }}</p>
-        </div>
-    </div></br></br>
+    <h3>Summary</h3>
+  <table class="table table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th>Period</th>
+            <th>Average Invoiced Amount ($)</th>
+            <th>Total Invoiced Amount ($)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Last 7 Days</td>
+            <td>${{ seven_day_avg|floatformat:2 }}</td>
+            <td>${{ seven_day_total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td>Last 30 Days</td>
+            <td>${{ thirty_day_avg|floatformat:2 }}</td>
+            <td>${{ thirty_day_total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td>Last 6 Months</td>
+            <td>${{ six_month_avg|floatformat:2 }}</td>
+            <td>${{ six_month_total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td>Last 12 Months</td>
+            <td>${{ twelve_month_avg|floatformat:2 }}</td>
+            <td>${{ twelve_month_total|floatformat:2 }}</td>
+        </tr>
+        <tr class="table-primary">
+            <td><strong>Overall Total</strong></td>
+            <td>-</td>
+            <td><strong>${{ overall_total|floatformat:2 }}</strong></td>
+        </tr>
+    </tbody>
+</table></br></br>
     <hr>
 
     <table class="table table-striped">
