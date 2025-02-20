@@ -61,11 +61,19 @@ def invoices(request):
     thirty_day_avg = Invoice.objects.filter(
         created_at__gte=now() - timedelta(days=30)
     ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+    six_month_avg = Invoice.objects.filter(
+        created_at__gte=now() - timedelta(days=180)
+    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+    twelve_month_avg = Invoice.objects.filter(
+        created_at__gte=now() - timedelta(days=365)
+    ).aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
 
     context = {
         "all_invoices": all_invoices,
         "total": total,
         "seven_day_avg": seven_day_avg,
         "thirty_day_avg": thirty_day_avg,
+        "six_month_avg": six_month_avg,
+        "twelve_month_avg": twelve_month_avg,
     }
     return render(request, "invoices.html", context)

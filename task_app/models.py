@@ -36,5 +36,11 @@ class Invoice(models.Model):
             avg=Avg('invoiced_amount')
         )['avg'] or 0
 
+    def thirty_day_avg(self):
+        thirty_days_ago = now() - timedelta(days=30)
+        return Invoice.objects.filter(created_at__gte=thirty_days_ago).aggregate(
+            avg=Avg('invoiced_amount')
+        )['avg'] or 0
+
     def __str__(self):
         return f"{self.name} - {self.dispatch_no}"
