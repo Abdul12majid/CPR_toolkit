@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
 from django.db.models import Sum, Avg
+from django.core.paginator import Paginator
 
 
 # Create your views here.
@@ -75,6 +76,10 @@ def invoices(request):
     overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
     overall_total = round(overall_total, 2)
 
+    paginate = Paginator(Invoice.objects.all(), 5)
+    page = request.GET.get('page')
+    invoices = paginate.get_page(page)
+
     context = {
         "all_invoices": all_invoices,
         "seven_day_avg": seven_day_avg,
@@ -86,7 +91,9 @@ def invoices(request):
         "twelve_month_avg": twelve_month_avg,
         "twelve_month_total": twelve_month_total,
         "overall_total": overall_total,
+        "invoices":invoices,
     }
+
     return render(request, "invoices.html", context)
 
 
@@ -130,7 +137,7 @@ def update_invoice(request, pk):
 		date_added = request.POST.get('date_added')
 		get_invoice.dispatch_no = dispatch_no
 		get_invoice.name = name
-		get_invoice.invoiced_amount = invoiced_amount
+		get_invoice.invoiced_amount = inv_amount
 		get_invoice.created_at = date_added
 		get_invoice.save()
 		messages.success(request, ("Invoice updated."))
