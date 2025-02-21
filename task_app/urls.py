@@ -8,4 +8,5 @@ urlpatterns = [
     path('journal', views.thread, name="journal"),
     path('invoices', views.invoices, name="invoices"),
     path('create_invoice', views.create_invoice, name="create_invoice"),
+    path('update_invoice/<int:pk>', views.update_invoice, name="update_invoice"),
 ]

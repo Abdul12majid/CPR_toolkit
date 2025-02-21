@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2 style="text-align: center;">Create Invoice</h2></br>
+
+	<div class="container">
+		<form method="POST" validate>
+			{% csrf_token %}
+		  <div class="form-group">
+		    <label for="exampleInputEmail1">Dispatch Number</label>
+		    <input name="dispatch_no" type="number" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    <small id="emailHelp" class="form-text text-muted">help text</small>
+		  </div>
+		  <div class="form-group">
+		    <label for="exampleInputEmail1">Name</label>
+		    <input name="name" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div>
+		  <div>
+		  <label for="exampleInputEmail1">Invoiced Amount</label>
+		    <input name="invoiced_amount" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div>
+		  <label for="exampleInputEmail1">Date Invoiced</label>
+		    <input name="date_added" value="{{today_date}}" type="date" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div></br>
+		  <center>
+		  	<button type="submit" class="btn btn-primary btn-sm">Create Invoice</button>
+		  </center>
+		</form>
+	</div>
+{% endblock %}

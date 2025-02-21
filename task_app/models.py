@@ -26,7 +26,7 @@ class Invoice(models.Model):
     dispatch_no = models.CharField(max_length=50, blank=True, null=False)
     name = models.CharField(max_length=50, blank=True, null=False)
     invoiced_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=False)
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateField(default=timezone.now)
 
     def total(self):
         return Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0

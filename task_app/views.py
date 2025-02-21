@@ -91,13 +91,49 @@ def invoices(request):
 
 
 def create_invoice(request):
+	context = {
+		"today_date": now().strftime("%Y-%m-%d")
+		}
 	if request.method == "POST":
 		dispatch_no = request.POST['dispatch_no']
 		name = request.POST['name']
 		invoiced_amount = request.POST["invoiced_amount"]
-		invoice = Invoice.objects.create(dispatch_no=dispatch_no, name=name, invoiced_amount=invoiced_amount)
+		date_added = request.POST["date_added"]
+		if not date_added:
+			date_added = now().date()
+		invoice = Invoice.objects.create(
+			dispatch_no=dispatch_no, 
+			name=name, 
+			invoiced_amount=invoiced_amount,
+			created_at=date_added
+			)
 		invoice.save()
 		print("Invoice created", flush=True)
 		messages.success(request, ("Invoice Added"))
 		return redirect('invoices')
-	return render(request, 'create_invoice.html')
+	return render(request, 'create_invoice.html', context)
+
+
+def update_invoice(request, pk):
+	get_invoice = Invoice.objects.get(id=pk)
+	context = {
+		"name":get_invoice.name,
+		"dispatch_no":get_invoice.dispatch_no,
+		"inv_amount":get_invoice.invoiced_amount,
+		'date_added':get_invoice.created_at,
+	}
+	print(get_invoice.created_at, flush=True)
+	if request.method=="POST":
+		dispatch_no = request.POST.get('dispatch_no')
+		name = request.POST.get('name')
+		inv_amount = request.POST.get('invoiced_amount')
+		date_added = request.POST.get('date_added')
+		get_invoice.dispatch_no = dispatch_no
+		get_invoice.name = name
+		get_invoice.invoiced_amount = invoiced_amount
+		get_invoice.created_at = date_added
+		get_invoice.save()
+		messages.success(request, ("Invoice updated."))
+		return redirect('invoices')
+	return render(request, 'update_invoice.html', context)
+

@@ -2,8 +2,16 @@
 
 {% block content %}
 
+<style type="text/css">
+    #invoiceChart {
+    max-width: 400px;  /* Adjust width */
+    max-height: 300px; /* Adjust height */
+}
+
+</style>
+
 	<div class="container mt-4">
-    <h2 style="text-align: center;" class="mb-4">Invoices</h2>
+    <h2 style="text-align: center;" class="mb-4">AHS Invoices</h2>
 
     <h3>Summary</h3>
   <table class="table table-bordered">
@@ -41,9 +49,14 @@
             <td><strong>${{ overall_total|floatformat:2 }}</strong></td>
         </tr>
     </tbody>
-</table></br></br>
-    <hr>
+  </table></br>
 
+    <div class="mt-5">
+        <h4>Invoice Averages Over Time</h4>
+        <canvas id="invoiceChart"></canvas>
+    </div></br>
+    
+    <hr>
     <table class="table table-striped">
         <thead class="table-dark">
             <tr>
@@ -52,6 +65,7 @@
                 <th>Name</th>
                 <th>Invoiced Amount</th>
                 <th>Date Invoiced</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -62,6 +76,7 @@
                 <td>{{ invoice.name }}</td>
                 <td>${{ invoice.invoiced_amount }}</td>
                 <td>{{ invoice.created_at }}</td>
+                <td><a class="btn btn-primary" href="{% url 'update_invoice' invoice.id %}">Update</a></td>
             </tr>
             {% empty %}
             <tr>
@@ -71,14 +86,10 @@
         </tbody>
     </table></br>
 
-    <div class="mt-5">
-        <h4>Invoice Averages Over Time</h4>
-        <canvas id="invoiceChart"></canvas>
-    </div>
-
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     //Data from Django context
     const sevenDayAvg = {{ seven_day_avg }};
@@ -118,6 +129,20 @@
             }]
         },
         options: {
+            plugins: {
+                        datalabels: {
+                            anchor: "end",  // Position above bars
+                            align: "top",  // Align to the top
+                            color: "black",  // Label color
+                            font: {
+                                weight: "bold",
+                                size: 14
+                            },
+                            formatter: function(value) {
+                                return `$${value.toFixed(2)}`; // Display as "$xx.xx"
+                            }
+                        }
+                    },
             responsive: true,
             scales: {
                 y: {
