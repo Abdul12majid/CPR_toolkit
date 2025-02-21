@@ -16,7 +16,7 @@ class Journal(models.Model):
 	owner = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
 	title = models.TextField(blank=True, null=True)
 	notes = models.TextField(blank=False, null=False)
-	date_created = models.DateTimeField(default=timezone.now)
+	date_created = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.owner.username
@@ -26,7 +26,7 @@ class Invoice(models.Model):
     dispatch_no = models.CharField(max_length=50, blank=True, null=False)
     name = models.CharField(max_length=50, blank=True, null=False)
     invoiced_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def total(self):
         return Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
