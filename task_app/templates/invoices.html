@@ -51,6 +51,7 @@
                 <th>Dispatch No</th>
                 <th>Name</th>
                 <th>Invoiced Amount</th>
+                <th>Date Invoiced</th>
             </tr>
         </thead>
         <tbody>
@@ -60,6 +61,7 @@
                 <td>{{ invoice.dispatch_no }}</td>
                 <td>{{ invoice.name }}</td>
                 <td>${{ invoice.invoiced_amount }}</td>
+                <td>{{ invoice.created_at }}</td>
             </tr>
             {% empty %}
             <tr>
