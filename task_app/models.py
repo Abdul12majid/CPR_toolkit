@@ -5,7 +5,6 @@ from django.utils import timezone
 
 # Create your models here.
 class Task(models.Model):
-	name = models.CharField(max_length=50, blank=True, null=False)
 	description = models.TextField(blank=False, null=False)
 	status = models.BooleanField(default=False)
 

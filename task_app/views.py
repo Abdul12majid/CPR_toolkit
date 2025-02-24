@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from .models import Task, Journal, Invoice
 from django.contrib import messages
 from django.utils.timezone import now
@@ -39,9 +39,17 @@ def update_task(request, pk):
 		task.description = description
 		task.save()
 		print("task Updated", flush=True)
-		messages.success(request, ("Task updateed"))
+		messages.success(request, ("Task updated"))
 		return redirect('index')
 	return render(request, 'update_task.html', context)
+
+def complete_task(request, pk):
+	task = Task.objects.get(id=pk)
+	task.status == True
+	task.save()
+	messages.success(request, ("Task completed"))
+	return redirect('index')
+
 
 def thread(request):
 	get_user = request.user
@@ -57,6 +65,7 @@ def invoices(request):
 	all_invoices = Invoice.objects.all().order_by("-id")
 	search_results = None
 	today = now()
+	current_day = today
 	seven_days_ago = today - timedelta(days=7)
 	thirty_days_ago = today - timedelta(days=30)
 	six_months_ago = today - timedelta(days=180)
@@ -67,13 +76,14 @@ def invoices(request):
 		avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
 		return round(avg, 2), round(total, 2)
 
+	current_day_avg, current_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=current_day))
 	seven_day_avg, seven_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=seven_days_ago))
 	thirty_day_avg, thirty_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=thirty_days_ago))
 	six_month_avg, six_month_total = get_avg_total(Invoice.objects.filter(created_at__gte=six_months_ago))
 	twelve_month_avg, twelve_month_total = get_avg_total(Invoice.objects.filter(created_at__gte=twelve_months_ago))
 	overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
 	overall_total = round(overall_total, 2)
-	paginate = Paginator(Invoice.objects.all(), 5)
+	paginate = Paginator(all_invoices, 10)
 	page = request.GET.get('page')
 	invoices = paginate.get_page(page)
 
@@ -92,6 +102,8 @@ def invoices(request):
 	context = {
         "all_invoices": all_invoices,
         "search_results": search_results,
+        "current_day_avg":current_day_avg,
+        "current_day_total":current_day_total,
         "seven_day_avg": seven_day_avg,
         "seven_day_total": seven_day_total,
         "thirty_day_avg": thirty_day_avg,
@@ -134,12 +146,15 @@ def create_invoice(request):
 
 def update_invoice(request, pk):
 	get_invoice = Invoice.objects.get(id=pk)
+	inv_id = get_invoice.id
+	print(inv_id, flush=True)
 	context = {
 		"name":get_invoice.name,
 		"dispatch_no":get_invoice.dispatch_no,
 		"inv_amount":get_invoice.invoiced_amount,
 		'date_added':get_invoice.created_at,
 		'date_received':get_invoice.date_received,
+		"inv_id":inv_id,
 	}
 	print(get_invoice.created_at, flush=True)
 	if request.method=="POST":
@@ -158,3 +173,10 @@ def update_invoice(request, pk):
 		return redirect('invoices')
 	return render(request, 'update_invoice.html', context)
 
+
+def delete_invoice(request, pk):
+    invoice = get_object_or_404(Invoice, id=pk)
+    invoice.delete()
+    messages.success(request, "Invoice deleted successfully.")
+    return redirect("invoices")
+    
