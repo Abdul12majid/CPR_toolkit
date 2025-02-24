@@ -79,6 +79,7 @@ def invoices(request):
 
 	if request.method == "POST":
 		inv_data = request.POST.get('inv_data', '').strip()
+		messages.success(request, (f"You searched {inv_data}"))
 		if inv_data:
 			search_results = Invoice.objects.filter(
                 dispatch_no__icontains=inv_data  # Search by dispatch number (case-insensitive)
@@ -114,13 +115,15 @@ def create_invoice(request):
 		name = request.POST['name']
 		invoiced_amount = request.POST["invoiced_amount"]
 		date_added = request.POST["date_added"]
+		date_received = request.POST["date_received"]
 		if not date_added:
 			date_added = now().date()
 		invoice = Invoice.objects.create(
 			dispatch_no=dispatch_no, 
 			name=name, 
 			invoiced_amount=invoiced_amount,
-			created_at=date_added
+			created_at=date_added,
+			date_received=date_received,
 			)
 		invoice.save()
 		print("Invoice created", flush=True)
@@ -136,6 +139,7 @@ def update_invoice(request, pk):
 		"dispatch_no":get_invoice.dispatch_no,
 		"inv_amount":get_invoice.invoiced_amount,
 		'date_added':get_invoice.created_at,
+		'date_received':get_invoice.date_received,
 	}
 	print(get_invoice.created_at, flush=True)
 	if request.method=="POST":
@@ -143,10 +147,12 @@ def update_invoice(request, pk):
 		name = request.POST.get('name')
 		inv_amount = request.POST.get('invoiced_amount')
 		date_added = request.POST.get('date_added')
+		date_received = request.POST.get('date_received')
 		get_invoice.dispatch_no = dispatch_no
 		get_invoice.name = name
 		get_invoice.invoiced_amount = inv_amount
 		get_invoice.created_at = date_added
+		get_invoice.date_received = date_received
 		get_invoice.save()
 		messages.success(request, ("Invoice updated."))
 		return redirect('invoices')
