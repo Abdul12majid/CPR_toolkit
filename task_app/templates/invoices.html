@@ -59,18 +59,46 @@
     </div></br>
     
     <hr>
-    <table class="table table-striped">
-        <thead class="table-dark">
+<form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
+    {% csrf_token %}
+    <input name="inv_data" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
+<br><br>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Dispatch No</th>
+            <th>Name</th>
+            <th>Invoiced Amount</th>
+            <th>Date Invoiced</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if search_results is not None %}
+            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
+            {% for invoice in search_results %}
             <tr>
-                <th>#</th>
-                <th>Dispatch No</th>
-                <th>Name</th>
-                <th>Invoiced Amount</th>
-                <th>Date Invoiced</th>
-                <th>Action</th>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ invoice.dispatch_no }}</td>
+                <td>{{ invoice.name }}</td>
+                <td>${{ invoice.invoiced_amount }}</td>
+                <td>{{ invoice.created_at }}</td>
+                <td><a class="btn btn-primary" href="{% url 'update_invoice' invoice.id %}">Update</a></td>
             </tr>
-        </thead>
-        <tbody>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No matching invoices found.</td>
+            </tr>
+            {% endfor %}
+            <tr><td colspan="6"><hr></td></tr>
+        {% endif %}
+
+        {% if search_results is None %}
+            <tr><td colspan="6" class="text-center"><strong>All Invoices:</strong></td></tr>
             {% for invoice in invoices %}
             <tr>
                 <td>{{ forloop.counter }}</td>
@@ -82,11 +110,14 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="3" class="text-center">No invoices available</td>
+                <td colspan="6" class="text-center">No invoices available.</td>
             </tr>
             {% endfor %}
-        </tbody>
-    </table><hr>
+        {% endif %}
+    </tbody>
+</table>
+<hr>
+
 
     <p style="text-align:center;">Page: {{ invoices.number}} of {{ invoices.paginator.num_pages}}</p>
 
