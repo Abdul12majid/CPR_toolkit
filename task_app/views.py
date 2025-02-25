@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from .models import Task, Journal, Invoice
+from .models import Belle_Task, Marvin_Task
 from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
@@ -11,8 +12,12 @@ import pytz
 # Create your views here.
 def index(request):
 	all_task = Task.objects.filter(status=False).order_by('-id')
+	belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
+	marvin_task = Marvin_Task.objects.filter(status=False).order_by('-id')
 	context = {
 		"all_task":all_task,
+		"belle_task":belle_task,
+		"marvin_task":marvin_task,
 	}
 	return render(request, "dashboard.html", context)
 
@@ -23,7 +28,27 @@ def add_task(request):
 		task = Task.objects.create(description=description)
 		task.save()
 		print("task created", flush=True)
-		messages.success(request, ("Task Added"))
+		messages.success(request, ("Task Added for Bojan"))
+		return redirect('index')
+	return render(request, 'add_task.html')
+
+def belle_task(request):
+	if request.method == "POST":		
+		description = request.POST['description']
+		task = Belle_Task.objects.create(description=description)
+		task.save()
+		print("task created", flush=True)
+		messages.success(request, ("Task Added for Belle"))
+		return redirect('index')
+	return render(request, 'add_task.html')
+
+def marvin_task(request):
+	if request.method == "POST":		
+		description = request.POST['description']
+		task = Marvin_Task.objects.create(description=description)
+		task.save()
+		print("task created", flush=True)
+		messages.success(request, ("Task Added for Marvin"))
 		return redirect('index')
 	return render(request, 'add_task.html')
 
@@ -32,10 +57,36 @@ def update_task(request, pk):
 	context = {
 		"task":task,
 	}
-	if request.method == "POST":
-		
+	if request.method == "POST":	
 		description = request.POST['description']
-		
+		task.description = description
+		task.save()
+		print("task Updated", flush=True)
+		messages.success(request, ("Task updated"))
+		return redirect('index')
+	return render(request, 'update_task.html', context)
+
+def update_belle_task(request, pk):
+	task = Belle_Task.objects.get(id=pk)
+	context = {
+		"task":task,
+	}
+	if request.method == "POST":	
+		description = request.POST['description']
+		task.description = description
+		task.save()
+		print("task Updated", flush=True)
+		messages.success(request, ("Task updated"))
+		return redirect('index')
+	return render(request, 'update_task.html', context)
+
+def update_marvin_task(request, pk):
+	task = Marvin_Task.objects.get(id=pk)
+	context = {
+		"task":task,
+	}
+	if request.method == "POST":	
+		description = request.POST['description']
 		task.description = description
 		task.save()
 		print("task Updated", flush=True)
@@ -45,6 +96,20 @@ def update_task(request, pk):
 
 def complete_task(request, pk):
 	task = Task.objects.get(id=pk)
+	task.status = True
+	task.save()
+	messages.success(request, ("Task completed"))
+	return redirect('index')
+
+def complete_belle_task(request, pk):
+	task = Belle_Task.objects.get(id=pk)
+	task.status = True
+	task.save()
+	messages.success(request, ("Task completed"))
+	return redirect('index')
+
+def complete_marvin_task(request, pk):
+	task = Marvin_Task.objects.get(id=pk)
 	task.status = True
 	task.save()
 	messages.success(request, ("Task completed"))
