@@ -72,6 +72,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'task_management.wsgi.application'
 
+TIME_ZONE = "America/Los_Angeles"
+USE_TZ = True
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -119,6 +121,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
+
+#STATIC_ROOT = BASE_DIR/'assets'
+STATICFILES_DIRS=[
+    os.path.join(BASE_DIR, 'static/')
+]
+
+MEDIA_URL='media/'
+MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

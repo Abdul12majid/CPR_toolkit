@@ -5,6 +5,7 @@ from django.utils.timezone import now
 from datetime import timedelta
 from django.db.models import Sum, Avg
 from django.core.paginator import Paginator
+import pytz
 
 
 # Create your views here.
@@ -63,7 +64,9 @@ def thread(request):
 def invoices(request):
 	all_invoices = Invoice.objects.all().order_by("-id")
 	search_results = None
-	today = now()
+	pst_tz = pytz.timezone("America/Los_Angeles")
+	today = now().astimezone(pst_tz)
+	print(today, flush=True)
 	current_day = today
 	seven_days_ago = today - timedelta(days=7)
 	thirty_days_ago = today - timedelta(days=30)
