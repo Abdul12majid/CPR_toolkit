@@ -11,6 +11,20 @@ class Task(models.Model):
 	def __str__(self):
 		return str(self.status)
 
+class Belle_Task(models.Model):
+    description = models.TextField(blank=False, null=False)
+    status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.status)
+
+class Marvin_Task(models.Model):
+    description = models.TextField(blank=False, null=False)
+    status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.status)
+
 class Journal(models.Model):
 	owner = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
 	title = models.TextField(blank=True, null=True)
