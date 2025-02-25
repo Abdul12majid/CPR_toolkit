@@ -14,7 +14,7 @@ def index(request):
 	context = {
 		"all_task":all_task,
 	}
-	return render(request, "index.html", context)
+	return render(request, "dashboard.html", context)
 
 
 def add_task(request):
