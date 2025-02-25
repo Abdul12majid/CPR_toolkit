@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-    <h2 style="text-align: center;">All Tasks</h2></br>
-    <a style="display: block; float: right;" class="btn btn-primary" href="{% url 'add_task' %}">New Task</a></br></br>
-
     <style>
         td {
             word-wrap: break-word;
@@ -20,6 +16,8 @@
         }
     </style>
 
+    <h2 style="text-align: center;">All Tasks</h2></br>
+    <a style="display: block; float: right;" class="btn btn-primary" href="{% url 'add_task' %}">New Task</a></br></br>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -38,7 +36,7 @@
                 </td>
                 {% if task.status == False %}
                     <td class="btn btn-danger btn-sm">In Progress</td>
-                {% else %}
+                {% elif task.status == True %}
                     <td class="btn btn-success btn-sm">Completed</td>
                 {% endif %}
                 <td>

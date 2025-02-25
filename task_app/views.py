@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 
 # Create your views here.
 def index(request):
-	all_task = Task.objects.all().order_by('-id')
+	all_task = Task.objects.filter(status=False).order_by('-id')
 	context = {
 		"all_task":all_task,
 	}
@@ -17,10 +17,9 @@ def index(request):
 
 
 def add_task(request):
-	if request.method == "POST":
-		name = request.POST['task_name']
+	if request.method == "POST":		
 		description = request.POST['description']
-		task = Task.objects.create(name=name, description=description)
+		task = Task.objects.create(description=description)
 		task.save()
 		print("task created", flush=True)
 		messages.success(request, ("Task Added"))
@@ -33,9 +32,9 @@ def update_task(request, pk):
 		"task":task,
 	}
 	if request.method == "POST":
-		name = request.POST['task_name']
+		
 		description = request.POST['description']
-		task.name = name
+		
 		task.description = description
 		task.save()
 		print("task Updated", flush=True)
@@ -45,7 +44,7 @@ def update_task(request, pk):
 
 def complete_task(request, pk):
 	task = Task.objects.get(id=pk)
-	task.status == True
+	task.status = True
 	task.save()
 	messages.success(request, ("Task completed"))
 	return redirect('index')
