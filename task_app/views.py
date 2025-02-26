@@ -8,7 +8,6 @@ from django.db.models import Sum, Avg
 from django.core.paginator import Paginator
 import pytz
 
-
 # Create your views here.
 def index(request):
 	all_task = Task.objects.filter(status=False).order_by('-id')
@@ -126,51 +125,78 @@ def thread(request):
 	return render(request, 'thread.html', context)
 
 
+from django.shortcuts import render
+from django.utils.timezone import now
+from django.core.paginator import Paginator
+from django.db.models import Sum, Avg
+from datetime import timedelta
+import pytz
+from .models import Invoice
+from django.contrib import messages
+
 def invoices(request):
-	all_invoices = Invoice.objects.all().order_by("-id")
-	search_results = None
-	pst_tz = pytz.timezone("America/Los_Angeles")
-	today = now().astimezone(pst_tz)
-	print(today, flush=True)
-	current_day = today
-	seven_days_ago = today - timedelta(days=7)
-	thirty_days_ago = today - timedelta(days=30)
-	six_months_ago = today - timedelta(days=180)
-	twelve_months_ago = today - timedelta(days=365)
+    all_invoices = Invoice.objects.all().order_by("-id")
+    search_results = None
+    
+    # Set PST timezone
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    today = now().astimezone(pst_tz)
+    
+    print(today, flush=True)  # Debugging: Print current time in PST
+    
+    current_day = today
+    seven_days_ago = today - timedelta(days=7)
+    thirty_days_ago = today - timedelta(days=30)
+    six_months_ago = today - timedelta(days=180)
+    twelve_months_ago = today - timedelta(days=365)
 
-	def get_avg_total(queryset):
-		total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-		avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
-		return round(avg, 2), round(total, 2)
+    # Function to calculate average and total for a given queryset
+    def get_avg_total(queryset):
+        total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+        avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+        return round(avg, 2), round(total, 2)
 
-	current_day_avg, current_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=current_day))
-	seven_day_avg, seven_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=seven_days_ago))
-	thirty_day_avg, thirty_day_total = get_avg_total(Invoice.objects.filter(created_at__gte=thirty_days_ago))
-	six_month_avg, six_month_total = get_avg_total(Invoice.objects.filter(created_at__gte=six_months_ago))
-	twelve_month_avg, twelve_month_total = get_avg_total(Invoice.objects.filter(created_at__gte=twelve_months_ago))
-	overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-	overall_total = round(overall_total, 2)
-	paginate = Paginator(all_invoices, 10)
-	page = request.GET.get('page')
-	invoices = paginate.get_page(page)
+    # Filter invoices excluding those with 0$ amount
+    current_day_avg, current_day_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0)
+    )
+    seven_day_avg, seven_day_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=seven_days_ago).exclude(invoiced_amount=0)
+    )
+    thirty_day_avg, thirty_day_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=thirty_days_ago).exclude(invoiced_amount=0)
+    )
+    six_month_avg, six_month_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=six_months_ago).exclude(invoiced_amount=0)
+    )
+    twelve_month_avg, twelve_month_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=twelve_months_ago).exclude(invoiced_amount=0)
+    )
 
-	if request.method == "POST":
-		inv_data = request.POST.get('inv_data', '').strip()
-		messages.success(request, (f"You searched {inv_data}"))
-		if inv_data:
-			search_results = Invoice.objects.filter(
-                dispatch_no__icontains=inv_data  # Search by dispatch number (case-insensitive)
-            ) | Invoice.objects.filter(
-                name__icontains=inv_data  # Search by name (case-insensitive)
-            ) | Invoice.objects.filter(
-                invoiced_amount__icontains=inv_data  # Search by amount
-            )
+    # Calculate overall total
+    overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    overall_total = round(overall_total, 2)
 
-	context = {
+    # Paginate invoices
+    paginate = Paginator(all_invoices, 10)
+    page = request.GET.get('page')
+    invoices = paginate.get_page(page)
+
+    # Handle search functionality
+    if request.method == "POST":
+        inv_data = request.POST.get('inv_data', '').strip()
+        messages.success(request, f"You searched {inv_data}")
+        
+        if inv_data:
+            search_results = Invoice.objects.filter(dispatch_no__icontains=inv_data) | \
+                             Invoice.objects.filter(name__icontains=inv_data) | \
+                             Invoice.objects.filter(invoiced_amount__icontains=inv_data)
+
+    context = {
         "all_invoices": all_invoices,
         "search_results": search_results,
-        "current_day_avg":current_day_avg,
-        "current_day_total":current_day_total,
+        "current_day_avg": current_day_avg,
+        "current_day_total": current_day_total,
         "seven_day_avg": seven_day_avg,
         "seven_day_total": seven_day_total,
         "thirty_day_avg": thirty_day_avg,
@@ -180,9 +206,11 @@ def invoices(request):
         "twelve_month_avg": twelve_month_avg,
         "twelve_month_total": twelve_month_total,
         "overall_total": overall_total,
-        "invoices":invoices,
+        "invoices": invoices,
     }
-	return render(request, "invoices.html", context)
+    
+    return render(request, "invoices.html", context)
+
 
 
 def create_invoice(request):
