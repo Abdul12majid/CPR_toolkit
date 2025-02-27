@@ -13,10 +13,54 @@ def index(request):
 	all_task = Task.objects.filter(status=False).order_by('-id')
 	belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
 	marvin_task = Marvin_Task.objects.filter(status=False).order_by('-id')
+	pst_tz = pytz.timezone("America/Los_Angeles")
+	today = now().astimezone(pst_tz)
+	print(today, flush=True)
+	current_day = today
+	seven_days_ago = today - timedelta(days=7)
+	thirty_days_ago = today - timedelta(days=30)
+	six_months_ago = today - timedelta(days=180)
+	twelve_months_ago = today - timedelta(days=365)
+
+	# Function to calculate average and total for a given queryset
+	def get_avg_total(queryset):
+		total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+		avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+		return round(avg, 2), round(total, 2)
+	# Filter invoices excluding those with 0$ amount
+	current_day_avg, current_day_total = get_avg_total(
+		Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0)
+    )
+	seven_day_avg, seven_day_total = get_avg_total(
+		Invoice.objects.filter(created_at__gte=seven_days_ago).exclude(invoiced_amount=0)
+    )
+	thirty_day_avg, thirty_day_total = get_avg_total(
+		Invoice.objects.filter(created_at__gte=thirty_days_ago).exclude(invoiced_amount=0)
+    )
+	six_month_avg, six_month_total = get_avg_total(
+		Invoice.objects.filter(created_at__gte=six_months_ago).exclude(invoiced_amount=0)
+    )
+	twelve_month_avg, twelve_month_total = get_avg_total(
+		Invoice.objects.filter(created_at__gte=twelve_months_ago).exclude(invoiced_amount=0)
+    )
+	# Calculate overall total
+	overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+	overall_total = round(overall_total, 2)
 	context = {
 		"all_task":all_task,
 		"belle_task":belle_task,
 		"marvin_task":marvin_task,
+		"current_day_avg": current_day_avg,
+        "current_day_total": current_day_total,
+        "seven_day_avg": seven_day_avg,
+        "seven_day_total": seven_day_total,
+        "thirty_day_avg": thirty_day_avg,
+        "thirty_day_total": thirty_day_total,
+        "six_month_avg": six_month_avg,
+        "six_month_total": six_month_total,
+        "twelve_month_avg": twelve_month_avg,
+        "twelve_month_total": twelve_month_total,
+        "overall_total": overall_total,
 	}
 	return render(request, "dashboard.html", context)
 
@@ -125,15 +169,6 @@ def thread(request):
 	return render(request, 'thread.html', context)
 
 
-from django.shortcuts import render
-from django.utils.timezone import now
-from django.core.paginator import Paginator
-from django.db.models import Sum, Avg
-from datetime import timedelta
-import pytz
-from .models import Invoice
-from django.contrib import messages
-
 def invoices(request):
     all_invoices = Invoice.objects.all().order_by("-id")
     search_results = None
@@ -142,7 +177,7 @@ def invoices(request):
     pst_tz = pytz.timezone("America/Los_Angeles")
     today = now().astimezone(pst_tz)
     
-    print(today, flush=True)  # Debugging: Print current time in PST
+    print(today, flush=True)
     
     current_day = today
     seven_days_ago = today - timedelta(days=7)
