@@ -26,7 +26,7 @@ class Marvin_Task(models.Model):
         return str(self.status)
 
 class Journal(models.Model):
-	owner = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
+	owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 	title = models.TextField(blank=True, null=True)
 	notes = models.TextField(blank=False, null=False)
 	date_created = models.DateTimeField(auto_now_add=True)

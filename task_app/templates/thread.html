@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-
 	<style>
         body {
             font-family: Arial, sans-serif;
@@ -51,16 +49,26 @@
         }
     </style>
 
+
+    <a href="{% url 'add_journal' %}" class="btn btn-outline-primary">New Journal</a></br></br>
     {% for thread in all_threads %}
 	<div class="comment-box">
-        <div class="profile-icon">{{ thread.owner.first_name| default:''|slice:":1" }}{{ thread.owner.last_name| default:''|slice:":1" }}</div>
+        {% if thread.owner.first_name %}
+           <div class="profile-icon">{{ thread.owner.first_name| default:''|slice:":1" }}{{ thread.owner.last_name| default:''|slice:":1" }}</div>
+        {% else %}
+           <div class="profile-icon">CPR</div>
+        {% endif %}
         <div class="comment-content">
-            <div class="comment-header">{{thread.owner}} {{ thread.title }}<span class="timestamp">-{{thread.date_created }}</span></div>
+            {% if thread.owner %}
+                <div class="comment-header">{{thread.owner}}<span class="timestamp"> {{thread.date_created }}</span></div>
+            {% else %}
+                <div class="comment-header"><span class="timestamp"> {{thread.date_created }}</span></div>
+            {% endif %}
             <div class="comment-text">
-                <strong>409769328</strong><p> {{ thread.notes }}</p>
+                <strong></strong><p> {{ thread.notes }}</p>
             </div>
         </div>
-    </div>
+    </div></br>
     {% endfor %}
 
 {% endblock %}

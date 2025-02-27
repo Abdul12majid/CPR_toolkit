@@ -161,7 +161,7 @@ def complete_marvin_task(request, pk):
 
 def thread(request):
 	get_user = request.user
-	all_threads = Journal.objects.all().order_by("-id")
+	all_threads = Journal.objects.order_by("-id")[:10]
 	context = {
 	"all_threads":all_threads,
 	"get_user":get_user,
@@ -310,3 +310,12 @@ def delete_invoice(request, pk):
     messages.success(request, "Invoice deleted successfully.")
     return redirect("invoices")
     
+def add_journal(request):
+	if request.method == "POST":		
+		description = request.POST['description']
+		journal = Journal.objects.create(notes=description)
+		journal.save()
+		print("Journal Added created", flush=True)
+		messages.success(request, ("Journal Created"))
+		return redirect('journal')
+	return render(request, 'add_journal.html')

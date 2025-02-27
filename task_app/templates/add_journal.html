@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2 style="text-align: center;">Make Journal</h2></br>
+
+	<div class="container">
+		<form method="POST" validate>
+			{% csrf_token %}
+		  <div class="form-group">
+		    <label for="exampleInputPassword1">Description</label>
+		    <textarea name="description" class="form-control form-control-sm" id="exampleTextarea" rows="3" placeholder="Type description here..."></textarea>
+		  </div>
+		  <button type="submit" class="btn btn-primary btn-sm">Add</button>
+		</form>
+	</div>
+{% endblock %}

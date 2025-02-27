@@ -17,4 +17,5 @@ urlpatterns = [
     path('create_invoice', views.create_invoice, name="create_invoice"),
     path('update_invoice/<int:pk>', views.update_invoice, name="update_invoice"),
     path('delete_invoice/<int:pk>', views.delete_invoice, name="delete_invoice"),
+    path('add_journal', views.add_journal, name="add_journal"),
 ]
