@@ -7,8 +7,11 @@ from datetime import timedelta
 from django.db.models import Sum, Avg
 from django.core.paginator import Paginator
 import pytz
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
+@login_required(login_url='login-user')
 def index(request):
 	all_task = Task.objects.filter(status=False).order_by('-id')
 	belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
@@ -319,3 +322,17 @@ def add_journal(request):
 		messages.success(request, ("Journal Created"))
 		return redirect('journal')
 	return render(request, 'add_journal.html')
+
+def login_user(request):
+	if request.method == "POST":
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(request, username=username, password=password)
+		if user is not None:
+			login(request, user)
+			messages.success(request, ("Login Successful"))
+			return redirect('index')
+		else:
+			messages.success(request, ("Invalid Login Details"))
+			return redirect(request.META.get("HTTP_REFERER"))
+	return render(request, "login.html")
