@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
-@login_required(login_url='login-user')
+@login_required(login_url='login')
 def index(request):
 	all_task = Task.objects.filter(status=False).order_by('-id')
 	belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
@@ -26,6 +26,7 @@ def index(request):
 	twelve_months_ago = today - timedelta(days=365)
 
 	# Function to calculate average and total for a given queryset
+	
 	def get_avg_total(queryset):
 		total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
 		avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
@@ -68,6 +69,7 @@ def index(request):
 	return render(request, "dashboard.html", context)
 
 
+@login_required(login_url='login')
 def add_task(request):
 	if request.method == "POST":		
 		description = request.POST['description']
@@ -78,6 +80,7 @@ def add_task(request):
 		return redirect('index')
 	return render(request, 'add_task.html')
 
+@login_required(login_url='login')
 def belle_task(request):
 	if request.method == "POST":		
 		description = request.POST['description']
@@ -88,6 +91,7 @@ def belle_task(request):
 		return redirect('index')
 	return render(request, 'add_task.html')
 
+@login_required(login_url='login')
 def marvin_task(request):
 	if request.method == "POST":		
 		description = request.POST['description']
@@ -98,6 +102,7 @@ def marvin_task(request):
 		return redirect('index')
 	return render(request, 'add_task.html')
 
+@login_required(login_url='login')
 def update_task(request, pk):
 	task = Task.objects.get(id=pk)
 	context = {
@@ -112,6 +117,7 @@ def update_task(request, pk):
 		return redirect('index')
 	return render(request, 'update_task.html', context)
 
+@login_required(login_url='login')
 def update_belle_task(request, pk):
 	task = Belle_Task.objects.get(id=pk)
 	context = {
@@ -126,6 +132,7 @@ def update_belle_task(request, pk):
 		return redirect('index')
 	return render(request, 'update_task.html', context)
 
+@login_required(login_url='login')
 def update_marvin_task(request, pk):
 	task = Marvin_Task.objects.get(id=pk)
 	context = {
@@ -140,6 +147,7 @@ def update_marvin_task(request, pk):
 		return redirect('index')
 	return render(request, 'update_task.html', context)
 
+@login_required(login_url='login')
 def complete_task(request, pk):
 	task = Task.objects.get(id=pk)
 	task.status = True
@@ -147,6 +155,7 @@ def complete_task(request, pk):
 	messages.success(request, ("Task completed"))
 	return redirect('index')
 
+@login_required(login_url='login')
 def complete_belle_task(request, pk):
 	task = Belle_Task.objects.get(id=pk)
 	task.status = True
@@ -154,6 +163,7 @@ def complete_belle_task(request, pk):
 	messages.success(request, ("Task completed"))
 	return redirect('index')
 
+@login_required(login_url='login')
 def complete_marvin_task(request, pk):
 	task = Marvin_Task.objects.get(id=pk)
 	task.status = True
@@ -162,6 +172,7 @@ def complete_marvin_task(request, pk):
 	return redirect('index')
 
 
+@login_required(login_url='login')
 def thread(request):
 	get_user = request.user
 	all_threads = Journal.objects.order_by("-id")[:10]
@@ -172,6 +183,7 @@ def thread(request):
 	return render(request, 'thread.html', context)
 
 
+@login_required(login_url='login')
 def invoices(request):
     all_invoices = Invoice.objects.all().order_by("-id")
     search_results = None
@@ -251,6 +263,7 @@ def invoices(request):
 
 
 
+@login_required(login_url='login')
 def create_invoice(request):
 	context = {
 		"today_date": now().strftime("%Y-%m-%d")
@@ -277,6 +290,7 @@ def create_invoice(request):
 	return render(request, 'create_invoice.html', context)
 
 
+@login_required(login_url='login')
 def update_invoice(request, pk):
 	get_invoice = Invoice.objects.get(id=pk)
 	inv_id = get_invoice.id
@@ -307,12 +321,14 @@ def update_invoice(request, pk):
 	return render(request, 'update_invoice.html', context)
 
 
+@login_required(login_url='login')
 def delete_invoice(request, pk):
     invoice = get_object_or_404(Invoice, id=pk)
     invoice.delete()
     messages.success(request, "Invoice deleted successfully.")
     return redirect("invoices")
     
+@login_required(login_url='login')
 def add_journal(request):
 	if request.method == "POST":		
 		description = request.POST['description']
@@ -322,6 +338,7 @@ def add_journal(request):
 		messages.success(request, ("Journal Created"))
 		return redirect('journal')
 	return render(request, 'add_journal.html')
+
 
 def login_user(request):
 	if request.method == "POST":
@@ -336,3 +353,8 @@ def login_user(request):
 			messages.success(request, ("Invalid Login Details"))
 			return redirect(request.META.get("HTTP_REFERER"))
 	return render(request, "login.html")
+
+def logout_user(request):
+	logout(request)
+	messages.success(request, ("You have logged out."))
+	return redirect('login')

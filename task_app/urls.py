@@ -19,4 +19,5 @@ urlpatterns = [
     path('delete_invoice/<int:pk>', views.delete_invoice, name="delete_invoice"),
     path('add_journal', views.add_journal, name="add_journal"),
     path('login', views.login_user, name="login"),
+    path('logout', views.logout_user, name="logout"),
 ]

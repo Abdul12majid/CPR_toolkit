@@ -60,6 +60,12 @@
             <span class="nav-link-text ms-1">Invoices</span>
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url 'logout' %}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Logout</span>
+          </a>
+        </li>
         <!--
         <li class="nav-item">
           <a class="nav-link text-dark" href="../pages/virtual-reality.html">
@@ -114,15 +120,11 @@
     <!-- Navbar -->
     <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
       <div class="container-fluid py-1 px-3">
-        <nav style="float:center" aria-label="breadcrumb">
+        <!--<nav style="float:center" aria-label="breadcrumb">
           <a href="{% url 'journal' %}" class="btn btn-sm btn-secondary">Journal</a> &nbsp;&nbsp;
           <a href="{% url 'invoices' %}" class="btn btn-sm btn-secondary">Invoices</a> &nbsp;&nbsp;
-          <!--<ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">CPR</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Task Management</li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Task Management</li>-->
-          </ol>
-        </nav>
+          <a href="{% url 'logout' %}" class="btn btn-sm btn-secondary">Logout</a> &nbsp;&nbsp;
+        </nav>-->
         <div class="container">
           {% if messages %}
           {% for message in messages %}
@@ -322,7 +324,7 @@
 
           </div>
         </div>
-        <!--<div class="col-lg-5 col-md-6">
+        <div class="col-lg-5 col-md-6">
           <div class="card h-100">
             <div class="card-header pb-0">
               <h6>Overview</h6>
@@ -333,66 +335,40 @@
             </div>
 
             <div class="card-body p-3">
-              <div class="timeline timeline-one-side">
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-success text-gradient">notifications</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">$2400, Design changes</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">22 DEC 7:20 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-danger text-gradient">code</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #1832412</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 11 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-info text-gradient">shopping_cart</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">Server payments for April</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 9:34 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-warning text-gradient">credit_card</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New card added for order #4395133</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">20 DEC 2:20 AM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-primary text-gradient">key</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">Unlock packages for development</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">18 DEC 4:54 AM</p>
-                  </div>
-                </div>
-                <div class="timeline-block">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-dark text-gradient">payments</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #9583120</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">17 DEC</p>
-                  </div>
-                </div>
-              </div>
+              <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Period</th>
+                        <th>Average Invoiced Amount ($)</th>            
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Today</td>
+                        <td>${{ current_day_avg|floatformat:2 }}</td>   
+                    </tr>
+                    <tr>
+                        <td>Last 7 Days</td>
+                        <td>${{ seven_day_avg|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>Last 30 Days</td>
+                        <td>${{ thirty_day_avg|floatformat:2 }}</td>  
+                    </tr>
+                    <tr>
+                        <td>Last 6 Months</td>
+                        <td>${{ six_month_avg|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>Last 12 Months</td>
+                        <td>${{ twelve_month_avg|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+              </table></br>
             </div>
             
           </div>
-        </div>-->
+        </div>
       </div></br>
       <div class="row mb-4">
         <div class="col-lg-7 col-md-6 mb-md-0 mb-4">
