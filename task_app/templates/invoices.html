@@ -171,14 +171,15 @@
 
     // Function to determine bar colors
     function getColor(value) {
-        if (value <= 150) {
+        if (value < 155) {
             return 'green';
-        } else if (value <= 160) {
+        } else if (value >= 155 && value < 161) {
             return 'yellow';
         } else {
             return 'red';
         }
-    }
+}
+
 
     // Configure chart
     const ctx = document.getElementById('invoiceChart').getContext('2d');
