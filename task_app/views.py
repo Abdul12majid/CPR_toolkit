@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.utils.timezone import make_aware, datetime
 
 # Create your views here.
 @login_required(login_url='login')
@@ -190,9 +191,14 @@ def invoices(request):
     
     # Set PST timezone
     pst_tz = pytz.timezone("America/Los_Angeles")
-    today = now().astimezone(pst_tz)
     
-    print(today, flush=True)
+    # Get the current time in PST
+    now_pst = now().astimezone(pst_tz)
+    
+    # Set today to the start of the day (00:00:00) in PST
+    today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    print(today, flush=True) 
     
     current_day = today
     seven_days_ago = today - timedelta(days=7)
@@ -262,11 +268,12 @@ def invoices(request):
     return render(request, "invoices.html", context)
 
 
-
 @login_required(login_url='login')
 def create_invoice(request):
+	pst_tz = pytz.timezone("America/Los_Angeles")
+	today = now().astimezone(pst_tz)
 	context = {
-		"today_date": now().strftime("%Y-%m-%d")
+		"today_date": today.strftime("%Y-%m-%d")
 		}
 	if request.method == "POST":
 		dispatch_no = request.POST['dispatch_no']
