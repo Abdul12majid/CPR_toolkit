@@ -18,7 +18,7 @@ class Belle_Task(models.Model):
     def __str__(self):
         return str(self.status)
 
-class Marvin_Task(models.Model):
+class Marvin_Task(models.Model): 
     description = models.TextField(blank=False, null=False)
     status = models.BooleanField(default=False)
 
