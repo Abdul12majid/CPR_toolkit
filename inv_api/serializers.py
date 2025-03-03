@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Invoice
+from task_app.models import Invoice
 
 class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
-        fields = ['id', 'customer_name', 'invoiced_amount', 'dispatch_no', 'created_at']
+        fields = ['id', 'name', 'invoiced_amount', 'dispatch_no']

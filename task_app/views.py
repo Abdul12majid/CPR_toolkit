@@ -274,7 +274,7 @@ def invoices(request):
         "invoices": invoices,
     }
     
-    return render(request, "invoices.html", context)
+    return render(request, "AHS_invoices.html", context)
 
 
 @login_required(login_url='login')
