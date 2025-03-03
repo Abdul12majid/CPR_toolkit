@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.db.models import Sum, Avg
 from django.core.paginator import Paginator
 import pytz
+from django.utils.timezone import localtime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.utils.timezone import make_aware, datetime
@@ -176,7 +177,10 @@ def complete_marvin_task(request, pk):
 @login_required(login_url='login')
 def thread(request):
 	get_user = request.user
+	pst_tz = pytz.timezone("America/Los_Angeles")
 	all_threads = Journal.objects.order_by("-id")[:10]
+	for thread in all_threads:
+		thread.date_created = localtime(thread.date_created, pst_tz)
 	context = {
 	"all_threads":all_threads,
 	"get_user":get_user,
@@ -365,3 +369,12 @@ def logout_user(request):
 	logout(request)
 	messages.success(request, ("You have logged out."))
 	return redirect('login')
+
+def test_page(request):
+	return render(request, "test_page.html")
+
+def delete_journal(request, pk):
+    journal = get_object_or_404(Journal, pk=pk)
+    journal.delete()
+    messages.success(request, "Journal entry deleted successfully.")
+    return redirect('journal')

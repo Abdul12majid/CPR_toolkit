@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<style>
+    <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
@@ -15,6 +15,7 @@
             display: flex;
             align-items: flex-start;
             width: 60%;
+            position: relative;
         }
         .profile-icon {
             width: 40px;
@@ -47,27 +48,47 @@
             color: #444;
             margin-top: 5px;
         }
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+        }
+        .delete-btn:hover {
+            background-color: darkred;
+        }
     </style>
 
-
     <a href="{% url 'add_journal' %}" class="btn btn-outline-primary">New Journal</a></br></br>
+
     {% for thread in all_threads %}
-	<div class="comment-box">
+    <div class="comment-box">
         {% if thread.owner.first_name %}
-           <div class="profile-icon">{{ thread.owner.first_name| default:''|slice:":1" }}{{ thread.owner.last_name| default:''|slice:":1" }}</div>
+           <div class="profile-icon">{{ thread.owner.first_name|default:''|slice:":1" }}{{ thread.owner.last_name|default:''|slice:":1" }}</div>
         {% else %}
            <div class="profile-icon">CPR</div>
         {% endif %}
         <div class="comment-content">
             {% if thread.owner %}
-                <div class="comment-header">{{thread.owner}}<span class="timestamp"> {{thread.date_created }}</span></div>
+                <div class="comment-header">{{ thread.owner }}<span class="timestamp"> {{ thread.date_created|date:"F d, Y h:i A" }}</span></div>
             {% else %}
-                <div class="comment-header"><span class="timestamp"> {{thread.date_created }}</span></div>
+                <div class="comment-header"><span class="timestamp"> {{ thread.date_created }}</span></div>
             {% endif %}
             <div class="comment-text">
                 <strong></strong><p> {{ thread.notes }}</p>
             </div>
         </div>
+        <!-- Delete Button -->
+        <form method="POST" action="{% url 'delete_journal' thread.id %}">
+            {% csrf_token %}
+            <button type="submit" class="delete-btn">Delete</button>
+        </form>
     </div></br>
     {% endfor %}
 
