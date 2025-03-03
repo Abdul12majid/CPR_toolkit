@@ -1,5 +1,6 @@
 from . import views
 from django.urls import path
+from .views import robots_txt
 
 urlpatterns = [
     path('', views.index, name="index"),
@@ -21,5 +22,6 @@ urlpatterns = [
     path('login', views.login_user, name="login"),
     path('logout', views.logout_user, name="logout"),
     path('delete/<int:pk>/', views.delete_journal, name='delete_journal'),
+    path("robots.txt", robots_txt, name="robots_txt"),
 
 ]

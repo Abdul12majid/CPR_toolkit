@@ -76,7 +76,7 @@
         {% endif %}
         <div class="comment-content">
             {% if thread.owner %}
-                <div class="comment-header">{{ thread.owner }}<span class="timestamp"> {{ thread.date_created|date:"F d, Y h:i A" }}</span></div>
+                <div class="comment-header">{{ thread.owner }}<span class="timestamp"> {{ thread.date_created }}</span></div>
             {% else %}
                 <div class="comment-header"><span class="timestamp"> {{ thread.date_created }}</span></div>
             {% endif %}

@@ -176,16 +176,21 @@ def complete_marvin_task(request, pk):
 
 @login_required(login_url='login')
 def thread(request):
-	get_user = request.user
-	pst_tz = pytz.timezone("America/Los_Angeles")
-	all_threads = Journal.objects.order_by("-id")[:10]
-	for thread in all_threads:
-		thread.date_created = localtime(thread.date_created, pst_tz)
-	context = {
-	"all_threads":all_threads,
-	"get_user":get_user,
-	}
-	return render(request, 'thread.html', context)
+    get_user = request.user
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    all_threads = Journal.objects.order_by("-id")[:10]
+    
+    for thread in all_threads:
+        if thread.date_created.tzinfo is None:
+            thread.date_created = pytz.utc.localize(thread.date_created)
+        thread.date_created = thread.date_created.astimezone(pst_tz)
+        print(f"Converted date: {thread.date_created}")  # Debugging output
+    
+    context = {
+        "all_threads": all_threads,
+        "get_user": get_user,
+    }
+    return render(request, "thread.html", context)
 
 
 @login_required(login_url='login')
@@ -378,3 +383,11 @@ def delete_journal(request, pk):
     journal.delete()
     messages.success(request, "Journal entry deleted successfully.")
     return redirect('journal')
+
+
+def robots_txt(request):
+    content = [
+        "User-agent: *",
+        "Disallow: /",
+    ]
+    return HttpResponse("\n".join(content), content_type="text/plain")
