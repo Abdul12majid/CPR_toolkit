@@ -38,9 +38,17 @@ class Journal(models.Model):
 class Invoice(models.Model):
     dispatch_no = models.CharField(max_length=50, blank=True, null=False)
     name = models.CharField(max_length=50, blank=True, null=False)
-    invoiced_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=False)
+    invoiced_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     created_at = models.DateField(default=timezone.now)
     date_received = models.DateField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        # Ensure the dates are timezone-aware and converted to Los Angeles time
+        if not self.created_at:
+            self.created_at = timezone.now().astimezone(timezone.get_current_timezone()).date()
+        if not self.date_received:
+            self.date_received = timezone.now().astimezone(timezone.get_current_timezone()).date()
+        super().save(*args, **kwargs)
 
     def total(self):
         return Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
