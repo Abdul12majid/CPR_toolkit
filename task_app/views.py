@@ -20,7 +20,8 @@ def index(request):
 	belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
 	marvin_task = Marvin_Task.objects.filter(status=False).order_by('-id')
 	pst_tz = pytz.timezone("America/Los_Angeles")
-	today = now().astimezone(pst_tz)
+	now_pst = now().astimezone(pst_tz)
+	today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
 	print(today, flush=True)
 	current_day = today
 	seven_days_ago = today - timedelta(days=7)
@@ -174,7 +175,6 @@ def complete_marvin_task(request, pk):
 	messages.success(request, ("Task completed"))
 	return redirect('index')
 
-
 @login_required(login_url='login')
 def thread(request):
     get_user = request.user
@@ -192,7 +192,6 @@ def thread(request):
         "get_user": get_user,
     }
     return render(request, "thread.html", context)
-
 
 @login_required(login_url='login')
 def invoices(request):
@@ -277,7 +276,6 @@ def invoices(request):
     
     return render(request, "AHS_invoices.html", context)
 
-
 @login_required(login_url='login')
 def create_invoice(request):
     pst_tz = pytz.timezone("America/Los_Angeles")
@@ -341,8 +339,10 @@ def update_invoice(request, pk):
 		dispatch_no = request.POST.get('dispatch_no')
 		name = request.POST.get('name')
 		inv_amount = request.POST.get('invoiced_amount')
-		date_added = request.POST.get('date_added')
-		date_received = request.POST.get('date_received')
+		date_added_str = request.POST.get('date_added')
+		date_received_str = request.POST.get('date_received')
+		date_added = datetime.strptime(date_added_str, "%Y-%m-%d").date() if date_added_str else today.date()
+		date_received = datetime.strptime(date_received_str, "%Y-%m-%d").date() if date_received_str else today.date()
 		get_invoice.dispatch_no = dispatch_no
 		get_invoice.name = name
 		get_invoice.invoiced_amount = inv_amount
