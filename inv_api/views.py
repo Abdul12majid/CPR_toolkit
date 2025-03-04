@@ -6,7 +6,7 @@ from .serializers import InvoiceSerializer
 @api_view(['POST'])
 @authentication_classes([])  # Disable authentication
 @permission_classes([])  # Disable permissions
-def create_invoice(request):
+def create_invoice_api(request):
     serializer = InvoiceSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()

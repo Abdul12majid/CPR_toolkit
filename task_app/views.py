@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.db.models import Sum, Avg
 from django.core.paginator import Paginator
 import pytz
+from django.utils import timezone
 from django.utils.timezone import localtime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -279,31 +280,47 @@ def invoices(request):
 
 @login_required(login_url='login')
 def create_invoice(request):
-	pst_tz = pytz.timezone("America/Los_Angeles")
-	today = now().astimezone(pst_tz)
-	context = {
-		"today_date": today.strftime("%Y-%m-%d")
-		}
-	if request.method == "POST":
-		dispatch_no = request.POST['dispatch_no']
-		name = request.POST['name']
-		invoiced_amount = request.POST["invoiced_amount"]
-		date_added = request.POST["date_added"]
-		date_received = request.POST["date_received"]
-		if not date_added:
-			date_added = now().date()
-		invoice = Invoice.objects.create(
-			dispatch_no=dispatch_no, 
-			name=name, 
-			invoiced_amount=invoiced_amount,
-			created_at=date_added,
-			date_received=date_received,
-			)
-		invoice.save()
-		print("Invoice created", flush=True)
-		messages.success(request, ("Invoice Added"))
-		return redirect('invoices')
-	return render(request, 'create_invoice.html', context)
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    today = timezone.now().astimezone(pst_tz)
+    context = {
+        "today_date": today.strftime("%Y-%m-%d")
+    }
+
+    if request.method == "POST":
+        dispatch_no = request.POST.get('dispatch_no')
+        name = request.POST.get('name')
+        invoiced_amount = request.POST.get('invoiced_amount')
+        date_added_str = request.POST.get('date_added')
+        date_received_str = request.POST.get('date_received')
+
+        # Validate required fields
+        if not dispatch_no or not name or not invoiced_amount:
+            messages.success(request, "Dispatch No, Name, and Invoiced Amount are required.")
+            return render(request, 'create_invoice.html', context)
+
+        # Convert date strings to date objects
+        try:
+            date_added = datetime.strptime(date_added_str, "%Y-%m-%d").date() if date_added_str else today.date()
+            date_received = datetime.strptime(date_received_str, "%Y-%m-%d").date() if date_received_str else today.date()
+        except ValueError:
+            messages.success(request, "Invalid date format. Please use YYYY-MM-DD.")
+            return render(request, 'create_invoice.html', context)
+
+        # Create and save the invoice
+        invoice = Invoice(
+            dispatch_no=dispatch_no,
+            name=name,
+            invoiced_amount=invoiced_amount,
+            created_at=date_added,
+            date_received=date_received,
+        )
+        invoice.save()
+
+        print("Invoice created", flush=True)
+        messages.success(request, "Invoice Added")
+        return redirect('invoices')
+
+    return render(request, 'create_invoice.html', context)
 
 
 @login_required(login_url='login')

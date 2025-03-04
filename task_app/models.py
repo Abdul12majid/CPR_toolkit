@@ -46,7 +46,7 @@ class Invoice(models.Model):
     def save(self, *args, **kwargs):
         # Calculate the difference only if both dates are set
         if self.created_at and self.date_received:
-            self.days_difference = (self.date_received - self.created_at).days
+            self.days_difference = (self.created_at - self.date_received).days
         else:
             self.days_difference = None
         
