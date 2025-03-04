@@ -41,26 +41,34 @@ class Invoice(models.Model):
     invoiced_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     created_at = models.DateField(default=timezone.now)
     date_received = models.DateField(default=timezone.now)
+    days_difference = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        # Calculate the difference only if both dates are set
+        if self.created_at and self.date_received:
+            self.days_difference = (self.date_received - self.created_at).days
+        else:
+            self.days_difference = None
+        
         # Ensure the dates are timezone-aware and converted to Los Angeles time
         if not self.created_at:
             self.created_at = timezone.now().astimezone(timezone.get_current_timezone()).date()
         if not self.date_received:
             self.date_received = timezone.now().astimezone(timezone.get_current_timezone()).date()
+        
         super().save(*args, **kwargs)
 
     def total(self):
         return Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
 
     def seven_day_avg(self):
-        seven_days_ago = now() - timedelta(days=7)
+        seven_days_ago = timezone.now() - timedelta(days=7)
         return Invoice.objects.filter(created_at__gte=seven_days_ago).aggregate(
             avg=Avg('invoiced_amount')
         )['avg'] or 0
 
     def thirty_day_avg(self):
-        thirty_days_ago = now() - timedelta(days=30)
+        thirty_days_ago = timezone.now() - timedelta(days=30)
         return Invoice.objects.filter(created_at__gte=thirty_days_ago).aggregate(
             avg=Avg('invoiced_amount')
         )['avg'] or 0
