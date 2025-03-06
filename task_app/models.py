@@ -39,6 +39,19 @@ class Journal(models.Model):
 	def __str__(self):
 		return self.notes
 
+class Ebay(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    order_number = models.CharField(max_length=200, blank=True, null=True)
+    link = models.CharField(max_length=500, blank=True, null=True)
+    delivery_time = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Ebay"
+
+    def __str__(self):
+        return self.name + " " + self.order_number
+
+
 class Invoice(models.Model):
     dispatch_no = models.CharField(max_length=50, blank=True, null=False)
     name = models.CharField(max_length=50, blank=True, null=False)
