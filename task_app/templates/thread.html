@@ -5,7 +5,7 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
-            padding: 20px;
+            
         }
         .comment-box {
             background: white;
@@ -48,17 +48,31 @@
             color: #444;
             margin-top: 5px;
         }
-        .delete-btn {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
+        .action-buttons {
             position: absolute;
             top: 10px;
             right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 12px;
+            text-decoration: none;
+        }
+        .edit-btn {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #ec971f;
+        }
+        .delete-btn {
+            background-color: red;
+            color: white;
         }
         .delete-btn:hover {
             background-color: darkred;
@@ -84,11 +98,15 @@
                 <strong></strong><p> {{ thread.notes }}</p>
             </div>
         </div>
-        <!-- Delete Button -->
-        <form method="POST" action="{% url 'delete_journal' thread.id %}">
-            {% csrf_token %}
-            <button type="submit" class="delete-btn">Delete</button>
-        </form>
+
+        <!-- Edit & Delete Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'update_journal' thread.id %}" class="btn edit-btn">Edit</a>
+            <form method="POST" action="{% url 'delete_journal' thread.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn delete-btn">Delete</button>
+            </form>
+        </div>
     </div></br>
     {% endfor %}
 

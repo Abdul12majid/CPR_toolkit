@@ -7,6 +7,32 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .dashboard-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .task-table {
+            background-color: white;
+            border-radius: 8px;
+        }
+        .description-cell {
+            max-width: 600px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        #invoiceChart {
+            max-width: 400px;  /* Adjust width */
+            max-height: 300px; /* Adjust height */
+        }
+    </style>
 
     <title>Task Management</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -29,7 +55,7 @@
       {% endif %}
     </div></br>
     
-    <div class="container">
+    <div class="container-fluid py-4">
       {% block content %}
       
       {% endblock %}

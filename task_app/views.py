@@ -4,7 +4,7 @@ from .models import Belle_Task, Marvin_Task
 from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
-from django.db.models import Sum, Avg
+from django.db.models import Sum, Avg, F
 from django.core.paginator import Paginator
 import pytz
 from django.utils import timezone
@@ -202,12 +202,12 @@ def invoices(request):
     pst_tz = pytz.timezone("America/Los_Angeles")
     
     # Get the current time in PST
-    now_pst = now().astimezone(pst_tz)
+    now_pst = timezone.now().astimezone(pst_tz)
     
     # Set today to the start of the day (00:00:00) in PST
     today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
     
-    print(today, flush=True) 
+    print(f"Today: {today}", flush=True) 
     
     current_day = today
     seven_days_ago = today - timedelta(days=7)
@@ -242,8 +242,73 @@ def invoices(request):
     overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
     overall_total = round(overall_total, 2)
 
+    # Calculate average days to invoice for each period
+    current_day_avg_days = Invoice.objects.filter(
+        created_at__gte=current_day
+    ).exclude(
+        invoiced_amount=0
+    ).exclude(
+        created_at=F('date_received')  # Exclude invoices where created_at == date_received
+    ).aggregate(
+        avg_days=Avg(F('created_at') - F('date_received'))
+    )['avg_days'] or timedelta(0)
+    current_day_avg_days = current_day_avg_days.days  # Extract days
+
+    seven_day_avg_days = Invoice.objects.filter(
+        created_at__gte=seven_days_ago
+    ).exclude(
+        invoiced_amount=0
+    ).exclude(
+        created_at=F('date_received')  # Exclude invoices where created_at == date_received
+    ).aggregate(
+        avg_days=Avg(F('created_at') - F('date_received'))
+    )['avg_days'] or timedelta(0)
+    seven_day_avg_days = seven_day_avg_days.days  # Extract days
+
+    thirty_day_avg_days = Invoice.objects.filter(
+        created_at__gte=thirty_days_ago
+    ).exclude(
+        invoiced_amount=0
+    ).exclude(
+        created_at=F('date_received')  # Exclude invoices where created_at == date_received
+    ).aggregate(
+        avg_days=Avg(F('created_at') - F('date_received'))
+    )['avg_days'] or timedelta(0)
+    thirty_day_avg_days = thirty_day_avg_days.days  # Extract days
+
+    six_month_avg_days = Invoice.objects.filter(
+        created_at__gte=six_months_ago
+    ).exclude(
+        invoiced_amount=0
+    ).exclude(
+        created_at=F('date_received')  # Exclude invoices where created_at == date_received
+    ).aggregate(
+        avg_days=Avg(F('created_at') - F('date_received'))
+    )['avg_days'] or timedelta(0)
+    six_month_avg_days = six_month_avg_days.days  # Extract days
+
+    twelve_month_avg_days = Invoice.objects.filter(
+        created_at__gte=twelve_months_ago
+    ).exclude(
+        invoiced_amount=0
+    ).exclude(
+        created_at=F('date_received')  # Exclude invoices where created_at == date_received
+    ).aggregate(
+        avg_days=Avg(F('created_at') - F('date_received'))
+    )['avg_days'] or timedelta(0)
+    twelve_month_avg_days = twelve_month_avg_days.days  # Extract days
+
+    overall_avg_days = Invoice.objects.exclude(
+        invoiced_amount=0
+    ).exclude(
+        created_at=F('date_received')  # Exclude invoices where created_at == date_received
+    ).aggregate(
+        avg_days=Avg(F('created_at') - F('date_received'))
+    )['avg_days'] or timedelta(0)
+    overall_avg_days = overall_avg_days.days  # Extract days
+
     # Paginate invoices
-    paginate = Paginator(all_invoices, 10)
+    paginate = Paginator(all_invoices, 15)
     page = request.GET.get('page')
     invoices = paginate.get_page(page)
 
@@ -272,6 +337,12 @@ def invoices(request):
         "twelve_month_total": twelve_month_total,
         "overall_total": overall_total,
         "invoices": invoices,
+        "current_day_avg_days": current_day_avg_days,
+        "seven_day_avg_days": seven_day_avg_days,
+        "thirty_day_avg_days": thirty_day_avg_days,
+        "six_month_avg_days": six_month_avg_days,
+        "twelve_month_avg_days": twelve_month_avg_days,
+        "overall_avg_days": overall_avg_days,
     }
     
     return render(request, "AHS_invoices.html", context)
@@ -287,12 +358,13 @@ def create_invoice(request):
     if request.method == "POST":
         dispatch_no = request.POST.get('dispatch_no')
         name = request.POST.get('name')
-        invoiced_amount = request.POST.get('invoiced_amount')
+        invoiced_amount_str = request.POST.get('invoiced_amount')
+        invoiced_amount = float(invoiced_amount_str)
         date_added_str = request.POST.get('date_added')
         date_received_str = request.POST.get('date_received')
 
         # Validate required fields
-        if not dispatch_no or not name or not invoiced_amount:
+        if not dispatch_no or not name:
             messages.success(request, "Dispatch No, Name, and Invoiced Amount are required.")
             return render(request, 'create_invoice.html', context)
 
@@ -345,7 +417,7 @@ def update_invoice(request, pk):
 		date_received = datetime.strptime(date_received_str, "%Y-%m-%d").date() if date_received_str else today.date()
 		get_invoice.dispatch_no = dispatch_no
 		get_invoice.name = name
-		get_invoice.invoiced_amount = inv_amount
+		get_invoice.invoiced_amount = int(inv_amount)
 		get_invoice.created_at = date_added
 		get_invoice.date_received = date_received
 		get_invoice.save()
@@ -371,7 +443,6 @@ def add_journal(request):
 		messages.success(request, ("Journal Created"))
 		return redirect('journal')
 	return render(request, 'add_journal.html')
-
 
 def login_user(request):
 	if request.method == "POST":
@@ -401,10 +472,24 @@ def delete_journal(request, pk):
     messages.success(request, "Journal entry deleted successfully.")
     return redirect('journal')
 
-
 def robots_txt(request):
     content = [
         "User-agent: *",
         "Disallow: /",
     ]
     return HttpResponse("\n".join(content), content_type="text/plain")
+
+@login_required(login_url='login')
+def update_journal(request, pk):
+	journal = Journal.objects.get(id=pk)
+	context = {
+		"journal":journal,
+	}
+	if request.method == "POST":	
+		j_note = request.POST['notes']
+		journal.notes = j_note
+		journal.save()
+		print("Journal Updated", flush=True)
+		messages.success(request, ("Journal updated"))
+		return redirect('journal')
+	return render(request, 'update_journal.html', context)

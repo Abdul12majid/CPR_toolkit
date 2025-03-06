@@ -1,679 +1,267 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
-  <title>
-    Task Management
-  </title>
-  <!--     Fonts and icons     -->
-  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
-  <!-- Nucleo Icons -->
-  <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
-  <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-  <!-- Material Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <!-- CSS Files -->
-  <link id="pagestyle" href="{% static 'css/material-dashboard.css' %}" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-</head>
+{% extends "base.html" %}        
 
-<body class="g-sidenav-show  bg-gray-100">
-  <style type="text/css">
-    #invoiceChart {
-    max-width: 400px;  /* Adjust width */
-    max-height: 300px; /* Adjust height */
-}
-
-</style>
-  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
-    <div class="sidenav-header">
-      <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-      <a class="navbar-brand px-4 py-3 m-0" href=" https://demos.creative-tim.com/material-dashboard/pages/dashboard " target="_blank">
-        <img src="../assets/img/logo-ct-dark.png" class="navbar-brand-img" width="26" height="26" alt="main_logo">
-        <span class="ms-1 text-sm text-dark">CPR</span>
-      </a>
-    </div>
-    <hr class="horizontal dark mt-0 mb-2">
-    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active bg-gradient-dark text-white" href="{% url 'index' %}">
-            <i class="material-symbols-rounded opacity-5">dashboard</i>
-            <span class="nav-link-text ms-1">Dashboard</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="{% url 'journal' %}">
-            <i class="material-symbols-rounded opacity-5">table_view</i>
-            <span class="nav-link-text ms-1">Journal</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="{% url 'invoices' %}">
-            <i class="material-symbols-rounded opacity-5">table_view</i>
-            <span class="nav-link-text ms-1">Invoices</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="{% url 'logout' %}">
-            <i class="material-symbols-rounded opacity-5">table_view</i>
-            <span class="nav-link-text ms-1">Logout</span>
-          </a>
-        </li>
-        <!--
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/virtual-reality.html">
-            <i class="material-symbols-rounded opacity-5">view_in_ar</i>
-            <span class="nav-link-text ms-1">Virtual Reality</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/rtl.html">
-            <i class="material-symbols-rounded opacity-5">format_textdirection_r_to_l</i>
-            <span class="nav-link-text ms-1">RTL</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/notifications.html">
-            <i class="material-symbols-rounded opacity-5">notifications</i>
-            <span class="nav-link-text ms-1">Notifications</span>
-          </a>
-        </li>
-        <li class="nav-item mt-3">
-          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Account pages</h6>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/profile.html">
-            <i class="material-symbols-rounded opacity-5">person</i>
-            <span class="nav-link-text ms-1">Profile</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/sign-in.html">
-            <i class="material-symbols-rounded opacity-5">login</i>
-            <span class="nav-link-text ms-1">Sign In</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/sign-up.html">
-            <i class="material-symbols-rounded opacity-5">assignment</i>
-            <span class="nav-link-text ms-1">Sign Up</span>
-          </a>
-        </li>--->
-      </ul>
-    </div>
-    <!--
-    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
-      <div class="mx-3">
-        <a class="btn btn-outline-dark mt-4 w-100" href="https://www.creative-tim.com/learning-lab/bootstrap/overview/material-dashboard?ref=sidebarfree" type="button">Documentation</a>
-        <a class="btn bg-gradient-dark w-100" href="https://www.creative-tim.com/product/material-dashboard-pro?ref=sidebarfree" type="button">Upgrade to pro</a>
-      </div>
-    </div> -->
-  </aside>
-  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-    <!-- Navbar -->
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
-      <div class="container-fluid py-1 px-3">
-        <nav style="float:center" aria-label="breadcrumb">
-          <a href="{% url 'journal' %}" class="btn btn-sm btn-secondary">Journal</a> &nbsp;&nbsp;
-          <a href="{% url 'invoices' %}" class="btn btn-sm btn-secondary">Invoices</a> &nbsp;&nbsp;
-          <a href="{% url 'logout' %}" class="btn btn-sm btn-secondary">Logout</a> &nbsp;&nbsp;
-        </nav>
-        <div class="container">
-          {% if messages %}
-          {% for message in messages %}
-            <div class="alert alert-primary alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-          {% endfor %}
-          {% endif %}
-        </div></br>
-        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-          <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-            <div class="input-group input-group-outline">
-              <label class="form-label">Type here...</label>
-              <input type="text" class="form-control">
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-    <!-- End Navbar -->
-    <div class="container-fluid py-2">
-    
-    <div class="row">
-        <div class="ms-3">
-          <!--<h3 class="mb-0 h4 font-weight-bolder">Dashboard</h3>-->
-          <p class="mb-4"> 
-          </p>
-        </div>  
-      </div></br>
-      <!--<div class="row">
-        <div class="col-lg-4 col-md-6 mt-4 mb-4">
-          <div class="card">
-            <div class="card-body">
-              <h6 class="mb-0 ">Invoice Overlay</h6>
-              <p class="text-sm "><=====================></p>
-              <div class="pe-2">
-                <div class="chart">
-                  <canvas id="invoiceChart"></canvas>
-                </div>
-              </div>
-              <hr class="dark horizontal">
-              <div class="d-flex ">
-                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-                
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4 col-md-6 mt-4 mb-4">
-          <div class="card ">
-            <div class="card-body">
-              <h6 class="mb-0 "> Box 2 </h6>
-              <p class="text-sm "><span class="font-weight-bolder">Random</span>Buttons. </p>
-              <div class="pe-2">
-                <div class="chart">
-                  <canvas id="chart-line" class="chart-canvas" height="170"></canvas>
-                </div>
-              </div>
-              <hr class="dark horizontal">
-              <div class="d-flex ">
-                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-                <p class="mb-0 text-sm"> Go somewhere </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4 mt-4 mb-3">
-          <div class="card">
-            <div class="card-body">
-              <h6 class="mb-0 ">Box 3</h6>
-              <p class="text-sm ">Extra box</p>
-              <div class="pe-2">
-                <div class="chart">
-                  <canvas id="chart-line-tasks" class="chart-canvas" height="170"></canvas>
-                </div>
-              </div>
-              <hr class="dark horizontal">
-              <div class="d-flex ">
-                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-                <p class="mb-0 text-sm">Do something</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>-->
-      <div class="row mb-4">
-        <div class="col-lg-7 col-md-6 mb-md-0 mb-4">
-          <div class="card">
-            <div class="card-header pb-0">
-              <div class="row">
-                <div class="col-lg-6 col-7">
-                  <h6>Belle Task</h6>
-                  <p class="text-sm mb-0">
-                    <i class="fa fa-check text-info" aria-hidden="true"></i>
-                    <span class="font-weight-bold ms-1"></span>
-                  </p>
-                </div>
-                
-              </div>
-            </div>
-            <div class="card-body px-0 pb-2">
-              <div class="table-responsive">
-                <a href="{% url 'belle_task' %}" class="btn btn-sm btn-primary">New Task</a>
-                    <table class="table table-striped">
-                    <thead>
-              <tr>
-                  <th scope="col" style="width: 5%;">#</th>
-                  <th scope="col" style="width: 40%;">Description</th>
-                  <th scope="col" style="width: 20%;">Action</th>
-              </tr>
-              </thead>
-              <tbody>
-              {% for task in belle_task %}
-              <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>
-                    <span class="text-truncate" title="{{ task.description }}">{{ task.description }}</span>
-                </td>
-                <td>
-                    <a href="{% url 'update_belle_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
-                    <a href="{% url 'complete_belle_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
-                </td>
-              </tr>
-              {% endfor %}
-              </tbody>
-              </table>
-              </div>
-            </div></br>
-
-          </div>
-        </div>
-        <div class="col-lg-5 col-md-6">
-          <div class="card h-100">
-            <div class="card-header pb-0">
-              <h6>CPR</h6>
-              <p class="text-sm">
-                <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
-                <span class="font-weight-bold"></span>
-              </p>
-            </div>
-            <div class="card-body p-3">
-              <div class="mt-5">
-                  <h4>AHS Averages</h4>
-                  <canvas id="invoiceChart"></canvas>
-              </div></br>
-            </div>
-          </div>
-        </div>
-      </div></br>
-      <div class="row mb-4">
-        <div class="col-lg-7 col-md-6 mb-md-0 mb-4">
-          <div class="card">
-            <div class="card-header pb-0">
-              <div class="row">
-                <div class="col-lg-6 col-7">
-                  <h6>Bojan Task</h6>
-                  <p class="text-sm mb-0">
-                    <i class="fa fa-check text-info" aria-hidden="true"></i>
-                    <span class="font-weight-bold ms-1"></span>
-                  </p>
-                </div>
-                
-              </div>
-            </div>
-            <div class="card-body px-0 pb-2">
-              <div class="table-responsive">
-                <a href="{% url 'add_task' %}" class="btn btn-sm btn-primary">New Task</a>
-                    <table class="table table-striped">
-                    <thead>
-              <tr>
-                  <th scope="col" style="width: 5%;">#</th>
-                  <th scope="col" style="width: 40%;">Description</th>
-                  <th scope="col" style="width: 20%;">Action</th>
-              </tr>
-              </thead>
-              <tbody>
-              {% for task in all_task %}
-              <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>
-                    <span class="text-truncate" title="{{ task.description }}">{{ task.description }}</span>
-                </td>
-                   
-                <td>
-                    <a href="{% url 'update_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
-                    <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
-                </td>
-              </tr>
-              {% endfor %}
-              </tbody>
-              </table>
-              </div>
-            </div></br>
-
-          </div>
-        </div>
-        <div class="col-lg-5 col-md-6">
-          <div class="card h-100">
-            <div class="card-header pb-0">
-              <h6>Overview</h6>
-              <p class="text-sm">
-                <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
-                <span class="font-weight-bold"></span>
-              </p>
-            </div>
-
-            <div class="card-body p-3">
-              <table class="table table-bordered">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Period</th>
-                        <th>Average Invoiced Amount ($)</th>            
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Today</td>
-                        <td>${{ current_day_avg|floatformat:2 }}</td>   
-                    </tr>
-                    <tr>
-                        <td>Last 7 Days</td>
-                        <td>${{ seven_day_avg|floatformat:2 }}</td>
-                    </tr>
-                    <tr>
-                        <td>Last 30 Days</td>
-                        <td>${{ thirty_day_avg|floatformat:2 }}</td>  
-                    </tr>
-                    <tr>
-                        <td>Last 6 Months</td>
-                        <td>${{ six_month_avg|floatformat:2 }}</td>
-                    </tr>
-                    <tr>
-                        <td>Last 12 Months</td>
-                        <td>${{ twelve_month_avg|floatformat:2 }}</td>
-                    </tr>
-                </tbody>
-              </table></br>
-            </div>
-            
-          </div>
-        </div>
-      </div></br>
-      <div class="row mb-4">
-        <div class="col-lg-7 col-md-6 mb-md-0 mb-4">
-          <div class="card">
-            <div class="card-header pb-0">
-              <div class="row">
-                <div class="col-lg-6 col-7">
-                  <h6>Marvin Task</h6>
-                  <p class="text-sm mb-0">
-                    <i class="fa fa-check text-info" aria-hidden="true"></i>
-                    <span class="font-weight-bold ms-1"></span>
-                  </p>
-                </div>
-                
-              </div>
-            </div>
-            <div class="card-body px-0 pb-2">
-              <div class="table-responsive">
-                <a href="{% url 'marvin_task' %}" class="btn btn-sm btn-primary">New Task</a>
-                    <table class="table table-striped">
-                    <thead>
-              <tr>
-                  <th scope="col" style="width: 5%;">#</th>
-                  <th scope="col" style="width: 40%;">Description</th>
-                  <th scope="col" style="width: 20%;">Action</th>
-              </tr>
-              </thead>
-              <tbody>
-              {% for task in marvin_task %}
-              <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>
-                    <span class="text-truncate" title="{{ task.description }}">{{ task.description }}</span>
-                </td>
-                <td>
-                    <a href="{% url 'update_marvin_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
-                    <a href="{% url 'complete_marvin_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
-                </td>
-              </tr>
-              {% endfor %}
-              </tbody>
-              </table>
-              </div>
-            </div></br>
-
-          </div>
-        </div>
-        <!--<div class="col-lg-5 col-md-6">
-          <div class="card h-100">
-            <div class="card-header pb-0">
-              <h6>Orders overview</h6>
-              <p class="text-sm">
-                <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
-                <span class="font-weight-bold">24%</span> this month
-              </p>
-            </div>
-
-            <div class="card-body p-3">
-              <div class="timeline timeline-one-side">
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-success text-gradient">notifications</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">$2400, Design changes</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">22 DEC 7:20 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-danger text-gradient">code</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #1832412</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 11 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-info text-gradient">shopping_cart</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">Server payments for April</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 9:34 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-warning text-gradient">credit_card</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New card added for order #4395133</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">20 DEC 2:20 AM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-primary text-gradient">key</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">Unlock packages for development</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">18 DEC 4:54 AM</p>
-                  </div>
-                </div>
-                <div class="timeline-block">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-dark text-gradient">payments</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #9583120</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">17 DEC</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>-->
-      </div>
-      <footer class="footer py-4  ">
-        <div class="container-fluid">
-          <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-6 mb-lg-0 mb-4">
-              <div class="copyright text-center text-sm text-muted text-lg-start">
-                © <script>
-                  document.write(new Date().getFullYear())
-                </script>,
-                made with <i class="fa fa-heart"></i> by
-                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Bootstrap</a>
-                for a better web.
-              </div>
-            </div>
-            <!--<div class="col-lg-6">
-              <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com" class="nav-link text-muted" target="_blank">Creative Tim</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About Us</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted" target="_blank">License</a>
-                </li>
-              </ul>
-            </div>-->
-          </div>
-        </div>
-      </footer>
-    </div>
-  </main>
-  <div class="fixed-plugin">
-    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
-      <i class="material-symbols-rounded py-2">settings</i>
-    </a>
-    <div class="card shadow-lg">
-      <div class="card-header pb-0 pt-3">
-        <div class="float-start">
-          <h5 class="mt-3 mb-0">Material UI Configurator</h5>
-          <p>See our dashboard options.</p>
-        </div>
-        <div class="float-end mt-4">
-          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
-            <i class="material-symbols-rounded">clear</i>
-          </button>
-        </div>
-        <!-- End Toggle Button -->
-      </div>
-      <hr class="horizontal dark my-1">
-      <div class="card-body pt-sm-3 pt-0">
-        <!-- Sidebar Backgrounds -->
-        <div>
-          <h6 class="mb-0">Sidebar Colors</h6>
-        </div>
-        <a href="javascript:void(0)" class="switch-trigger background-color">
-          <div class="badge-colors my-2 text-start">
-            <span class="badge filter bg-gradient-primary" data-color="primary" onclick="sidebarColor(this)"></span>
-            <span class="badge filter bg-gradient-dark active" data-color="dark" onclick="sidebarColor(this)"></span>
-            <span class="badge filter bg-gradient-info" data-color="info" onclick="sidebarColor(this)"></span>
-            <span class="badge filter bg-gradient-success" data-color="success" onclick="sidebarColor(this)"></span>
-            <span class="badge filter bg-gradient-warning" data-color="warning" onclick="sidebarColor(this)"></span>
-            <span class="badge filter bg-gradient-danger" data-color="danger" onclick="sidebarColor(this)"></span>
-          </div>
-        </a>
-        <!-- Sidenav Type -->
-        <div class="mt-3">
-          <h6 class="mb-0">Sidenav Type</h6>
-          <p class="text-sm">Choose between different sidenav types.</p>
-        </div>
-        <div class="d-flex">
-          <button class="btn bg-gradient-dark px-3 mb-2" data-class="bg-gradient-dark" onclick="sidebarType(this)">Dark</button>
-          <button class="btn bg-gradient-dark px-3 mb-2 ms-2" data-class="bg-transparent" onclick="sidebarType(this)">Transparent</button>
-          <button class="btn bg-gradient-dark px-3 mb-2  active ms-2" data-class="bg-white" onclick="sidebarType(this)">White</button>
-        </div>
-        <p class="text-sm d-xl-none d-block mt-2">You can change the sidenav type just on desktop view.</p>
-        <!-- Navbar Fixed -->
-        <div class="mt-3 d-flex">
-          <h6 class="mb-0">Navbar Fixed</h6>
-          <div class="form-check form-switch ps-0 ms-auto my-auto">
-            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="navbarFixed" onclick="navbarFixed(this)">
-          </div>
-        </div>
-        <hr class="horizontal dark my-3">
-        <div class="mt-2 d-flex">
-          <h6 class="mb-0">Light / Dark</h6>
-          <div class="form-check form-switch ps-0 ms-auto my-auto">
-            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)">
-          </div>
-        </div>
-        <hr class="horizontal dark my-sm-4">
-        <a class="btn bg-gradient-info w-100" href="https://www.creative-tim.com/product/material-dashboard-pro">Free Download</a>
-        <a class="btn btn-outline-dark w-100" href="https://www.creative-tim.com/learning-lab/bootstrap/overview/material-dashboard">View documentation</a>
-        <div class="w-100 text-center">
-          <a class="github-button" href="https://github.com/creativetimofficial/material-dashboard" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
-          <h6 class="mt-3">Thank you for sharing!</h6>
-          <a href="https://twitter.com/intent/tweet?text=Check%20Material%20UI%20Dashboard%20made%20by%20%40CreativeTim%20%23webdesign%20%23dashboard%20%23bootstrap5&amp;url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fsoft-ui-dashboard" class="btn btn-dark mb-0 me-2" target="_blank">
-            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
-          </a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/material-dashboard" class="btn btn-dark mb-0 me-2" target="_blank">
-            <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--   Core JS Files   -->
-  <script src="{% static 'js/core/popper.min.js' %}"></script>
-  <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
-  <script src="{% static 'js/plugins/perfect-scrollbar.min.js' %}"></script>
-  <script src="{% static 'js/plugins/smooth-scrollbar.min.js' %}"></script>
-  <script src="{% static 'js/plugins/chartjs.min.js' %}"></script>
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    //Data from Django context
-    const currentDayAvg = {{ current_day_avg }};
-    const sevenDayAvg = {{ seven_day_avg }};
-    const thirtyDayAvg = {{ thirty_day_avg }};
-    const sixMonthAvg = {{ six_month_avg }};
-    const twelveMonthAvg = {{ twelve_month_avg }};
+<!-- Section 1 -->
 
 
-    // Function to determine bar colors
-    function getColor(value) {
-        if (value < 155) {
-            return 'green';
-        } else if (value >= 155 && value < 161) {
-            return 'yellow';
-        } else {
-            return 'red';
-        }
-}
+{% block content %}
+        <div id="projects" class="dashboard-section">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="task-table">
+                        <h3 class="p-3">Belle Tasks</h3>
+                        <a href="{% url 'belle_task' %}" class="btn btn-sm btn-danger">New Task</a>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="80">SN</th>
+                                    <th>Task Description</th>
+                                    <th>Date Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in belle_task %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="description-cell">{{ task.description }}</td>
+                                    <td class="description-cell">{{ task.date_created }}</td>
+                                    <td class="description-cell">
+                                        <a href="{% url 'update_belle_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
+                                        <a href="{% url 'complete_belle_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">AHS Averages</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="invoiceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2 -->
+        <div id="development" class="dashboard-section">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="task-table">
+                        <h3 class="p-3">Bojan Tasks</h3>
+                        <a href="{% url 'add_task' %}" class="btn btn-sm btn-danger">New Task</a>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="80">SN</th>
+                                    <th>Task Description</th>
+                                    <th>Date Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in all_task %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="description-cell">{{ task.description }}</td>
+                                    <td class="description-cell">{{ task.date_created }}</td>
+                                    <td class="description-cell">
+                                        <a href="{% url 'update_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
+                                        <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">AHS Averages</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Period</th>
+                                        <th>Average Invoiced Amount ($)</th>            
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Today</td>
+                                        <td>${{ current_day_avg|floatformat:2 }}</td>   
+                                    </tr>
+                                    <tr>
+                                        <td>Last 7 Days</td>
+                                        <td>${{ seven_day_avg|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last 30 Days</td>
+                                        <td>${{ thirty_day_avg|floatformat:2 }}</td>  
+                                    </tr>
+                                    <tr>
+                                        <td>Last 6 Months</td>
+                                        <td>${{ six_month_avg|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last 12 Months</td>
+                                        <td>${{ twelve_month_avg|floatformat:2 }}</td>
+                                    </tr>
+                                </tbody>
+                            </table></br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div id="marketing" class="dashboard-section">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="task-table">
+                        <h3 class="p-3">Marvin Tasks</h3>
+                        <a href="{% url 'marvin_task' %}" class="btn btn-sm btn-danger">New Task</a>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="80">SN</th>
+                                    <th>Task Description</th>
+                                    <th>Date Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in marvin_task %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="description-cell">{{ task.description }}</td>
+                                    <td class="description-cell">{{ task.date_created }}</td>
+                                    <td class="description-cell">
+                                        <a href="{% url 'update_marvin_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
+                                        <a href="{% url 'complete_marvin_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!--<div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">AHS Averages</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Period</th>
+                                        <th>Average Invoiced Amount ($)</th>            
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Today</td>
+                                        <td>${{ current_day_avg|floatformat:2 }}</td>   
+                                    </tr>
+                                    <tr>
+                                        <td>Last 7 Days</td>
+                                        <td>${{ seven_day_avg|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last 30 Days</td>
+                                        <td>${{ thirty_day_avg|floatformat:2 }}</td>  
+                                    </tr>
+                                    <tr>
+                                        <td>Last 6 Months</td>
+                                        <td>${{ six_month_avg|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last 12 Months</td>
+                                        <td>${{ twelve_month_avg|floatformat:2 }}</td>
+                                    </tr>
+                                </tbody>
+                            </table></br>
+                        </div>
+                    </div>
+                </div>-->
+            </div>
+        </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+            //Data from Django context
+            const currentDayAvg = {{ current_day_avg }};
+            const sevenDayAvg = {{ seven_day_avg }};
+            const thirtyDayAvg = {{ thirty_day_avg }};
+            const sixMonthAvg = {{ six_month_avg }};
+            const twelveMonthAvg = {{ twelve_month_avg }};
 
 
-    // Configure chart
-    const ctx = document.getElementById('invoiceChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Today', '7 Days', '30 Days', '6 Months', '12 Months'],
-            datasets: [{
-                label: 'Invoice Averages ($)',
-                data: [currentDayAvg, sevenDayAvg, thirtyDayAvg, sixMonthAvg, twelveMonthAvg],
-                backgroundColor: [
-                    getColor(currentDayAvg),
-                    getColor(sevenDayAvg),
-                    getColor(thirtyDayAvg),
-                    getColor(sixMonthAvg),
-                    getColor(twelveMonthAvg)
-                ],
-                borderColor: ['black', 'black', 'black', 'black', 'black'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            plugins: {
-                        datalabels: {
-                            anchor: "end",  // Position above bars
-                            align: "top",  // Align to the top
-                            color: "black",  // Label color
-                            font: {
-                                weight: "bold",
-                                size: 14
-                            },
-                            formatter: function(value) {
-                                return `$${value.toFixed(2)}`; // Display as "$xx.xx"
-                            }
-                        }
-                    },
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+            // Function to determine bar colors
+            function getColor(value) {
+                if (value < 155) {
+                    return 'green';
+                } else if (value >= 155 && value < 161) {
+                    return 'yellow';
+                } else {
+                    return 'red';
                 }
-            }
         }
-    });
-</script>
-  <!-- Github buttons -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="{% static 'js/material-dashboard.min.js?v=3.2.0' %}"></script>
-  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-</body>
 
-</html>
+
+            // Configure chart
+            const ctx = document.getElementById('invoiceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Today', '7 Days', '30 Days', '6 Months', '12 Months'],
+                    datasets: [{
+                        label: 'Invoice Averages ($)',
+                        data: [currentDayAvg, sevenDayAvg, thirtyDayAvg, sixMonthAvg, twelveMonthAvg],
+                        backgroundColor: [
+                            getColor(currentDayAvg),
+                            getColor(sevenDayAvg),
+                            getColor(thirtyDayAvg),
+                            getColor(sixMonthAvg),
+                            getColor(twelveMonthAvg)
+                        ],
+                        borderColor: ['black', 'black', 'black', 'black', 'black'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                                datalabels: {
+                                    anchor: "end",  // Position above bars
+                                    align: "top",  // Align to the top
+                                    color: "black",  // Label color
+                                    font: {
+                                        weight: "bold",
+                                        size: 14
+                                    },
+                                    formatter: function(value) {
+                                        return `$${value.toFixed(2)}`; // Display as "$xx.xx"
+                                    }
+                                }
+                            },
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+    </script>
+
+{% endblock %}

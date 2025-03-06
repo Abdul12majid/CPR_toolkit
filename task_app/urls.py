@@ -14,6 +14,7 @@ urlpatterns = [
     path('complete_belle_task/<int:pk>', views.complete_belle_task, name="complete_belle_task"),
     path('complete_marvin_task/<int:pk>', views.complete_marvin_task, name="complete_marvin_task"),
     path('journal', views.thread, name="journal"),
+    path('update_journal/<int:pk>', views.update_journal, name="update_journal"),
     path('invoices', views.invoices, name="invoices"),
     path('create_invoice', views.create_invoice, name="create_invoice"),
     path('update_invoice/<int:pk>', views.update_invoice, name="update_invoice"),

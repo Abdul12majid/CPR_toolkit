@@ -3,14 +3,13 @@
 {% block content %}
 	<h2 style="text-align: center;">Update Invoice</h2></br>
 	
-	<a style="display: block; float: right;" class="btn btn-danger" href="{% url 'delete_invoice' inv_id %}">Delete Invoice</a></br></br>
 	<div class="container">
+		<a style="display: block; float: right;" class="btn btn-danger" href="{% url 'delete_invoice' inv_id %}">Delete Invoice</a></br>
 		<form method="POST" validate>
 			{% csrf_token %}
 		  <div class="form-group">
 		    <label for="exampleInputEmail1">Dispatch Number</label>
 		    <input name="dispatch_no" type="number" class="form-control" value="{{dispatch_no}}" id="exampleInputEmail1" aria-describedby="emailHelp">
-		    <small id="emailHelp" class="form-text text-muted">help text</small>
 		  </div>
 		  <div class="form-group">
 		    <label for="exampleInputEmail1">Name</label>
@@ -18,7 +17,7 @@
 		  </div>
 		  <div>
 		  <label for="exampleInputEmail1">Invoiced Amount</label>
-		    <input name="invoiced_amount" value="{{inv_amount}}" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp"> 
+		    <input name="invoiced_amount" value="{{inv_amount|floatformat:0}}" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp"> 
 		  </div>
 		  <div class="form-group">
 		  <label for="exampleInputEmail1">Date Received</label>
