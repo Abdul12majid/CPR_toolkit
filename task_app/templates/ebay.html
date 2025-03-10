@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<center><h3 style="float:center">All Order</h3></center>
+
+<style type="text/css">
+	.link_cell {
+            
+            white-space: normal;
+            word-wrap: break-word;
+        }
+</style>
+
+<form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
+    {% csrf_token %}
+    <input name="ebay_data" class="form-control mr-sm-2" type="search" placeholder="Search Order" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
+<br>
+<a style="text-align: left;" class="btn btn-primary" href="{% url 'create_ebay' %}">Create Ebay</a><br><br>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Order Number</th>
+            <th>Tracking Number</th>
+            <th>Name</th>
+            <th>Link</th>
+            <th>Delivery Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if search_results is not None %}
+            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
+            {% for ebay in search_results %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ ebay.order_number }}</td>
+                <td>{{ ebay.tracking_number }}</td>
+                <td>{{ ebay.name }}</td>
+                <td class="link_cell"><a href="{{ebay.link}}" target="_blank" class="btn btn-primary btn-sm">Link</a></td>
+                <td>{{ ebay.delivery_time }}</td>
+                
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No matching Data found.</td>
+            </tr>
+            {% endfor %}
+            <tr><td colspan="6"><hr></td></tr>
+        {% endif %}
+
+        {% if search_results is None %}
+            
+            {% for ebay in all_ebay %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ ebay.order_number }}</td>
+                <td>{{ ebay.tracking_number }}</td>
+                <td>{{ ebay.name }}</td>
+                <td class="link_cell"><a href="{{ebay.link}}" target="_blank" class="btn btn-primary btn-sm">Link</a></td>
+                <td>{{ ebay.delivery_time }}</td>
+                
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No Data available.</td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -41,6 +41,7 @@ class Journal(models.Model):
 
 class Ebay(models.Model):
     name = models.CharField(max_length=200, blank=True, null=True)
+    tracking_number = models.CharField(max_length=200, blank=True, null=True)
     order_number = models.CharField(max_length=200, blank=True, null=True)
     link = models.CharField(max_length=500, blank=True, null=True)
     delivery_time = models.CharField(max_length=200, blank=True, null=True)

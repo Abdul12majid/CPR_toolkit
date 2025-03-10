@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "task_app",
     "rest_framework",
+    'rely_invoice',
     "inv_api",
 ]
 

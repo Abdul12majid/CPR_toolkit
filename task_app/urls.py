@@ -24,5 +24,7 @@ urlpatterns = [
     path('logout', views.logout_user, name="logout"),
     path('delete/<int:pk>/', views.delete_journal, name='delete_journal'),
     path("robots.txt", robots_txt, name="robots_txt"),
+    path('ebay', views.ebay, name="ebay"),
+    path('create_ebay', views.create_ebay, name="create_ebay"),
 
 ]

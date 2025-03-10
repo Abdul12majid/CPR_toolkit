@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2 style="text-align: center;">Create Ebay</h2></br>
+
+	<div class="container">
+		<form method="POST" validate>
+			{% csrf_token %}
+		  
+		  <div class="form-group">
+		    <label for="exampleInputEmail1">Name</label>
+		    <input name="name" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div>
+		  <div class="form-group">
+		  <label for="exampleInputEmail1">Tracking Number</label>
+		    <input name="tracking_number" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div>
+		  <div class="form-group">
+		  <label for="exampleInputEmail1">order_number</label>
+		    <input name="order_number" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div>
+		  <div class="form-group">
+		  <label for="exampleInputEmail1">Link</label>
+		    <input name="link" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div></br>
+		  <div class="form-group">
+		  <label for="exampleInputEmail1">Delivery Time</label>
+		    <input name="delivery_time" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		    
+		  </div></br>
+		  <center>
+		  	<button type="submit" class="btn btn-primary btn-sm">Create Ebay</button>
+		  </center>
+		</form>
+	</div>
+{% endblock %}

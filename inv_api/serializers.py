@@ -11,4 +11,4 @@ class InvoiceSerializer(serializers.ModelSerializer):
 class EbaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Ebay
-        fields = ['id', 'name', 'order_number', 'link', 'delivery_time']
+        fields = ['id', 'name', 'tracking_number', 'order_number', 'link', 'delivery_time']

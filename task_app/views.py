@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from .models import Task, Journal, Invoice
+from .models import Task, Journal, Invoice, Ebay
 from .models import Belle_Task, Marvin_Task
 from django.contrib import messages
 from django.utils.timezone import now
@@ -493,3 +493,45 @@ def update_journal(request, pk):
 		messages.success(request, ("Journal updated"))
 		return redirect('journal')
 	return render(request, 'update_journal.html', context)
+
+
+@login_required(login_url='login')
+def ebay(request):
+    all_ebay = Ebay.objects.all()
+    search_results = None
+    # Handle search functionality
+    if request.method == "POST":
+        ebay_data = request.POST.get('ebay_data', '').strip()
+        messages.success(request, f"You searched {ebay_data}")
+        
+        if ebay_data:
+            search_results = Ebay.objects.filter(name__icontains=ebay_data) | \
+                             Ebay.objects.filter(tracking_number__icontains=ebay_data) | \
+                             Ebay.objects.filter(order_number__icontains=ebay_data)
+    context = {
+        "all_ebay":all_ebay,
+        'search_results':search_results
+    }
+    return render(request, 'ebay.html', context)
+
+
+@login_required(login_url='login')
+def create_ebay(request):
+    if request.method == "POST":        
+        name = request.POST['name']
+        tracking_number = request.POST['tracking_number']
+        order_number = request.POST['order_number']
+        link = request.POST['link']
+        delivery_time = request.POST['delivery_time']
+        ebay = Ebay.objects.create(
+            name=name, 
+            tracking_number=tracking_number, 
+            order_number=order_number,
+            link=link,
+            delivery_time=delivery_time
+            )
+        ebay.save()
+        print("Data Added created", flush=True)
+        messages.success(request, ("Data Added"))
+        return redirect('ebay')
+    return render(request, 'create_ebay.html')
