@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	<div class="container mt-5">
+		<h2 style="text-align: center;" class="mb-4">Rely Invoices</h2>
+	    	<div class="table-responsive">
+	        <table class="table table-hover table-bordered">
+	            <thead class="table-dark">
+	                <tr>
+	                    <th>Work Order No</th>
+	                    <th>Status</th>
+	                    <th>Customer</th>
+	                    <th>Date Received</th>
+	                    <th>Inv Date</th>
+	                    <th>Note</th>
+	                    <th>Amount</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	            	{% for invoice in all_invoice %}
+	                <tr>
+	                    <td>{{invoice.dispatch_number}}</td>
+	                    <td>
+						    <div class="dropdown">
+						        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+						            {{ invoice.status.name }}  <!-- Show the current status -->
+						        </button>
+						        <ul class="dropdown-menu">
+						            {% if invoice.status.name != "Update" %}
+						                <li><a class="dropdown-item" href="#">Update</a></li>
+						            {% endif %}
+						            {% if invoice.status.name != "Invoice" %}
+						                <li><a class="dropdown-item" href="#">Invoice</a></li>
+						            {% endif %}
+						            {% if invoice.status.name != "Paid" %}
+						                <li><a class="dropdown-item" href="#">Paid</a></li>
+						            {% endif %}
+						        </ul>
+						    </div>
+						</td>
+	                    <td>{{ invoice.customer }}</td>
+	                    <td>{{ invoice.date_received }}</td>
+	                    <td>{{ invoice.date_invoiced }}</td>
+	                    <td>{{ invoice.note }}</td>
+	                    <td>{{ invoice.amount }}</td>
+	                </tr>
+	                {% endfor %} 
+	            </tbody>
+	        </table>
+	    	</div>
+	</div>
+
+{% endblock %}
