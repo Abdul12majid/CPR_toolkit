@@ -1,13 +1,18 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from .models import RelyInvoice, Status
+from .models import RelyInvoice, Status, RelyProcessed
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware, datetime
+from django.utils.timezone import now
+import pytz
 
 # Create your views here.
 def rely_invoice(request):
     all_invoice = RelyInvoice.objects.all().order_by('-id')
     all_statuses = Status.objects.all()
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    now_pst = now().astimezone(pst_tz)
+    print(now_pst, flush=True)
     search_results = None
     if request.method == "POST":
         inv_data = request.POST.get('inv_data', '').strip()
@@ -71,14 +76,51 @@ def update_status(request, pk):
     get_status = Status.objects.get(id=1)
     invoice.status = get_status
     invoice.save()
+    dispatch_number = invoice.dispatch_number
+    status = invoice.status
+    customer = invoice.customer
+    date_received = invoice.date_received
+    date_invoiced = invoice.date_invoiced
+    note = invoice.note
+    amount = invoice.amount
+    process_invoice = RelyProcessed.objects.create(
+            dispatch_number = dispatch_number,
+            status=status,
+            customer=customer,
+            date_received=date_received,
+            date_invoiced=date_invoiced,
+            note=note,
+            amount=amount
+    )
+    process_invoice.save()
+    del_invoice = get_object_or_404(RelyInvoice, id=invoice.id)
+    del_invoice.delete()
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
 def added_status(request, pk):
-    invoice = get_object_or_404(RelyInvoice, id=pk)
+    invoice = get_object_or_404(RelyProcessed, id=pk)
     get_status = Status.objects.get(id=4)
     invoice.status = get_status
     invoice.save()
+    dispatch_number = invoice.dispatch_number
+    status = invoice.status
+    customer = invoice.customer
+    date_received = invoice.date_received
+    date_invoiced = invoice.date_invoiced
+    note = invoice.note
+    amount = invoice.amount
+    new_invoice = RelyInvoice.objects.create(
+            dispatch_number = dispatch_number,
+            status=status,
+            customer=customer,
+            date_received=date_received,
+            date_invoiced=date_invoiced,
+            note=note,
+            amount=amount
+    )
+    del_invoice = get_object_or_404(RelyProcessed, id=invoice.id)
+    del_invoice.delete()
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
@@ -89,3 +131,21 @@ def paid_status(request, pk):
     invoice.save()
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
+
+def rely_invoice_processed(request):
+    all_invoice = RelyProcessed.objects.all().order_by('-id')
+    all_statuses = Status.objects.all()
+    search_results = None
+    if request.method == "POST":
+        inv_data = request.POST.get('inv_data', '').strip()
+        messages.success(request, f"You searched {inv_data}")
+        
+        if inv_data:
+            search_results = RelyProcessed.objects.filter(dispatch_number__icontains=inv_data) | \
+                             RelyProcessed.objects.filter(customer__icontains=inv_data)
+    context = {
+        "all_invoice": all_invoice,
+        "all_statuses": all_statuses,
+        'search_results':search_results
+    }
+    return render(request, 'rely_inv_pro.html', context) 
