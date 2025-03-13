@@ -149,3 +149,21 @@ def rely_invoice_processed(request):
         'search_results':search_results
     }
     return render(request, 'rely_inv_pro.html', context) 
+
+def rely_invoice_paid(request):
+    all_invoice = RelyPaid.objects.all().order_by('-id')
+    all_statuses = Status.objects.all()
+    search_results = None
+    if request.method == "POST":
+        inv_data = request.POST.get('inv_data', '').strip()
+        messages.success(request, f"You searched {inv_data}")
+        
+        if inv_data:
+            search_results = RelyPaid.objects.filter(dispatch_number__icontains=inv_data) | \
+                             RelyPaid.objects.filter(customer__icontains=inv_data)
+    context = {
+        "all_invoice": all_invoice,
+        "all_statuses": all_statuses,
+        'search_results':search_results
+    }
+    return render(request, 'rely_paid.html', context) 

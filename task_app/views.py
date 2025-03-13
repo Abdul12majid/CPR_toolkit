@@ -535,3 +535,4 @@ def create_ebay(request):
         messages.success(request, ("Data Added"))
         return redirect('ebay')
     return render(request, 'create_ebay.html')
+

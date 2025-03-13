@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "rest_framework",
     'rely_invoice',
     "inv_api",
+    "django_sse",
+    
 ]
 
 MIDDLEWARE = [
