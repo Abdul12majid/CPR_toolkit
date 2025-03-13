@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from .models import RelyInvoice, Status, RelyProcessed
+from .models import RelyInvoice, Status, RelyProcessed, RelyPaid
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware, datetime
@@ -72,7 +72,11 @@ def delete_r_invoice(request, pk):
 
 
 def update_status(request, pk):
-    invoice = get_object_or_404(RelyInvoice, id=pk)
+    try:
+        invoice = get_object_or_404(RelyInvoice, id=pk)
+    except:
+        message.success(request, ("Cannot remove invoice from paid Model"))
+        return redirect(request.META.get("HTTP_REFERER"))
     get_status = Status.objects.get(id=1)
     invoice.status = get_status
     invoice.save()
@@ -99,7 +103,11 @@ def update_status(request, pk):
     return redirect(request.META.get("HTTP_REFERER"))
 
 def added_status(request, pk):
-    invoice = get_object_or_404(RelyProcessed, id=pk)
+    try:
+        invoice = get_object_or_404(RelyProcessed, id=pk)
+    except:
+        messages.success(request, ("Cannot move invoice from paid Model."))
+        return redirect(request.META.get("HTTP_REFERER"))
     get_status = Status.objects.get(id=4)
     invoice.status = get_status
     invoice.save()
@@ -125,10 +133,29 @@ def added_status(request, pk):
     return redirect(request.META.get("HTTP_REFERER"))
 
 def paid_status(request, pk):
-    invoice = get_object_or_404(RelyInvoice, id=pk)
-    get_status = Status.objects.get(id=3)
+    invoice = get_object_or_404(RelyProcessed, id=pk)
+    get_status = Status.objects.get(name="Paid")
     invoice.status = get_status
     invoice.save()
+    dispatch_number = invoice.dispatch_number
+    status = invoice.status
+    customer = invoice.customer
+    date_received = invoice.date_received
+    date_invoiced = invoice.date_invoiced
+    note = invoice.note
+    amount = invoice.amount
+    process_invoice = RelyPaid.objects.create(
+            dispatch_number = dispatch_number,
+            status=status,
+            customer=customer,
+            date_received=date_received,
+            date_invoiced=date_invoiced,
+            note=note,
+            amount=amount
+    )
+    process_invoice.save()
+    del_invoice = get_object_or_404(RelyProcessed, id=invoice.id)
+    del_invoice.delete()
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
@@ -139,7 +166,6 @@ def rely_invoice_processed(request):
     if request.method == "POST":
         inv_data = request.POST.get('inv_data', '').strip()
         messages.success(request, f"You searched {inv_data}")
-        
         if inv_data:
             search_results = RelyProcessed.objects.filter(dispatch_number__icontains=inv_data) | \
                              RelyProcessed.objects.filter(customer__icontains=inv_data)

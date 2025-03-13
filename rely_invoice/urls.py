@@ -9,4 +9,5 @@ urlpatterns = [
     path('added_status/<int:pk>', views.added_status, name="added_status"),
     path('paid_status/<int:pk>', views.paid_status, name="paid_status"),
     path('rely_invoice_processed', views.rely_invoice_processed, name="rely_invoice_processed"),
+    path('rely_invoice_paid', views.rely_invoice_paid, name="rely_invoice_paid"),
 ]

@@ -46,9 +46,6 @@
 				            {% if invoice.status.name != "Update" %}
 				                <li><a class="dropdown-item" href="{% url 'update_status' invoice.id %}">Update</a></li>
 				            {% endif %}
-				            {% if invoice.status.name != "Invoice" %}
-				                <li><a class="dropdown-item" href="#">Invoice</a></li>
-				            {% endif %}
 				            {% if invoice.status.name != "Paid" %}
 				                <li><a class="dropdown-item" href="{% url 'paid_status' invoice.id %}">Paid</a></li>
 				            {% endif %}
@@ -87,9 +84,6 @@
 				            {% endif %}
 				            {% if invoice.status.name != "Update" %}
 				                <li><a class="dropdown-item" href="{% url 'update_status' invoice.id %}">Update</a></li>
-				            {% endif %}
-				            {% if invoice.status.name != "Invoice" %}
-				                <li><a class="dropdown-item" href="#">Invoice</a></li>
 				            {% endif %}
 				            {% if invoice.status.name != "Paid" %}
 				                <li><a class="dropdown-item" href="{% url 'paid_status' invoice.id %}">Paid</a></li>
