@@ -22,18 +22,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'rely_invoice' %}">Rely Invoices</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'rely_invoice_processed' %}">Rely Processed</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'rely_invoice_paid' %}">Rely Paid</a>
-                    </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'ebay' %}">Ebay</a>
                     </li>
+                    {% if request.user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                     </li>
+                    {% endif %}
                 </ul>
                 
             </div>

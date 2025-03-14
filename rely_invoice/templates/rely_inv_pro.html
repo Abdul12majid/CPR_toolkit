@@ -3,7 +3,7 @@
 {% block content %}
 
 	<div class="container mt-5">
-		<h2 style="text-align: center;" class="mb-4">Rely Processed Invoices</h2>
+		<h2 style="text-align: center;" class="mb-4"><a class="btn btn-primary btn-sm" href="{% url 'rely_invoice' %}">Rely Invoice</a>&nbsp;Rely Processed&nbsp; <a class="btn btn-primary btn-sm" href="{% url 'rely_invoice_completed' %}">Rely Paid</a></h2>
 	    	<div class="table-responsive">
 
 	    		<form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
@@ -43,11 +43,11 @@
 				        	{% if invoice.status.name != "Added" %}
 				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">Added</a></li>
 				            {% endif %}
-				            {% if invoice.status.name != "Update" %}
-				                <li><a class="dropdown-item" href="{% url 'update_status' invoice.id %}">Update</a></li>
+				            {% if invoice.status.name != "Invoiced" %}
+				                <li><a class="dropdown-item" href="{% url 'invoice_status' invoice.id %}">Invoice</a></li>
 				            {% endif %}
 				            {% if invoice.status.name != "Paid" %}
-				                <li><a class="dropdown-item" href="{% url 'paid_status' invoice.id %}">Paid</a></li>
+				                <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Paid</a></li>
 				            {% endif %}
 				        </ul>
 				    </div>
@@ -82,11 +82,11 @@
 				        	{% if invoice.status.name != "Added" %}
 				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">Added</a></li>
 				            {% endif %}
-				            {% if invoice.status.name != "Update" %}
-				                <li><a class="dropdown-item" href="{% url 'update_status' invoice.id %}">Update</a></li>
+				            {% if invoice.status.name != "Invoiced" %}
+				                <li><a class="dropdown-item" href="{% url 'invoice_status' invoice.id %}">Invoice</a></li>
 				            {% endif %}
 				            {% if invoice.status.name != "Paid" %}
-				                <li><a class="dropdown-item" href="{% url 'paid_status' invoice.id %}">Paid</a></li>
+				                <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Paid</a></li>
 				            {% endif %}
 				        </ul>
 				    </div>

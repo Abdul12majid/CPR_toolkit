@@ -67,17 +67,16 @@ def update_r_invoice(request, pk):
 def delete_r_invoice(request, pk):
     invoice = get_object_or_404(RelyInvoice, id=pk)
     invoice.delete()
-    return redirect(request.META.get("HTTP_REFERER"))
+    messages.success(request, ("Invoice Deleted."))
     return redirect("rely_invoice")
 
-
-def update_status(request, pk):
+def invoice_status(request, pk):
     try:
         invoice = get_object_or_404(RelyInvoice, id=pk)
     except:
         message.success(request, ("Cannot remove invoice from paid Model"))
         return redirect(request.META.get("HTTP_REFERER"))
-    get_status = Status.objects.get(id=1)
+    get_status = Status.objects.get(id=2)
     invoice.status = get_status
     invoice.save()
     dispatch_number = invoice.dispatch_number
@@ -132,9 +131,9 @@ def added_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
-def paid_status(request, pk):
-    invoice = get_object_or_404(RelyProcessed, id=pk)
-    get_status = Status.objects.get(name="Paid")
+def completed_status(request, pk):
+    invoice = get_object_or_404(RelyInvoice, id=pk)
+    get_status = Status.objects.get(name="Completed")
     invoice.status = get_status
     invoice.save()
     dispatch_number = invoice.dispatch_number
@@ -151,10 +150,10 @@ def paid_status(request, pk):
             date_received=date_received,
             date_invoiced=date_invoiced,
             note=note,
-            amount=amount
+            amount=0
     )
     process_invoice.save()
-    del_invoice = get_object_or_404(RelyProcessed, id=invoice.id)
+    del_invoice = get_object_or_404(RelyInvoice, id=invoice.id)
     del_invoice.delete()
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
@@ -176,7 +175,7 @@ def rely_invoice_processed(request):
     }
     return render(request, 'rely_inv_pro.html', context) 
 
-def rely_invoice_paid(request):
+def rely_invoice_completed(request):
     all_invoice = RelyPaid.objects.all().order_by('-id')
     all_statuses = Status.objects.all()
     search_results = None
