@@ -3,7 +3,7 @@
 {% block content %}
 
 	<div class="container mt-5">
-        <a class="btn btn-secondary btn-sm" href="{% url 'rely_invoice' %}">New</a>&nbsp;&nbsp;
+		<a class="btn btn-secondary btn-sm" href="{% url 'rely_invoice' %}">New</a>&nbsp;&nbsp;
         <a class="btn btn-info btn-sm" href="{% url 'rely_invoice_completed' %}">Completed</a>&nbsp;&nbsp;
         <a class="btn btn-primary btn-sm" href="{% url 'rely_invoice_processed' %}">Invoiced</a>
         &nbsp;&nbsp;
@@ -11,7 +11,7 @@
         &nbsp;&nbsp;
         <a class="btn btn-danger btn-sm" href="{% url 'rely_invoice_problem' %}">Problem</a></br>
 
-		<h2 style="text-align: center;" class="mb-4">New</h2>
+		<h2 style="text-align: center;" class="mb-4">Completed</h2>
 	    	<div class="table-responsive">
 
 	    		<form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
@@ -29,8 +29,8 @@
             <th>Status</th>
             <th>Customer</th>
             <th>Date Received</th>
-            
-            <th>Action</th>
+            <th>Date Completed</th>
+            <th>Note</th>
         </tr>
     </thead>
     <tbody>
@@ -46,29 +46,26 @@
 				            {{ invoice.status.name }}
 				        </button>
 				        <ul class="dropdown-menu">
-                            {% if invoice.status.name != "Added" %}
-                                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">Added</a></li>
-                            {% endif %}
-                            {% if invoice.status.name != "Completed" %}
-                                <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Completed</a></li>
-                            {% endif %}
-                            {% if invoice.status.name != "Denied" %}
+				        	{% if invoice.status.name != "Added" %}
+				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
+				            {% endif %}
+				            {% if invoice.status.name != "Completed" %}
+				                <li><a class="dropdown-item" href="{% url 'invoice_status' invoice.id %}">Completed</a></li>
+				            {% endif %}
+				            {% if invoice.status.name != "Denied" %}
                                 <li><a class="dropdown-item" href="{% url 'denied_status' invoice.id %}">Denied</a></li>
                             {% endif %}
-                            {% if invoice.status.name != "Reassigned" %}
-                                <li><a class="dropdown-item" href="#">Reassigned</a></li>
-                            {% endif %}
-                            {% if invoice.status.name != "Cancelled" %}
+				            {% if invoice.status.name != "Cancelled" %}
                                 <li><a class="dropdown-item" href="{% url 'cancelled_status' invoice.id %}">Cancelled</a></li>
                             {% endif %}
-                            
-                        </ul>
+				        </ul>
 				    </div>
 				</td>
                 <td>${{ invoice.customer }}</td>
                 <td>{{ invoice.date_received }}</td>
+                <td>{{ invoice.date_invoiced }}</td>
+                <td>{{ invoice.note }}</td>
                 
-                <td><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">Invoice This</a></td>
             </tr>
             {% empty %}
             <tr>
@@ -91,28 +88,25 @@
 				        </button>
 				        <ul class="dropdown-menu">
 				        	{% if invoice.status.name != "Added" %}
-				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">Added</a></li>
+				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
 				            {% endif %}
-                            {% if invoice.status.name != "Completed" %}
-                                <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Completed</a></li>
-                            {% endif %}
-                            {% if invoice.status.name != "Denied" %}
+				            {% if invoice.status.name != "Completed" %}
+				                <li><a class="dropdown-item" href="{% url 'invoice_status' invoice.id %}">Completed</a></li>
+				            {% endif %}
+				            {% if invoice.status.name != "Denied" %}
                                 <li><a class="dropdown-item" href="{% url 'denied_status' invoice.id %}">Denied</a></li>
                             {% endif %}
-                            {% if invoice.status.name != "Reassigned" %}
-                                <li><a class="dropdown-item" href="#">Reassigned</a></li>
-                            {% endif %}
-                            {% if invoice.status.name != "Cancelled" %}
+				            {% if invoice.status.name != "Cancelled" %}
                                 <li><a class="dropdown-item" href="{% url 'cancelled_status' invoice.id %}">Cancelled</a></li>
                             {% endif %}
-				            
 				        </ul>
 				    </div>
 				</td>
                 <td>${{ invoice.customer }}</td>
                 <td>{{ invoice.date_received }}</td>
+                <td>{{ invoice.date_invoiced }}</td>
+                <td>{{ invoice.note }}</td>
                 
-                <td><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">Invoice This</a></td>
             </tr>
             {% empty %}
             <tr>
