@@ -323,7 +323,7 @@ def paid_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
-def paid_problem_status(request, pk):
+def problem_paid_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Paid")
     invoice.status = get_status
@@ -336,6 +336,110 @@ def paid_problem_status(request, pk):
     note = invoice.note
     amount = invoice.amount
     process_invoice = RelyPaid.objects.create(
+            dispatch_number = dispatch_number,
+            status=status,
+            customer=customer,
+            date_received=date_received,
+            note=note,
+            amount=0
+    )
+    process_invoice.save()
+    del_invoice = get_object_or_404(RelyProblem, id=invoice.id)
+    del_invoice.delete()
+    messages.success(request, ("Invoice Status updated."))
+    return redirect(request.META.get("HTTP_REFERER"))
+
+def problem_added_status(request, pk):
+    invoice = get_object_or_404(RelyProblem, id=pk)
+    get_status = Status.objects.get(name="Added")
+    invoice.status = get_status
+    invoice.save()
+    dispatch_number = invoice.dispatch_number
+    status = invoice.status
+    customer = invoice.customer
+    date_received = invoice.date_received
+    date_invoiced = invoice.date_invoiced
+    note = invoice.note
+    amount = invoice.amount
+    process_invoice = RelyInvoice.objects.create(
+            dispatch_number = dispatch_number,
+            status=status,
+            customer=customer,
+            date_received=date_received,
+            note=note,
+            amount=0
+    )
+    process_invoice.save()
+    del_invoice = get_object_or_404(RelyProblem, id=invoice.id)
+    del_invoice.delete()
+    messages.success(request, ("Invoice Status updated."))
+    return redirect(request.META.get("HTTP_REFERER"))
+
+def problem_completed_status(request, pk):
+    invoice = get_object_or_404(RelyProblem, id=pk)
+    get_status = Status.objects.get(name="Completed")
+    invoice.status = get_status
+    invoice.save()
+    dispatch_number = invoice.dispatch_number
+    status = invoice.status
+    customer = invoice.customer
+    date_received = invoice.date_received
+    date_invoiced = invoice.date_invoiced
+    note = invoice.note
+    amount = invoice.amount
+    process_invoice = RelyCompleted.objects.create(
+            dispatch_number = dispatch_number,
+            status=status,
+            customer=customer,
+            date_received=date_received,
+            note=note,
+            amount=0
+    )
+    process_invoice.save()
+    del_invoice = get_object_or_404(RelyProblem, id=invoice.id)
+    del_invoice.delete()
+    messages.success(request, ("Invoice Status updated."))
+    return redirect(request.META.get("HTTP_REFERER"))
+
+def problem_denied_status(request, pk):
+    invoice = get_object_or_404(RelyProblem, id=pk)
+    get_status = Status.objects.get(name="Denied")
+    invoice.status = get_status
+    invoice.save()
+    dispatch_number = invoice.dispatch_number
+    status = invoice.status
+    customer = invoice.customer
+    date_received = invoice.date_received
+    date_invoiced = invoice.date_invoiced
+    note = invoice.note
+    amount = invoice.amount
+    process_invoice = RelyCompleted.objects.create(
+            dispatch_number = dispatch_number,
+            status=status,
+            customer=customer,
+            date_received=date_received,
+            note=note,
+            amount=0
+    )
+    process_invoice.save()
+    del_invoice = get_object_or_404(RelyProblem, id=invoice.id)
+    del_invoice.delete()
+    messages.success(request, ("Invoice Status updated."))
+    return redirect(request.META.get("HTTP_REFERER"))
+
+def problem_cancelled_status(request, pk):
+    invoice = get_object_or_404(RelyProblem, id=pk)
+    get_status = Status.objects.get(name="Cancelled")
+    invoice.status = get_status
+    invoice.save()
+    dispatch_number = invoice.dispatch_number
+    status = invoice.status
+    customer = invoice.customer
+    date_received = invoice.date_received
+    date_invoiced = invoice.date_invoiced
+    note = invoice.note
+    amount = invoice.amount
+    process_invoice = RelyCompleted.objects.create(
             dispatch_number = dispatch_number,
             status=status,
             customer=customer,
@@ -453,4 +557,5 @@ def rely_invoice_problem(request):
         "all_statuses": all_statuses,
         'search_results':search_results
     }
-    return render(request, 'rely_problem.html', context) 
+    return render(request, 'rely_problem.html', context)
+

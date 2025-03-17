@@ -31,7 +31,7 @@
             <th>Date Received</th>
             <th>Date Invoiced</th>
             <th>Amount</th>
-            <th>Action</th>
+            
         </tr>
     </thead>
     <tbody>
@@ -46,12 +46,9 @@
 				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
 				            {{ invoice.status.name }}
 				        </button>
-				        <ul class="dropdown-menu">
-				        	{% if invoice.status.name != "Added" %}
-				                <li><a class="dropdown-item" href="{% url 'added_paid_status' invoice.id %}">Added</a></li>
-				            {% endif %}
-				            {% if invoice.status.name != "Invoiced" %}
-				                <li><a class="dropdown-item" href="{% url 'invoice_status' invoice.id %}">Invoice</a></li>
+				        <ul class="dropdown-menu">	
+				            {% if invoice.status.name != "Problem" %}
+				                <li><a class="dropdown-item" href="{% url 'problem_status' invoice.id %}">Problem</a></li>
 				            {% endif %}
 				            {% if invoice.status.name != "Paid" %}
 				                <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Paid</a></li>
@@ -63,7 +60,7 @@
                 <td>{{ invoice.date_received }}</td>
                 <td>{{ invoice.date_invoiced }}</td>
                 <td>{{ invoice.amount }}</td>
-                <td><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">PAID</a></td>
+                
             </tr>
             {% empty %}
             <tr>
@@ -99,7 +96,7 @@
                 <td>{{ invoice.date_received }}</td>
                 <td>{{ invoice.date_invoiced }}</td>
                 <td>{{ invoice.amount }}</td>
-                <td><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">PAID</a></td>
+                
             </tr>
             {% empty %}
             <tr>
