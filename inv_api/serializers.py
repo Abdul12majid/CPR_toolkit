@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from task_app.models import Invoice, Ebay, Task
+from task_app.models import Invoice, Ebay, Task, Today_order
 from rely_invoice.models import RelyInvoice, Status
 
 
@@ -13,6 +13,11 @@ class EbaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Ebay
         fields = ['id', 'name', 'tracking_number', 'order_number', 'link', 'delivery_time']
+
+class Today_orderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Today_order
+        fields = ['id', 'name', 'tracking_number', 'order_number', 'link']
 
 
 class RelyInvoiceSerializer(serializers.ModelSerializer):

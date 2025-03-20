@@ -44,10 +44,24 @@ class Ebay(models.Model):
     tracking_number = models.CharField(max_length=200, blank=True, null=True)
     order_number = models.CharField(max_length=200, blank=True, null=True)
     link = models.CharField(max_length=500, blank=True, null=True)
+    date_pushed = models.DateField(default=timezone.now)
     delivery_time = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Ebay"
+
+    def __str__(self):
+        return self.name + " " + self.order_number
+
+class Today_order(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    tracking_number = models.CharField(max_length=200, blank=True, null=True)
+    order_number = models.CharField(max_length=200, blank=True, null=True)
+    link = models.CharField(max_length=500, blank=True, null=True)
+    date_pushed = models.DateField(default=timezone.now)
+
+    class Meta:
+        verbose_name_plural = "Today Order"
 
     def __str__(self):
         return self.name + " " + self.order_number

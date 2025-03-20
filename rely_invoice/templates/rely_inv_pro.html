@@ -1,111 +1,251 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    
+     <style type="text/css">
+        #invoiceChart {
+        max-width: 400px;  /* Adjust width */
+        max-height: 300px; /* Adjust height */ 
+        }
+     </style>
+
+    <div class="container mt-4">
+      {% include 'rely_nav.html' %}</br></br>
+
+        <h3 style="text-align: center;">Summary</h3>
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Period</th>
+                    <th>AVG Amount</th>
+                    <th>Total Invoiced Amt</th>
+                    <th>AVG Days to Invoice</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Today</td>
+                    <td>${{ current_day_avg|floatformat:2 }}</td>
+                    <td>${{ current_day_total|floatformat:2 }}</td>
+                    <td>{{ current_day_avg_days|floatformat:0 }} days</td>
+                </tr>
+                <tr>
+                    <td>Last 7 Days</td>
+                    <td>${{ seven_day_avg|floatformat:2 }}</td>
+                    <td>${{ seven_day_total|floatformat:2 }}</td>
+                    <td>{{ seven_day_avg_days|floatformat:0 }} days</td>
+                </tr>
+                <tr>
+                    <td>Last 30 Days</td>
+                    <td>${{ thirty_day_avg|floatformat:2 }}</td>
+                    <td>${{ thirty_day_total|floatformat:2 }}</td>
+                    <td>{{ thirty_day_avg_days|floatformat:0 }} days</td>
+                </tr>
+                <tr>
+                    <td>Last 6 Months</td>
+                    <td>${{ six_month_avg|floatformat:2 }}</td>
+                    <td>${{ six_month_total|floatformat:2 }}</td>
+                    <td>{{ six_month_avg_days|floatformat:0 }} days</td>
+                </tr>
+                <tr>
+                    <td>Last 12 Months</td>
+                    <td>${{ twelve_month_avg|floatformat:2 }}</td>
+                    <td>${{ twelve_month_total|floatformat:2 }}</td>
+                    <td>{{ twelve_month_avg_days|floatformat:0 }} days</td>
+                </tr>
+                <tr class="table-primary">
+                    <td><strong>Overall Total</strong></td>
+                    <td>-</td>
+                    <td><strong>${{ overall_total|floatformat:2 }}</strong></td>
+                    <td><strong>{{ overall_avg_days|floatformat:0 }} days</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container mt-5">
+        <h4>Rely Invoice Averages Over Time</h4>
+        <canvas id="invoiceChart"></canvas>
+    </div></br>
 
 	<div class="container mt-5">
-		<a class="btn btn-secondary btn-sm" href="{% url 'rely_invoice' %}">New</a>&nbsp;&nbsp;
-        <a class="btn btn-info btn-sm" href="{% url 'rely_invoice_completed' %}">Completed</a>&nbsp;&nbsp;
-        <a class="btn btn-primary btn-sm" href="{% url 'rely_invoice_processed' %}">Invoiced</a>
-        &nbsp;&nbsp;
-        <a class="btn btn-success btn-sm" href="{% url 'rely_invoice_paid' %}">Paid</a>
-        &nbsp;&nbsp;
-        <a class="btn btn-danger btn-sm" href="{% url 'rely_invoice_problem' %}">Problem</a></br>
-
 		<h2 style="text-align: center;" class="mb-4">Invoiced</h2>
 	    	<div class="table-responsive">
-
 	    		<form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
 				    {% csrf_token %}
 				    <input name="inv_data" class="form-control mr-sm-2" type="search" placeholder="Search invoice" aria-label="Search">
 				    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 				</form> 
+
+                <form action="{% url 'move_dispatches' %}" style="float:left;" method="POST" class="form-inline my-2 my-lg-0">
+                    {% csrf_token %}
+                    <input name="dispatch_numbers" class="form-control mr-sm-2" type="search" placeholder="dispatch numbers" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">PAID</button>
+                </form> 
 				<br><br>
 
-<table class="table table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>#</th>
-            <th>Dispatch Number</th>
-            <th>Status</th>
-            <th>Customer</th>
-            <th>Date Received</th>
-            <th>Date Invoiced</th>
-            <th>Amount</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% if search_results is not None %}
-            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
-            {% for invoice in search_results %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ invoice.dispatch_number }}</td>
-                <td>
-				    <div class="dropdown">
-				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
-				            {{ invoice.status.name }}
-				        </button>
-				        <ul class="dropdown-menu">
-				        	{% if invoice.status.name != "Added" %}
-				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
-				            {% endif %}
-				            {% if invoice.status.name != "Problem" %}
-				                <li><a class="dropdown-item" href="{% url 'problem_inv_status' invoice.id %}">Problem</a></li>
-				            {% endif %}
-				        </ul>
-				    </div>
-				</td>
-                <td>${{ invoice.customer }}</td>
-                <td>{{ invoice.date_received }}</td>
-                <td>{{ invoice.date_invoiced }}</td>
-                <td>{{ invoice.amount }}</td>
-                <td><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">PAID</a></td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center">No matching invoices found.</td>
-            </tr>
-            {% endfor %}
-            
-        {% endif %}
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Dispatch Number</th>
+                            <th>Status</th>
+                            <th>Customer</th>
+                            <th>Date Received</th>
+                            <th>Date Invoiced</th>
+                            <th>Amount</th>
+                            <th>No. of Days</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if search_results is not None %}
+                            <tr><td colspan="9" class="text-center"><strong>Search Results:</strong></td></tr>
+                            {% for invoice in search_results %}
+                            <tr class="{% if invoice.days_difference >= 50 %}table-danger{% endif %}">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ invoice.dispatch_number }}</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+                                            {{ invoice.status.name }}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% if invoice.status.name != "Added" %}
+                                                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Problem" %}
+                                                <li><a class="dropdown-item" href="{% url 'problem_inv_status' invoice.id %}">Problem</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Reassigned" %}
+                                                <li><a class="dropdown-item" href="{% url 'processed_reassigned_status' invoice.id %}">Reassigned</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>{{ invoice.customer }}</td>
+                                <td>{{ invoice.date_received }}</td>
+                                <td>{{ invoice.date_invoiced }}</td>
+                                <td>{{ invoice.amount }}</td>
+                                <td>{{ invoice.days_difference }}</td>
+                                <td class="table-danger"><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">PAID</a></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center">No matching invoices found.</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
 
-        {% if search_results is None %}
-            
-            {% for invoice in all_invoice %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ invoice.dispatch_number }}</td>
-                <td>
-				    <div class="dropdown">
-				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
-				            {{ invoice.status.name }}
-				        </button>
-				        <ul class="dropdown-menu">
-				        	{% if invoice.status.name != "Added" %}
-				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
-				            {% endif %}
-				            {% if invoice.status.name != "Problem" %}
-				                <li><a class="dropdown-item" href="{% url 'problem_inv_status' invoice.id %}">Problem</a></li>
-				            {% endif %}
-				        </ul>
-				    </div>
-				</td>
-                <td>${{ invoice.customer }}</td>
-                <td>{{ invoice.date_received }}</td>
-                <td>{{ invoice.date_invoiced }}</td>
-                <td>{{ invoice.amount }}</td>
-                <td><a class="btn btn-primary" href="{% url 'paid_status' invoice.id %}">PAID</a></td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center">No invoices available.</td>
-            </tr>
-            {% endfor %}
-        {% endif %}
-    </tbody>
-</table>
+                        {% if search_results is None %}
+                            {% for invoice in all_invoice %}
+                            <tr class="{% if invoice.days_difference >= 50 %}
+                                    table-danger
+                                {% elif invoice.days_difference >= 30 and invoice.days_difference <= 50 %}
+                                    table-warning
+                                {% endif %}">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ invoice.dispatch_number }}</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+                                            {{ invoice.status.name }}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% if invoice.status.name != "Added" %}
+                                                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Problem" %}
+                                                <li><a class="dropdown-item" href="{% url 'problem_inv_status' invoice.id %}">Problem</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Reassigned" %}
+                                                <li><a class="dropdown-item" href="{% url 'processed_reassigned_status' invoice.id %}">Reassigned</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>{{ invoice.customer }}</td>
+                                <td>{{ invoice.date_received }}</td>
+                                <td>{{ invoice.date_invoiced }}</td>
+                                <td>{{ invoice.amount }}</td>
+                                <td>{{ invoice.days_difference }}</td>
+                                <td><a class="btn btn-primary" href="{% url 'paid_status' invoice.id %}">PAID</a></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center">No invoices available.</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
 	    	</div>
 	</div>
+    <script>
+        // Data from Django context
+        const currentDayAvg = {{ current_day_avg }};
+        const sevenDayAvg = {{ seven_day_avg }};
+        const thirtyDayAvg = {{ thirty_day_avg }};
+        const sixMonthAvg = {{ six_month_avg }};
+        const twelveMonthAvg = {{ twelve_month_avg }};
 
+        // Function to determine bar colors based on new conditions
+        function getColor(value) {
+            if (value <= 161) {
+                return 'darkgreen'; // Up to 161: DARK GREEN
+            } else if (value > 161 && value <= 170) {
+                return 'lightgreen'; // 161-170: LIGHT GREEN
+            } else if (value > 170 && value <= 185) {
+                return 'yellow'; // 170-185: YELLOW
+            } else if (value > 185 && value <= 200) {
+                return 'orange'; // 185-200: ORANGE
+            } else {
+                return 'red'; // 200+: RED
+            }
+        }
+
+        // Configure chart
+        const ctx = document.getElementById('invoiceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Today', '7 Days', '30 Days', '6 Months', '12 Months'],
+                datasets: [{
+                    label: 'Invoice Averages ($)',
+                    data: [currentDayAvg, sevenDayAvg, thirtyDayAvg, sixMonthAvg, twelveMonthAvg],
+                    backgroundColor: [
+                        getColor(currentDayAvg),
+                        getColor(sevenDayAvg),
+                        getColor(thirtyDayAvg),
+                        getColor(sixMonthAvg),
+                        getColor(twelveMonthAvg)
+                    ],
+                    borderColor: ['black', 'black', 'black', 'black', 'black'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: "end",  // Position above bars
+                        align: "top",  // Align to the top
+                        color: "black",  // Label color
+                        font: {
+                            weight: "bold",
+                            size: 14
+                        },
+                        formatter: function(value) {
+                            return `$${value.toFixed(2)}`; // Display as "$xx.xx"
+                        }
+                    }
+                },
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 {% endblock %}

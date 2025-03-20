@@ -5,65 +5,64 @@
  <style type="text/css">
     #invoiceChart {
     max-width: 400px;  /* Adjust width */
-    max-height: 300px; /* Adjust height */
-}
-
-</style> 
+    max-height: 300px; /* Adjust height */ 
+    }
+ </style> 
 
 	<div class="container mt-4">
-    <h2 style="text-align: center;" class="mb-4">AHS Invoices</h2>
+        <h2 style="text-align: center;" class="mb-4">AHS Invoices</h2>
 
     <a style="display: block; float: right;" class="btn btn-primary" href="{% url 'create_invoice' %}">Create Invoice</a></br>
 
     <h3>Summary</h3>
     <table class="table table-bordered">
-    <thead class="thead-light">
-        <tr>
-            <th>Period</th>
-            <th>AVG Amount</th>
-            <th>Total Invoiced Amt</th>
-            <th>AVG Days to Complete</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Today</td>
-            <td>${{ current_day_avg|floatformat:2 }}</td>
-            <td>${{ current_day_total|floatformat:2 }}</td>
-            <td>{{ current_day_avg_days|floatformat:0 }} days</td>
-        </tr>
-        <tr>
-            <td>Last 7 Days</td>
-            <td>${{ seven_day_avg|floatformat:2 }}</td>
-            <td>${{ seven_day_total|floatformat:2 }}</td>
-            <td>{{ seven_day_avg_days|floatformat:0 }} days</td>
-        </tr>
-        <tr>
-            <td>Last 30 Days</td>
-            <td>${{ thirty_day_avg|floatformat:2 }}</td>
-            <td>${{ thirty_day_total|floatformat:2 }}</td>
-            <td>{{ thirty_day_avg_days|floatformat:0 }} days</td>
-        </tr>
-        <tr>
-            <td>Last 6 Months</td>
-            <td>${{ six_month_avg|floatformat:2 }}</td>
-            <td>${{ six_month_total|floatformat:2 }}</td>
-            <td>{{ six_month_avg_days|floatformat:0 }} days</td>
-        </tr>
-        <tr>
-            <td>Last 12 Months</td>
-            <td>${{ twelve_month_avg|floatformat:2 }}</td>
-            <td>${{ twelve_month_total|floatformat:2 }}</td>
-            <td>{{ twelve_month_avg_days|floatformat:0 }} days</td>
-        </tr>
-        <tr class="table-primary">
-            <td><strong>Overall Total</strong></td>
-            <td>-</td>
-            <td><strong>${{ overall_total|floatformat:2 }}</strong></td>
-            <td><strong>{{ overall_avg_days|floatformat:0 }} days</strong></td>
-        </tr>
-    </tbody>
-</table>
+        <thead class="thead-light">
+            <tr>
+                <th>Period</th>
+                <th>AVG Amount</th>
+                <th>Total Invoiced Amt</th>
+                <th>AVG Days to Complete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Today</td>
+                <td>${{ current_day_avg|floatformat:2 }}</td>
+                <td>${{ current_day_total|floatformat:2 }}</td>
+                <td>{{ current_day_avg_days|floatformat:0 }} days</td>
+            </tr>
+            <tr>
+                <td>Last 7 Days</td>
+                <td>${{ seven_day_avg|floatformat:2 }}</td>
+                <td>${{ seven_day_total|floatformat:2 }}</td>
+                <td>{{ seven_day_avg_days|floatformat:0 }} days</td>
+            </tr>
+            <tr>
+                <td>Last 30 Days</td>
+                <td>${{ thirty_day_avg|floatformat:2 }}</td>
+                <td>${{ thirty_day_total|floatformat:2 }}</td>
+                <td>{{ thirty_day_avg_days|floatformat:0 }} days</td>
+            </tr>
+            <tr>
+                <td>Last 6 Months</td>
+                <td>${{ six_month_avg|floatformat:2 }}</td>
+                <td>${{ six_month_total|floatformat:2 }}</td>
+                <td>{{ six_month_avg_days|floatformat:0 }} days</td>
+            </tr>
+            <tr>
+                <td>Last 12 Months</td>
+                <td>${{ twelve_month_avg|floatformat:2 }}</td>
+                <td>${{ twelve_month_total|floatformat:2 }}</td>
+                <td>{{ twelve_month_avg_days|floatformat:0 }} days</td>
+            </tr>
+            <tr class="table-primary">
+                <td><strong>Overall Total</strong></td>
+                <td>-</td>
+                <td><strong>${{ overall_total|floatformat:2 }}</strong></td>
+                <td><strong>{{ overall_avg_days|floatformat:0 }} days</strong></td>
+            </tr>
+        </tbody>
+    </table>
 
     <div class="mt-5">
         <h4>Invoice Averages Over Time</h4>

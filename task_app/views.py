@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from .models import Task, Journal, Invoice, Ebay
-from .models import Belle_Task, Marvin_Task
+from .models import Belle_Task, Marvin_Task, Today_order
 from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
@@ -35,6 +35,7 @@ def index(request):
 		total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
 		avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
 		return round(avg, 2), round(total, 2)
+        
 	# Filter invoices excluding those with 0$ amount
 	current_day_avg, current_day_total = get_avg_total(
 		Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0)
@@ -498,6 +499,11 @@ def update_journal(request, pk):
 @login_required(login_url='login')
 def ebay(request):
     all_ebay = Ebay.objects.all()
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    now_pst = now().astimezone(pst_tz)
+    today_pst = now_pst.date()
+    print(today_pst, flush=True)
+    today_order = Today_order.objects.filter(date_pushed=today_pst)
     search_results = None
     # Handle search functionality
     if request.method == "POST":
@@ -510,7 +516,8 @@ def ebay(request):
                              Ebay.objects.filter(order_number__icontains=ebay_data)
     context = {
         "all_ebay":all_ebay,
-        'search_results':search_results
+        'search_results':search_results,
+        "today_order":today_order,
     }
     return render(request, 'ebay.html', context)
 

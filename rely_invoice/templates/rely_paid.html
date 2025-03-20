@@ -3,13 +3,7 @@
 {% block content %}
 
 	<div class="container mt-5">
-		<a class="btn btn-secondary btn-sm" href="{% url 'rely_invoice' %}">New</a>&nbsp;&nbsp;
-        <a class="btn btn-info btn-sm" href="{% url 'rely_invoice_completed' %}">Completed</a>&nbsp;&nbsp;
-        <a class="btn btn-primary btn-sm" href="{% url 'rely_invoice_processed' %}">Invoiced</a>
-        &nbsp;&nbsp;
-        <a class="btn btn-success btn-sm" href="{% url 'rely_invoice_paid' %}">Paid</a>
-        &nbsp;&nbsp;
-        <a class="btn btn-danger btn-sm" href="{% url 'rely_invoice_problem' %}">Problem</a></br>
+		{% include 'rely_nav.html' %}
 
 		<h2 style="text-align: center;" class="mb-4">Paid</h2>
 	    	<div class="table-responsive">
@@ -30,8 +24,8 @@
             <th>Customer</th>
             <th>Date Received</th>
             <th>Date Invoiced</th>
+            <th>Notes</th>
             <th>Amount</th>
-            
         </tr>
     </thead>
     <tbody>
@@ -53,12 +47,16 @@
 				            {% if invoice.status.name != "Paid" %}
 				                <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Paid</a></li>
 				            {% endif %}
+                            {% if invoice.status.name != "Reassigned" %}
+                                <li><a class="dropdown-item" href="{% url 'paid_reassigned_status' invoice.id %}">Reassigned</a></li>
+                            {% endif %}
 				        </ul>
 				    </div>
 				</td>
-                <td>${{ invoice.customer }}</td>
+                <td>{{ invoice.customer }}</td>
                 <td>{{ invoice.date_received }}</td>
                 <td>{{ invoice.date_invoiced }}</td>
+                <td>{{ invoice.note }}</td>
                 <td>{{ invoice.amount }}</td>
                 
             </tr>
@@ -89,12 +87,16 @@
 				            {% if invoice.status.name != "Paid" %}
 				                <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Paid</a></li>
 				            {% endif %}
+                            {% if invoice.status.name != "Reassigned" %}
+                                <li><a class="dropdown-item" href="{% url 'paid_reassigned_status' invoice.id %}">Reassigned</a></li>
+                            {% endif %}
 				        </ul>
 				    </div>
 				</td>
-                <td>${{ invoice.customer }}</td>
+                <td>{{ invoice.customer }}</td>
                 <td>{{ invoice.date_received }}</td>
                 <td>{{ invoice.date_invoiced }}</td>
+                <td>{{ invoice.note }}</td>
                 <td>{{ invoice.amount }}</td>
                 
             </tr>

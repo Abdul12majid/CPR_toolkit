@@ -3,8 +3,6 @@
 
 {% block content %}
 
-<center><h3 style="float:center">All Order</h3></center>
-
 <style type="text/css">
 	.link_cell {
             
@@ -13,11 +11,39 @@
         }
 </style>
 
-<form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
-    {% csrf_token %}
-    <input name="ebay_data" class="form-control mr-sm-2" type="search" placeholder="Search Order" aria-label="Search">
-    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-</form>
+    <div class="container">
+        <center><h3 style="float:center">Arriving Today</h3></center></br>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">S/N</th>
+              <th scope="col">Order Number</th>
+              <th scope="col">Tracking Number</th>
+              <th scope="col">Name</th>
+              <th scope="col">Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in today_order %}
+            <tr>
+              <th scope="row">{{ forloop.counter }}</th>
+              <td>{{ order.order_number }}</td>
+              <td>{{ order.tracking_number }}</td>
+              <td>{{ order.name }}</td>
+              <td class="link_cell"><a href="{{order.link}}" target="_blank" class="btn btn-primary btn-sm">Link</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div></br>
+
+    <center><h3 style="float:center">All Order</h3></center>
+
+    <form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
+        {% csrf_token %}
+        <input name="ebay_data" class="form-control mr-sm-2" type="search" placeholder="Search Order" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
 <br>
 <a style="text-align: left;" class="btn btn-primary" href="{% url 'create_ebay' %}">Create Ebay</a><br><br>
 
@@ -29,6 +55,7 @@
             <th>Tracking Number</th>
             <th>Name</th>
             <th>Link</th>
+            <th>Date Received</th>
             <th>Delivery Time</th>
         </tr>
     </thead>
@@ -42,6 +69,7 @@
                 <td>{{ ebay.tracking_number }}</td>
                 <td>{{ ebay.name }}</td>
                 <td class="link_cell"><a href="{{ebay.link}}" target="_blank" class="btn btn-primary btn-sm">Link</a></td>
+                <td>{{ ebay.date_pushed }}</td>
                 <td>{{ ebay.delivery_time }}</td>
                 
             </tr>
@@ -62,6 +90,7 @@
                 <td>{{ ebay.tracking_number }}</td>
                 <td>{{ ebay.name }}</td>
                 <td class="link_cell"><a href="{{ebay.link}}" target="_blank" class="btn btn-primary btn-sm">Link</a></td>
+                <td>{{ ebay.date_pushed }}</td>
                 <td>{{ ebay.delivery_time }}</td>
                 
             </tr>

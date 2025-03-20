@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	<div class="container mt-5">
+		<h1>Move invoices to RelyPaid</h1>
+		    <form method="post">
+		        {% csrf_token %}
+		        <label for="dispatch_numbers">Enter Dispatch Numbers (comma separated):</label><br>
+		        <textarea id="dispatch_numbers" name="dispatch_numbers" rows="4" cols="50"></textarea><br><br>
+		        <input type="submit" value="Move and Delete">
+		    </form>
+	</div>
+
+{% endblock %}
