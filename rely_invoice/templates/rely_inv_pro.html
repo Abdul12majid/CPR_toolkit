@@ -18,8 +18,9 @@
                 <tr>
                     <th>Period</th>
                     <th>AVG Amount</th>
-                    <th>Total Invoiced Amt</th>
-                    <th>AVG Days to Invoice</th>
+                    <th>Total</th>
+                    <th>Days to Inv</th>
+                    <th>Due Avg</th> <!-- Added Due Avg column -->
                 </tr>
             </thead>
             <tbody>
@@ -28,36 +29,42 @@
                     <td>${{ current_day_avg|floatformat:2 }}</td>
                     <td>${{ current_day_total|floatformat:2 }}</td>
                     <td>{{ current_day_avg_days|floatformat:0 }} days</td>
+                    <td>{{ current_day_avg_due_days|floatformat:0 }} days</td> <!-- Added Due Avg -->
                 </tr>
                 <tr>
                     <td>Last 7 Days</td>
                     <td>${{ seven_day_avg|floatformat:2 }}</td>
                     <td>${{ seven_day_total|floatformat:2 }}</td>
                     <td>{{ seven_day_avg_days|floatformat:0 }} days</td>
+                    <td>{{ seven_day_avg_due_days|floatformat:0 }} days</td> <!-- Added Due Avg -->
                 </tr>
                 <tr>
                     <td>Last 30 Days</td>
                     <td>${{ thirty_day_avg|floatformat:2 }}</td>
                     <td>${{ thirty_day_total|floatformat:2 }}</td>
                     <td>{{ thirty_day_avg_days|floatformat:0 }} days</td>
+                    <td>{{ thirty_day_avg_due_days|floatformat:0 }} days</td> <!-- Added Due Avg -->
                 </tr>
                 <tr>
                     <td>Last 6 Months</td>
                     <td>${{ six_month_avg|floatformat:2 }}</td>
                     <td>${{ six_month_total|floatformat:2 }}</td>
                     <td>{{ six_month_avg_days|floatformat:0 }} days</td>
+                    <td>{{ six_month_avg_due_days|floatformat:0 }} days</td> <!-- Added Due Avg -->
                 </tr>
                 <tr>
                     <td>Last 12 Months</td>
                     <td>${{ twelve_month_avg|floatformat:2 }}</td>
                     <td>${{ twelve_month_total|floatformat:2 }}</td>
                     <td>{{ twelve_month_avg_days|floatformat:0 }} days</td>
+                    <td>{{ twelve_month_avg_due_days|floatformat:0 }} days</td> <!-- Added Due Avg -->
                 </tr>
                 <tr class="table-primary">
                     <td><strong>Overall Total</strong></td>
                     <td>-</td>
                     <td><strong>${{ overall_total|floatformat:2 }}</strong></td>
                     <td><strong>{{ overall_avg_days|floatformat:0 }} days</strong></td>
+                    <td><strong>{{ overall_avg_due_days|floatformat:0 }} days</strong></td> <!-- Added Due Avg -->
                 </tr>
             </tbody>
         </table>
@@ -94,7 +101,8 @@
                             <th>Date Received</th>
                             <th>Date Invoiced</th>
                             <th>Amount</th>
-                            <th>No. of Days</th>
+                            <th>DTC</th>
+                            <th>Due Days</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -102,46 +110,9 @@
                         {% if search_results is not None %}
                             <tr><td colspan="9" class="text-center"><strong>Search Results:</strong></td></tr>
                             {% for invoice in search_results %}
-                            <tr class="{% if invoice.days_difference >= 50 %}table-danger{% endif %}">
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{ invoice.dispatch_number }}</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
-                                            {{ invoice.status.name }}
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            {% if invoice.status.name != "Added" %}
-                                                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
-                                            {% endif %}
-                                            {% if invoice.status.name != "Problem" %}
-                                                <li><a class="dropdown-item" href="{% url 'problem_inv_status' invoice.id %}">Problem</a></li>
-                                            {% endif %}
-                                            {% if invoice.status.name != "Reassigned" %}
-                                                <li><a class="dropdown-item" href="{% url 'processed_reassigned_status' invoice.id %}">Reassigned</a></li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </td>
-                                <td>{{ invoice.customer }}</td>
-                                <td>{{ invoice.date_received }}</td>
-                                <td>{{ invoice.date_invoiced }}</td>
-                                <td>{{ invoice.amount }}</td>
-                                <td>{{ invoice.days_difference }}</td>
-                                <td class="table-danger"><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">PAID</a></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="9" class="text-center">No matching invoices found.</td>
-                            </tr>
-                            {% endfor %}
-                        {% endif %}
-
-                        {% if search_results is None %}
-                            {% for invoice in all_invoice %}
-                            <tr class="{% if invoice.days_difference >= 50 %}
+                            <tr class="{% if invoice.due_days >= 50 %}
                                     table-danger
-                                {% elif invoice.days_difference >= 30 and invoice.days_difference <= 50 %}
+                                {% elif invoice.due_days >= 30 and invoice.days_difference <= 50 %}
                                     table-warning
                                 {% endif %}">
                                 <td>{{ forloop.counter }}</td>
@@ -161,6 +132,9 @@
                                             {% if invoice.status.name != "Reassigned" %}
                                                 <li><a class="dropdown-item" href="{% url 'processed_reassigned_status' invoice.id %}">Reassigned</a></li>
                                             {% endif %}
+                                            {% if invoice.status.name != "Invoiced" %}
+                                                <li><a class="dropdown-item" href="{% url 'invoice_status' invoice.id %}">Invoiced</a></li>
+                                            {% endif %}
                                         </ul>
                                     </div>
                                 </td>
@@ -169,7 +143,53 @@
                                 <td>{{ invoice.date_invoiced }}</td>
                                 <td>{{ invoice.amount }}</td>
                                 <td>{{ invoice.days_difference }}</td>
-                                <td><a class="btn btn-primary" href="{% url 'paid_status' invoice.id %}">PAID</a></td>
+                                <td>{{ invoice.due_days }}</td>
+                                <td><a class="btn btn-primary" href="{% url 'update_processed_paid' invoice.id %}">PAID</a></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center">No matching invoices found.</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if search_results is None %}
+                            {% for invoice in all_invoice %}
+                            <tr class="{% if invoice.due_days >= 50 %}
+                                    table-danger
+                                {% elif invoice.due_days >= 30 and invoice.days_difference <= 50 %}
+                                    table-warning
+                                {% endif %}">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ invoice.dispatch_number }}</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+                                            {{ invoice.status.name }}
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% if invoice.status.name != "Added" %}
+                                                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">New</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Problem" %}
+                                                <li><a class="dropdown-item" href="{% url 'problem_inv_status' invoice.id %}">Problem</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Reassigned" %}
+                                                <li><a class="dropdown-item" href="{% url 'processed_reassigned_status' invoice.id %}">Reassigned</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Invoiced" %}
+                                                <li><a class="dropdown-item" href="{% url 'invoice_status' invoice.id %}">Invoiced</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>{{ invoice.customer }}</td>
+                                <td>{{ invoice.date_received }}</td>
+                                <td>{{ invoice.date_invoiced }}</td>
+                                <td>{{ invoice.amount }}</td>
+                                <td>{{ invoice.days_difference }}</td>
+                                <td>{{ invoice.due_days }}</td>
+                                <td><a class="btn btn-primary" href="{% url 'update_processed_paid' invoice.id %}">PAID</a></td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -179,6 +199,35 @@
                         {% endif %}
                     </tbody>
                 </table>
+                <p style="text-align:center;">Page: {{ invoices.number}} of {{ invoices.paginator.num_pages}}</p>
+
+                <div class="container mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if invoices.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ invoices.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ invoices.number }} of {{ invoices.paginator.num_pages }}</span>
+                            </li>
+
+                            {% if invoices.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ invoices.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ invoices.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
 	    	</div>
 	</div>
     <script>

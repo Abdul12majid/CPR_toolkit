@@ -1,20 +1,59 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-	<div class="container mt-5">
+    
+    <div class="container mt-5">
         {% include 'rely_nav.html' %}
-
+    </div>
+    {% if the_result is not None %}
+        {% for invoice in the_result %}
+        <center>
+            <div style="float:center" class="container mt-5">
+                <div class="card" style="width: 18rem;">
+                  <div class="card-header">
+                    {{ invoice.customer }}
+                  </div>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><b>Dispactch Number:</b> {{ invoice.dispatch_number }}</li>
+                    <li class="list-group-item"><b>Status:</b> {{ invoice.status }}</li>
+                    <li class="list-group-item"><b>Date Received:</b> {{ invoice.date_received }}</li>
+                  </ul>
+                </div>
+            </div>
+        </center>
+        {% endfor %}
+        <center></center>
+        
+    {% endif %}
+    <div class="container mt-5">
+        <button style="float:right" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">Find</button>
+    </div>
+	<div class="container mt-5">
 		<h2 style="text-align: center;" class="mb-4">New</h2>
 	    	<div class="table-responsive">
 
 	    		<form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
 				    {% csrf_token %}
 				    <input name="inv_data" class="form-control mr-sm-2" type="search" placeholder="Search invoice" aria-label="Search">
+                    
 				    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 				</form>
                 <a style="float:left;" href="{% url 'make_invoice' %}" class="btn btn-outline-primary">Make Invoice</a>
 				<br><br>
+
+                <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                      <form method="POST">
+                        {% csrf_token %}
+                          <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Search:</label>
+                            <input name="other_data" class="form-control mr-sm-2" type="search" placeholder="Search invoice" aria-label="Search">
+                          </div>
+                     </form>
+                    </div>
+                  </div>
+                </div>
 
                 <table class="table table-striped">
                     <thead class="table-dark">
@@ -24,11 +63,35 @@
                             <th>Status</th>
                             <th>Customer</th>
                             <th>Date Received</th>
-                            
+                            <th>DTC</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% if the_result is not None %}
+                            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
+                            {% for invoice in the_result %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ invoice.dispatch_number }}</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+                                            {{ invoice.status.name }}
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>{{ invoice.customer }}</td>
+                                <td>{{ invoice.date_received }}</td>
+                                <td>{{ invoice.days_difference }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No matching invoices found.</td>
+                            </tr>
+                            {% endfor %}
+                            
+                        {% endif %}
                         {% if search_results is not None %}
                             <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
                             {% for invoice in search_results %}
@@ -40,6 +103,7 @@
                 				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
                 				            {{ invoice.status.name }}
                 				        </button>
+                                        
                 				        <ul class="dropdown-menu">
                                             {% if invoice.status.name != "Added" %}
                                                 <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">Added</a></li>
@@ -56,14 +120,22 @@
                                             {% if invoice.status.name != "Cancelled" %}
                                                 <li><a class="dropdown-item" href="{% url 'cancelled_status' invoice.id %}">Cancelled</a></li>
                                             {% endif %}
-                                            
+                                            {% if invoice.status.name != "Cancelled" %}
+                                                <li><a class="dropdown-item" href="{% url 'cancelled_status' invoice.id %}">Cancelled</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Problem" %}
+                                                <li><a class="dropdown-item" href="{% url 'added_problem_status' invoice.id %}">Problem</a></li>
+                                            {% endif %}
                                         </ul>
+                                        
                 				    </div>
                 				</td>
                                 <td>{{ invoice.customer }}</td>
                                 <td>{{ invoice.date_received }}</td>
-                                
+                                <td>{{ invoice.days_difference }}</td>
+                                {% if invoice.dispatch_number != m_dispatch %}
                                 <td><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">Invoice This</a></td>
+                                {% endif %}
                             </tr>
                             {% empty %}
                             <tr>
@@ -84,10 +156,11 @@
                 				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
                 				            {{ invoice.status.name }}
                 				        </button>
-                				        <ul class="dropdown-menu">
-                				        	{% if invoice.status.name != "Added" %}
-                				                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">Added</a></li>
-                				            {% endif %}
+                				        {% if invoice.dispatch_number != m_dispatch %}
+                                        <ul class="dropdown-menu">
+                                            {% if invoice.status.name != "Added" %}
+                                                <li><a class="dropdown-item" href="{% url 'added_status' invoice.id %}">Added</a></li>
+                                            {% endif %}
                                             {% if invoice.status.name != "Completed" %}
                                                 <li><a class="dropdown-item" href="{% url 'completed_status' invoice.id %}">Completed</a></li>
                                             {% endif %}
@@ -100,14 +173,22 @@
                                             {% if invoice.status.name != "Cancelled" %}
                                                 <li><a class="dropdown-item" href="{% url 'cancelled_status' invoice.id %}">Cancelled</a></li>
                                             {% endif %}
-                				            
-                				        </ul>
+                                            {% if invoice.status.name != "Cancelled" %}
+                                                <li><a class="dropdown-item" href="{% url 'cancelled_status' invoice.id %}">Cancelled</a></li>
+                                            {% endif %}
+                                            {% if invoice.status.name != "Problem" %}
+                                                <li><a class="dropdown-item" href="{% url 'added_problem_status' invoice.id %}">Problem</a></li>
+                                            {% endif %}
+                                        </ul>
+                                        {% endif %}
                 				    </div>
                 				</td>
                                 <td>{{ invoice.customer }}</td>
                                 <td>{{ invoice.date_received }}</td>
-                                
+                                <td>{{ invoice.days_difference }}</td>
+                                {% if invoice.dispatch_number != m_dispatch %}
                                 <td><a class="btn btn-primary" href="{% url 'update_r_invoice' invoice.id %}">Invoice This</a></td>
+                                {% endif %}
                             </tr>
                             {% empty %}
                             <tr>
@@ -117,6 +198,7 @@
                         {% endif %}
                     </tbody>
                 </table>
+                
 	    	</div>
 	</div>
 

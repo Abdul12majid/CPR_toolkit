@@ -4,7 +4,10 @@ from django.urls import path
 urlpatterns = [
     path('rely_invoice', views.rely_invoice, name="rely_invoice"),
     path('make_invoice', views.make_invoice, name="make_invoice"),
+    path('make_gmmm_invoice', views.make_gmmm_invoice, name="make_gmmm_invoice"),
+    path('make_reassigned_invoice', views.make_reassigned_invoice, name="make_reassigned_invoice"),
     path('update_r_invoice/<int:pk>', views.update_r_invoice, name="update_r_invoice"),
+    path('update_processed_paid/<int:pk>', views.update_processed_paid, name="update_processed_paid"),
     path('delete_r_invoice/<int:pk>', views.delete_r_invoice, name="delete_r_invoice"),
     path('invoice_status/<int:pk>', views.invoice_status, name="invoice_status"),
 
@@ -28,6 +31,7 @@ urlpatterns = [
     path('reassigned_paid_status/<int:pk>', views.reassigned_paid_status, name="reassigned_paid_status"),
 
     path('problem_status/<int:pk>', views.problem_status, name="problem_status"),
+    path('problem_invoice_status/<int:pk>', views.problem_invoice_status, name="problem_invoice_status"),
     path('problem_paid_status/<int:pk>', views.problem_paid_status, name="problem_paid_status"),
     path('problem_added_status/<int:pk>', views.problem_added_status, name="problem_added_status"),
     path('problem_completed_status/<int:pk>', views.problem_completed_status, name="problem_completed_status"),

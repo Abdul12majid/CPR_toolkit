@@ -3,7 +3,33 @@
 {% block content %}
 
 	<div class="container mt-5">
-		{% include 'rely_nav.html' %}
+		{% include 'rely_nav.html' %}</br></br>
+
+        <div class="container mt-4">
+            <center>
+                <table class="table table-bordered" style="width: 500px;"> 
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Rely Owes</strong></td>
+                            <td style="padding: 10px;">{{ total_amount | floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>GMMM</strong></td>
+                            <td style="padding: 10px;">{{ total_gmmm_amount | floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Status</strong></td>
+                            {% if negative %}
+                            <td style="padding: 10px;"><b style="color: green;">{{ diff | floatformat:2 }}</b></td>
+                            {% else %}
+                            <td style="padding: 10px;"><b style="color: red;">{{ diff | floatformat:2 }}</b></td>
+                            {% endif %}
+                        </tr>
+                    </tbody>
+                </table>
+            </center>
+        </div>
+        
 
 		<h2 style="text-align: center;" class="mb-4">Reassigned</h2>
 	    	<div class="table-responsive">
@@ -13,97 +39,100 @@
 				    <input name="inv_data" class="form-control mr-sm-2" type="search" placeholder="Search invoice" aria-label="Search">
 				    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 				</form> 
-				<br><br>
+				<br>
+                <a style="float:left;" href="{% url 'make_reassigned_invoice' %}" class="btn btn-outline-primary">Additional</a>&nbsp;&nbsp;
+                <a style="float:left;" href="{% url 'make_gmmm_invoice' %}" class="btn btn-outline-primary">GMMM</a>
+                <br><br>
 
-<table class="table table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>#</th>
-            <th>Dispatch Number</th>
-            <th>Status</th>
-            <th>Customer</th>
-            <th>Note</th>
-            <th>Date Received</th>
-            <th>Date Invoiced</th>
-            <th>Amount</th>
-            
-        </tr>
-    </thead>
-    <tbody>
-        {% if search_results is not None %}
-            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
-            {% for invoice in search_results %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ invoice.dispatch_number }}</td>
-                <td>
-				    <div class="dropdown">
-				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
-				            {{ invoice.status.name }}
-				        </button>
-				        <ul class="dropdown-menu">
-				        	{% if invoice.status.name != "Added" %}
-				                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
-				            {% endif %}
-                            {% if invoice.status.name != "Paid" %}
-                                <li><a class="dropdown-item" href="{% url 'reassigned_paid_status' invoice.id %}">Paid</a></li>
-                            {% endif %}
-				            
-				        </ul>
-				    </div>
-				</td>
-                <td>{{ invoice.customer }}</td>
-                <td>{{ invoice.note }}</td>
-                <td>{{ invoice.date_received }}</td>
-                <td>{{ invoice.date_invoiced }}</td>
-                <td>{{ invoice.amount }}</td>
-                
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center">No matching invoices found.</td>
-            </tr>
-            {% endfor %}
-            
-        {% endif %}
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Dispatch Number</th>
+                            <th>Status</th>
+                            <th>Customer</th>
+                            <th>Note</th>
+                            <th>Date Received</th>
+                            <th>Date Invoiced</th>
+                            <th>Amount</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if search_results is not None %}
+                            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
+                            {% for invoice in search_results %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ invoice.dispatch_number }}</td>
+                                <td>
+                				    <div class="dropdown">
+                				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+                				            {{ invoice.status.name }}
+                				        </button>
+                				        <ul class="dropdown-menu">
+                				        	{% if invoice.status.name != "Added" %}
+                				                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
+                				            {% endif %}
+                                            {% if invoice.status.name != "Paid" %}
+                                                <li><a class="dropdown-item" href="{% url 'reassigned_paid_status' invoice.id %}">Paid</a></li>
+                                            {% endif %}
+                				            
+                				        </ul>
+                				    </div>
+                				</td>
+                                <td>{{ invoice.customer }}</td>
+                                <td>{{ invoice.note }}</td>
+                                <td>{{ invoice.date_received }}</td>
+                                <td>{{ invoice.date_invoiced }}</td>
+                                <td>{{ invoice.amount }}</td>
+                                
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No matching invoices found.</td>
+                            </tr>
+                            {% endfor %}
+                            
+                        {% endif %}
 
-        {% if search_results is None %}
-            
-            {% for invoice in all_invoice %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ invoice.dispatch_number }}</td>
-                <td>
-				    <div class="dropdown">
-				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
-				            {{ invoice.status.name }}
-				        </button>
-				        <ul class="dropdown-menu">
-				        	{% if invoice.status.name != "Added" %}
-				                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
-				            {% endif %}
-                            {% if invoice.status.name != "Paid" %}
-                                <li><a class="dropdown-item" href="{% url 'reassigned_paid_status' invoice.id %}">Paid</a></li>
-                            {% endif %}
-				            
-				        </ul>
-				    </div>
-				</td>
-                <td>{{ invoice.customer }}</td>
-                <td>{{ invoice.note }}</td>
-                <td>{{ invoice.date_received }}</td>
-                <td>{{ invoice.date_invoiced }}</td>
-                <td>{{ invoice.amount }}</td>
-                
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center">No invoices available.</td>
-            </tr>
-            {% endfor %}
-        {% endif %}
-    </tbody>
-</table>
+                        {% if search_results is None %}
+                            
+                            {% for invoice in total %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ invoice.dispatch_number }}</td>
+                                <td>
+                				    <div class="dropdown">
+                				        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+                				            {{ invoice.status.name }}
+                				        </button>
+                				        <ul class="dropdown-menu">
+                				        	{% if invoice.status.name != "Added" %}
+                				                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
+                				            {% endif %}
+                                            {% if invoice.status.name != "Paid" %}
+                                                <li><a class="dropdown-item" href="{% url 'reassigned_paid_status' invoice.id %}">Paid</a></li>
+                                            {% endif %}
+                				            
+                				        </ul>
+                				    </div>
+                				</td>
+                                <td>{{ invoice.customer }}</td>
+                                <td>{{ invoice.note }}</td>
+                                <td>{{ invoice.date_received }}</td>
+                                <td>{{ invoice.date_invoiced }}</td>
+                                <td>{{ invoice.amount }}</td>
+                                
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No invoices available.</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
 	    	</div>
 	</div>
 

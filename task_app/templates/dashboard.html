@@ -25,7 +25,7 @@
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td class="description-cell">{{ task.description }}</td>
-                                    <td class="description-cell">{{ task.date_created }}</td>
+                                    <td class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
                                     <td class="description-cell">
                                         <a href="{% url 'update_belle_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
                                         <a href="{% url 'complete_belle_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
@@ -70,7 +70,7 @@
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td class="description-cell">{{ task.description }}</td>
-                                    <td class="description-cell">{{ task.date_created }}</td>
+                                    <td class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
                                     <td class="description-cell">
                                         <a href="{% url 'update_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
                                         <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
@@ -144,7 +144,7 @@
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td class="description-cell">{{ task.description }}</td>
-                                    <td class="description-cell">{{ task.date_created }}</td>
+                                    <td class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
                                     <td class="description-cell">
                                         <a href="{% url 'update_marvin_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
                                         <a href="{% url 'complete_marvin_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
