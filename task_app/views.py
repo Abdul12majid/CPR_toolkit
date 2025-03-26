@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from .models import Task, Journal, Invoice, Ebay
 from .models import Belle_Task, Marvin_Task, Today_order
+from rely_invoice.models import Work_Order, RelyProcessed, RelyGMMM, RelyReassigned
 from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
@@ -12,54 +13,67 @@ from django.utils.timezone import localtime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.utils.timezone import make_aware, datetime
+from django.db.models import Sum
+from .push_over import belle_push_notis
 
 # Create your views here.
 @login_required(login_url='login')
 def index(request):
-	all_task = Task.objects.filter(status=False).order_by('-id')
-	belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
-	marvin_task = Marvin_Task.objects.filter(status=False).order_by('-id')
-	pst_tz = pytz.timezone("America/Los_Angeles")
-	now_pst = now().astimezone(pst_tz)
-	today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
-	print(today, flush=True)
-	current_day = today
-	seven_days_ago = today - timedelta(days=7)
-	thirty_days_ago = today - timedelta(days=30)
-	six_months_ago = today - timedelta(days=180)
-	twelve_months_ago = today - timedelta(days=365)
+    all_task = Task.objects.filter(status=False).order_by('-id')
+    belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
+    marvin_task = Marvin_Task.objects.filter(status=False).order_by('-id')
 
-	# Function to calculate average and total for a given queryset
-	
-	def get_avg_total(queryset):
-		total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-		avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
-		return round(avg, 2), round(total, 2)
-        
-	# Filter invoices excluding those with 0$ amount
-	current_day_avg, current_day_total = get_avg_total(
-		Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0)
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    now_pst = now().astimezone(pst_tz)
+    today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
+    print(today, flush=True)
+    current_day = today
+    seven_days_ago = today - timedelta(days=7)
+    thirty_days_ago = today - timedelta(days=30)
+    six_months_ago = today - timedelta(days=180)
+    twelve_months_ago = today - timedelta(days=365)
+
+    # Function to calculate average and total for a given queryset
+    def get_avg_total(queryset):
+        total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+        avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+        return round(avg, 2), round(total, 2)
+    
+    # Filter invoices excluding those with 0$ amount
+    current_day_avg, current_day_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0)
     )
-	seven_day_avg, seven_day_total = get_avg_total(
-		Invoice.objects.filter(created_at__gte=seven_days_ago).exclude(invoiced_amount=0)
+    seven_day_avg, seven_day_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=seven_days_ago).exclude(invoiced_amount=0)
     )
-	thirty_day_avg, thirty_day_total = get_avg_total(
-		Invoice.objects.filter(created_at__gte=thirty_days_ago).exclude(invoiced_amount=0)
+    thirty_day_avg, thirty_day_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=thirty_days_ago).exclude(invoiced_amount=0)
     )
-	six_month_avg, six_month_total = get_avg_total(
-		Invoice.objects.filter(created_at__gte=six_months_ago).exclude(invoiced_amount=0)
+    six_month_avg, six_month_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=six_months_ago).exclude(invoiced_amount=0)
     )
-	twelve_month_avg, twelve_month_total = get_avg_total(
-		Invoice.objects.filter(created_at__gte=twelve_months_ago).exclude(invoiced_amount=0)
+    twelve_month_avg, twelve_month_total = get_avg_total(
+        Invoice.objects.filter(created_at__gte=twelve_months_ago).exclude(invoiced_amount=0)
     )
-	# Calculate overall total
-	overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-	overall_total = round(overall_total, 2)
-	context = {
-		"all_task":all_task,
-		"belle_task":belle_task,
-		"marvin_task":marvin_task,
-		"current_day_avg": current_day_avg,
+    # Calculate overall total
+    overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    work_orders = Work_Order.objects.all().order_by('-id')[:10]
+    overall_total = round(overall_total, 2)
+
+    # Calculate overall averages on rely
+    overall_rely_total = RelyProcessed.objects.aggregate(total=Sum('amount'))['total'] or 0
+    overall_rely_total = round(overall_rely_total, 2)
+    total_amount = RelyReassigned.get_total_amount()
+    total_gmmm_amount = RelyGMMM.get_total_amount()
+    diff = total_amount - total_gmmm_amount
+    check_str = str(overall_rely_total)
+    negative = "-" in check_str
+
+    context = {
+        "all_task": all_task,
+        "belle_task": belle_task,
+        "marvin_task": marvin_task,
+        "current_day_avg": current_day_avg,
         "current_day_total": current_day_total,
         "seven_day_avg": seven_day_avg,
         "seven_day_total": seven_day_total,
@@ -70,8 +84,13 @@ def index(request):
         "twelve_month_avg": twelve_month_avg,
         "twelve_month_total": twelve_month_total,
         "overall_total": overall_total,
-	}
-	return render(request, "dashboard.html", context)
+        "overall_rely_total": overall_rely_total,
+        "diff": diff,
+        "total_gmmm_amount": total_gmmm_amount,
+        "negative": negative,
+        "work_orders": work_orders,
+    }
+    return render(request, "dashboard.html", context)
 
 
 @login_required(login_url='login')
@@ -87,14 +106,15 @@ def add_task(request):
 
 @login_required(login_url='login')
 def belle_task(request):
-	if request.method == "POST":		
-		description = request.POST['description']
-		task = Belle_Task.objects.create(description=description)
-		task.save()
-		print("task created", flush=True)
-		messages.success(request, ("Task Added for Belle"))
-		return redirect('index')
-	return render(request, 'add_task.html')
+    if request.method == "POST":        
+        description = request.POST['description']
+        task = Belle_Task.objects.create(description=description)
+        task.save()
+        belle_push_notis()
+        print("task created, notification sent", flush=True)
+        messages.success(request, ("Task Added for Belle"))
+        return redirect('index')
+    return render(request, 'add_task.html')
 
 @login_required(login_url='login')
 def marvin_task(request):
@@ -308,6 +328,20 @@ def invoices(request):
     )['avg_days'] or timedelta(0)
     overall_avg_days = overall_avg_days.days  # Extract days
 
+    current_year_start = datetime(now_pst.year, 1, 1).astimezone(pst_tz)
+    current_year_total = Invoice.objects.filter(
+        created_at__gte=current_year_start,
+        created_at__lte=today
+    ).aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    
+    # Last year calculations using created_at
+    last_year_start = datetime(now_pst.year - 1, 1, 1).astimezone(pst_tz)
+    last_year_end = datetime(now_pst.year - 1, 12, 31).astimezone(pst_tz)
+    last_year_total = Invoice.objects.filter(
+        created_at__gte=last_year_start,
+        created_at__lte=last_year_end
+    ).aggregate(total=Sum('invoiced_amount'))['total'] or 0
+
     # Paginate invoices
     paginate = Paginator(all_invoices, 15)
     page = request.GET.get('page')
@@ -316,7 +350,7 @@ def invoices(request):
     # Handle search functionality
     if request.method == "POST":
         inv_data = request.POST.get('inv_data', '').strip()
-        messages.success(request, f"You searched {inv_data}")
+        messages.success(request, f"You searched {inv_data}") 
         
         if inv_data:
             search_results = Invoice.objects.filter(dispatch_no__icontains=inv_data) | \
@@ -344,6 +378,8 @@ def invoices(request):
         "six_month_avg_days": six_month_avg_days,
         "twelve_month_avg_days": twelve_month_avg_days,
         "overall_avg_days": overall_avg_days,
+        "current_year_total": round(current_year_total, 2),
+        "last_year_total": round(last_year_total, 2),
     }
     
     return render(request, "AHS_invoices.html", context)

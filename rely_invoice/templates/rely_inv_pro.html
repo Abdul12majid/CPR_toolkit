@@ -110,9 +110,9 @@
                         {% if search_results is not None %}
                             <tr><td colspan="9" class="text-center"><strong>Search Results:</strong></td></tr>
                             {% for invoice in search_results %}
-                            <tr class="{% if invoice.due_days >= 50 %}
+                            <tr class="{% if invoice.due_days > 43 %}
                                     table-danger
-                                {% elif invoice.due_days >= 30 and invoice.days_difference <= 50 %}
+                                {% elif invoice.due_days >= 37 and invoice.days_difference <= 43 %}
                                     table-warning
                                 {% endif %}">
                                 <td>{{ forloop.counter }}</td>
@@ -240,13 +240,13 @@
 
         // Function to determine bar colors based on new conditions
         function getColor(value) {
-            if (value <= 161) {
+            if (value <= 168) {
                 return 'darkgreen'; // Up to 161: DARK GREEN
-            } else if (value > 161 && value <= 170) {
+            } else if (value > 168 && value <= 177) {
                 return 'lightgreen'; // 161-170: LIGHT GREEN
-            } else if (value > 170 && value <= 185) {
+            } else if (value > 188 && value <= 200) {
                 return 'yellow'; // 170-185: YELLOW
-            } else if (value > 185 && value <= 200) {
+            } else if (value > 200 && value <= 205) {
                 return 'orange'; // 185-200: ORANGE
             } else {
                 return 'red'; // 200+: RED

@@ -1,32 +1,32 @@
-{% extends "base.html" %}        
+{% extends "base.html" %}
 
 <!-- Section 1 -->
 
+{% block title %}
+    Dashboard
+{% endblock %}
 
 {% block content %}
-
         <div id="projects" class="dashboard-section">
             <div class="row">
                 <div class="col-lg-8">
                     <div class="task-table">
                         <h3 class="p-3">Belle Tasks</h3>
                         <a href="{% url 'belle_task' %}" class="btn btn-sm btn-danger">New Task</a>
-                        <table class="table">
+                        <table class="table" style="padding: 0; margin-bottom: 0; padding-bottom: 0;">
                             <thead>
                                 <tr>
-                                    <th width="80">SN</th>
-                                    <th>Task Description</th>
-                                    <th>Date Created</th>
-                                    <th>Action</th>
+                                    <th style="padding: 2px;">Task Description</th>
+                                    <th style="padding: 2px;">Date Created</th>
+                                    <th style="padding: 2px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for task in belle_task %}
                                 <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td class="description-cell">{{ task.description }}</td>
-                                    <td class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
-                                    <td class="description-cell">
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.description }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">
                                         <a href="{% url 'update_belle_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
                                         <a href="{% url 'complete_belle_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
                                     </td>
@@ -39,10 +39,25 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">AHS Averages</h5>
+                            <h5 class="card-title mb-0">Latest Work Orders</h5>
                         </div>
                         <div class="card-body">
-                            <canvas id="invoiceChart"></canvas>
+                            <table class="table table-bordered" style="padding: 0; margin-bottom: 0; padding-bottom: 0;">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="padding: 0;">Name</th>
+                                        <th style="padding: 0;">Dispatch Number</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for wo in work_orders %}
+                                    <tr>
+                                        <td style="padding: 2.2px;">{{ wo.customer }}</td>
+                                        <td style="padding: 2.2px;">{{ wo.dispatch_number }} - {{ wo.date_created|date:"m/d H:i" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table></br>
                         </div>
                     </div>
                 </div>
@@ -56,22 +71,20 @@
                     <div class="task-table">
                         <h3 class="p-3">Bojan Tasks</h3>
                         <a href="{% url 'add_task' %}" class="btn btn-sm btn-danger">New Task</a>
-                        <table class="table">
+                        <table class="table" style="padding: 0px; margin-bottom: 0; padding-bottom: 0;">
                             <thead>
                                 <tr>
-                                    <th width="80">SN</th>
-                                    <th>Task Description</th>
-                                    <th>Date Created</th>
-                                    <th>Action</th>
+                                    <th style="padding: 2px;">Task Description</th>
+                                    <th style="padding: 2px;">Date Created</th>
+                                    <th style="padding: 2px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for task in all_task %}
                                 <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td class="description-cell">{{ task.description }}</td>
-                                    <td class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
-                                    <td class="description-cell">
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.description }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">
                                         <a href="{% url 'update_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
                                         <a href="{% url 'complete_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
                                     </td>
@@ -87,33 +100,34 @@
                             <h5 class="card-title mb-0">AHS Averages</h5>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
+                            <p>Rely Owes: {{overall_rely_total | floatformat:0}} // GMMM Total: {% if negative %}<b style="color: green;">{{ diff | floatformat:0 }}</b>{% else %}<b style="color: red;">{{ diff | floatformat:0 }}</b>{% endif %}</b></p>
+                            <table class="table table-bordered" style="padding: 0px; margin-bottom: 0; padding-bottom: 0;">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Period</th>
-                                        <th>Average Invoiced Amount ($)</th>
+                                        <th style="padding: 2.2px;">Period</th>
+                                        <th style="padding: 2.2px;">Average Invoiced Amount ($)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Today</td>
-                                        <td>${{ current_day_avg|floatformat:2 }}</td>   
+                                        <td style="padding: 2.2px;">Today</td>
+                                        <td style="padding: 2.2px;">${{ current_day_avg|floatformat:2 }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Last 7 Days</td>
-                                        <td>${{ seven_day_avg|floatformat:2 }}</td>
+                                        <td style="padding: 2.2px;">Last 7 Days</td>
+                                        <td style="padding: 2.2px;">${{ seven_day_avg|floatformat:2 }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Last 30 Days</td>
-                                        <td>${{ thirty_day_avg|floatformat:2 }}</td>  
+                                        <td style="padding: 2.2px;">Last 30 Days</td>
+                                        <td style="padding: 2.2px;">${{ thirty_day_avg|floatformat:2 }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Last 6 Months</td>
-                                        <td>${{ six_month_avg|floatformat:2 }}</td>
+                                        <td style="padding: 2.2px;">Last 6 Months</td>
+                                        <td style="padding: 2.2px;">${{ six_month_avg|floatformat:2 }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Last 12 Months</td>
-                                        <td>${{ twelve_month_avg|floatformat:2 }}</td>
+                                        <td style="padding: 2.2px;">Last 12 Months</td>
+                                        <td style="padding: 2.2px;">${{ twelve_month_avg|floatformat:2 }}</td>
                                     </tr>
                                 </tbody>
                             </table></br>
@@ -130,22 +144,20 @@
                     <div class="task-table">
                         <h3 class="p-3">Marvin Tasks</h3>
                         <a href="{% url 'marvin_task' %}" class="btn btn-sm btn-danger">New Task</a>
-                        <table class="table">
+                        <table class="table" style="padding: 0px; margin-bottom: 0; padding-bottom: 0;">
                             <thead>
                                 <tr>
-                                    <th width="80">SN</th>
-                                    <th>Task Description</th>
-                                    <th>Date Created</th>
-                                    <th>Action</th>
+                                    <th style="padding: 2px;">Task Description</th>
+                                    <th style="padding: 2px;">Date Created</th>
+                                    <th style="padding: 2px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for task in marvin_task %}
                                 <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td class="description-cell">{{ task.description }}</td>
-                                    <td class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
-                                    <td class="description-cell">
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.description }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">
                                         <a href="{% url 'update_marvin_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
                                         <a href="{% url 'complete_marvin_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
                                     </td>
@@ -155,92 +167,89 @@
                         </table>
                     </div>
                 </div>
-                <!--<div class="col-lg-4">
+                <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">7880-A Violation</h5>
+                            <h5 class="card-title mb-0">AHS Averages</h5>
                         </div>
                         <div class="card-body">
-                            <div id="timer" class="display-4 text-center">00:00:00</div>
-                            <div class="text-center mt-3">
-                                <button id="startBtn" class="btn btn-success">Start</button>
-                                <button id="stopBtn" class="btn btn-danger">Stop</button>
-                                <button id="resetBtn" class="btn btn-secondary">Reset</button>
+                            <canvas id="invoiceChart"></canvas>
                             </div>
                         </div>
                     </div>
-                </div>-->
+                </div>
             </div>
         </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-            // Data from Django context
-            const currentDayAvg = {{ current_day_avg }};
-            const sevenDayAvg = {{ seven_day_avg }};
-            const thirtyDayAvg = {{ thirty_day_avg }};
-            const sixMonthAvg = {{ six_month_avg }};
-            const twelveMonthAvg = {{ twelve_month_avg }};
 
-            // Function to determine bar colors based on new conditions
-            function getColor(value) {
-                if (value <= 161) {
-                    return 'darkgreen'; // Up to 161: DARK GREEN
-                } else if (value > 161 && value <= 170) {
-                    return 'lightgreen'; // 161-170: LIGHT GREEN
-                } else if (value > 170 && value <= 185) {
-                    return 'yellow'; // 170-185: YELLOW
-                } else if (value > 185 && value <= 200) {
-                    return 'orange'; // 185-200: ORANGE
-                } else {
-                    return 'red'; // 200+: RED
-                }
-            }
+    // Data from Django context
+    const currentDayAvg = {{ current_day_avg }};
+    const sevenDayAvg = {{ seven_day_avg }};
+    const thirtyDayAvg = {{ thirty_day_avg }};
+    const sixMonthAvg = {{ six_month_avg }};
+    const twelveMonthAvg = {{ twelve_month_avg }};
 
-            // Configure chart
-            const ctx = document.getElementById('invoiceChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Today', '7 Days', '30 Days', '6 Months', '12 Months'],
-                    datasets: [{
-                        label: 'Invoice Averages ($)',
-                        data: [currentDayAvg, sevenDayAvg, thirtyDayAvg, sixMonthAvg, twelveMonthAvg],
-                        backgroundColor: [
-                            getColor(currentDayAvg),
-                            getColor(sevenDayAvg),
-                            getColor(thirtyDayAvg),
-                            getColor(sixMonthAvg),
-                            getColor(twelveMonthAvg)
-                        ],
-                        borderColor: ['black', 'black', 'black', 'black', 'black'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    plugins: {
-                        datalabels: {
-                            anchor: "end",  // Position above bars
-                            align: "top",  // Align to the top
-                            color: "black",  // Label color
-                            font: {
-                                weight: "bold",
-                                size: 14
-                            },
-                            formatter: function(value) {
-                                return `$${value.toFixed(2)}`; // Display as "$xx.xx"
-                            }
-                        }
+    // Function to determine bar colors based on new conditions
+    function getColor(value) {
+        if (value <= 161) {
+            return 'darkgreen'; // Up to 161: DARK GREEN
+        } else if (value > 161 && value <= 170) {
+            return 'lightgreen'; // 161-170: LIGHT GREEN
+        } else if (value > 170 && value <= 185) {
+            return 'yellow'; // 170-185: YELLOW
+        } else if (value > 185 && value <= 200) {
+            return 'orange'; // 185-200: ORANGE
+        } else {
+            return 'red'; // 200+: RED
+        }
+    }
+
+    // Configure chart
+    const ctx = document.getElementById('invoiceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Today', '7 Days', '30 Days', '6 Months', '12 Months'],
+            datasets: [{
+                label: 'Invoice Averages ($)',
+                data: [currentDayAvg, sevenDayAvg, thirtyDayAvg, sixMonthAvg, twelveMonthAvg],
+                backgroundColor: [
+                    getColor(currentDayAvg),
+                    getColor(sevenDayAvg),
+                    getColor(thirtyDayAvg),
+                    getColor(sixMonthAvg),
+                    getColor(twelveMonthAvg)
+                ],
+                borderColor: ['black', 'black', 'black', 'black', 'black'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                datalabels: {
+                    anchor: "end",  // Position above bars
+                    align: "top",  // Align to the top
+                    color: "black",  // Label color
+                    font: {
+                        weight: "bold",
+                        size: 14
                     },
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                    formatter: function(value) {
+                        return `$${value.toFixed(2)}`; // Display as "$xx.xx"
                     }
                 }
-            });
+            },
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 </script>
 
 {% endblock %}

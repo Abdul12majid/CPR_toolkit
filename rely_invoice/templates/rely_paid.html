@@ -5,6 +5,66 @@
 	<div class="container mt-5">
 		{% include 'rely_nav.html' %}
 
+        <h3 style="text-align: center;">Summary</h3>
+        <table class="table table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th>Period</th>
+            <th>AVG Amount</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Today</td>
+            <td>${{ current_day_avg|floatformat:2 }}</td>
+            <td>${{ current_day_total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td>Last 7 Days</td>
+            <td>${{ seven_day_avg|floatformat:2 }}</td>
+            <td>${{ seven_day_total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td>Last 30 Days</td>
+            <td>${{ thirty_day_avg|floatformat:2 }}</td>
+            <td>${{ thirty_day_total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td>Last 6 Months</td>
+            <td>${{ six_month_avg|floatformat:2 }}</td>
+            <td>${{ six_month_total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td>Last 12 Months</td>
+            <td>${{ twelve_month_avg|floatformat:2 }}</td>
+            <td>${{ twelve_month_total|floatformat:2 }}</td>
+        </tr>
+        <tr class="table-info">
+            <td><strong>This Year </strong></td>
+            <td>-</td>
+            <td><strong>${{ current_year_total|floatformat:2 }}</strong></td>
+        </tr>
+        <tr class="table-info">
+            <td><strong>Last Year </strong></td>
+            <td>-</td>
+            <td><strong>${{ last_year_total|floatformat:2 }}</strong></td>
+        </tr>
+        <tr class="table-primary">
+            <td><strong>Overall Total</strong></td>
+            <td>-</td>
+            <td><strong>${{ overall_total|floatformat:2 }}</strong></td>
+        </tr>
+    </tbody>
+</table>
+    </div>
+
+        <div class="container mt-5">
+            <h4>Rely Invoice Averages Over Time</h4>
+            <canvas id="invoiceChart"></canvas>
+        </div></br>
+
+    <div class="container mt-5">
 		<h2 style="text-align: center;" class="mb-4">Paid</h2>
 	    	<div class="table-responsive">
 
@@ -25,7 +85,7 @@
                             <th>Date Received</th>
                             <th>Date Invoiced</th>
                             <th>Date Paid</th>
-                            <th>No. of days</th>
+                            <th>Days To Pay</th>
                             <th>Notes</th>
                             <th>Amount</th>
                         </tr>
@@ -74,7 +134,7 @@
 
                         {% if search_results is None %}
                             
-                            {% for invoice in all_invoice %}
+                            {% for invoice in invoices %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{ invoice.dispatch_number }}</td>
@@ -114,7 +174,103 @@
                         {% endif %}
                     </tbody>
                 </table>
+                <p style="text-align:center;">Page: {{ invoices.number}} of {{ invoices.paginator.num_pages}}</p>
+
+                <div class="container mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if invoices.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ invoices.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ invoices.number }} of {{ invoices.paginator.num_pages }}</span>
+                            </li>
+
+                            {% if invoices.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ invoices.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ invoices.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
 	    	</div>
 	</div>
 
+    <script>
+        // Data from Django context
+        const currentDayAvg = {{ current_day_avg }};
+        const sevenDayAvg = {{ seven_day_avg }};
+        const thirtyDayAvg = {{ thirty_day_avg }};
+        const sixMonthAvg = {{ six_month_avg }};
+        const twelveMonthAvg = {{ twelve_month_avg }};
+
+        // Function to determine bar colors based on new conditions
+        function getColor(value) {
+            if (value <= 168) {
+                return 'darkgreen'; // Up to 161: DARK GREEN
+            } else if (value > 168 && value <= 177) {
+                return 'lightgreen'; // 161-170: LIGHT GREEN
+            } else if (value > 188 && value <= 200) {
+                return 'yellow'; // 170-185: YELLOW
+            } else if (value > 200 && value <= 205) {
+                return 'orange'; // 185-200: ORANGE
+            } else {
+                return 'red'; // 200+: RED
+            }
+        }
+
+        // Configure chart
+        const ctx = document.getElementById('invoiceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Today', '7 Days', '30 Days', '6 Months', '12 Months'],
+                datasets: [{
+                    label: 'Invoice Averages ($)',
+                    data: [currentDayAvg, sevenDayAvg, thirtyDayAvg, sixMonthAvg, twelveMonthAvg],
+                    backgroundColor: [
+                        getColor(currentDayAvg),
+                        getColor(sevenDayAvg),
+                        getColor(thirtyDayAvg),
+                        getColor(sixMonthAvg),
+                        getColor(twelveMonthAvg)
+                    ],
+                    borderColor: ['black', 'black', 'black', 'black', 'black'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: "end",  // Position above bars
+                        align: "top",  // Align to the top
+                        color: "black",  // Label color
+                        font: {
+                            weight: "bold",
+                            size: 14
+                        },
+                        formatter: function(value) {
+                            return `$${value.toFixed(2)}`; // Display as "$xx.xx"
+                        }
+                    }
+                },
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 {% endblock %}

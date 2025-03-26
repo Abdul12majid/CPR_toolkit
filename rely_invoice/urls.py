@@ -7,8 +7,10 @@ urlpatterns = [
     path('make_gmmm_invoice', views.make_gmmm_invoice, name="make_gmmm_invoice"),
     path('make_reassigned_invoice', views.make_reassigned_invoice, name="make_reassigned_invoice"),
     path('update_r_invoice/<int:pk>', views.update_r_invoice, name="update_r_invoice"),
+    path('update_problem_invoice/<int:pk>', views.update_problem_invoice, name="update_problem_invoice"),
     path('update_processed_paid/<int:pk>', views.update_processed_paid, name="update_processed_paid"),
     path('delete_r_invoice/<int:pk>', views.delete_r_invoice, name="delete_r_invoice"),
+    path('delete_problem_invoice/<int:pk>', views.delete_problem_invoice, name="delete_problem_invoice"),
     path('invoice_status/<int:pk>', views.invoice_status, name="invoice_status"),
 
     path('added_status/<int:pk>', views.added_status, name="added_status"),

@@ -10,7 +10,7 @@ from django.db.models import Sum, Avg, F
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.utils.timezone import localtime
-from datetime import timedelta
+from datetime import timedelta 
 
 
 # Create your views here.
@@ -533,7 +533,7 @@ def rely_invoice_processed(request):
         RelyProcessed.objects.filter(date_invoiced__gte=twelve_months_ago).exclude(amount=0)
     )
 
-    # Calculate overall averages
+    # Calculate overall averages 
     overall_avg_days = get_avg_days(RelyProcessed.objects.exclude(amount=0))
     overall_avg_due_days = get_avg_due_days(RelyProcessed.objects.exclude(amount=0))
     overall_total = RelyProcessed.objects.aggregate(total=Sum('amount'))['total'] or 0
@@ -968,20 +968,96 @@ def rely_invoice_completed(request):
 def rely_invoice_paid(request):
     all_invoice = RelyPaid.objects.all().order_by('-id')
     all_statuses = Status.objects.all()
+
+    # Set up timezone and date ranges
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    now_pst = timezone.now().astimezone(pst_tz)
+    today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # Current year calculations using date_paid
+    current_year_start = datetime(now_pst.year, 1, 1).astimezone(pst_tz)
+    current_year_total = RelyPaid.objects.filter(
+        date_paid__gte=current_year_start,
+        date_paid__lte=today
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Last year calculations using date_paid
+    last_year_start = datetime(now_pst.year - 1, 1, 1).astimezone(pst_tz)
+    last_year_end = datetime(now_pst.year - 1, 12, 31).astimezone(pst_tz)
+    last_year_total = RelyPaid.objects.filter(
+        date_paid__gte=last_year_start,
+        date_paid__lte=last_year_end
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    # Time ranges for period calculations (using date_paid)
+    current_day = today
+    seven_days_ago = today - timedelta(days=7)
+    thirty_days_ago = today - timedelta(days=30)
+    six_months_ago = today - timedelta(days=180)
+    twelve_months_ago = today - timedelta(days=365)
     search_results = None
+
+    # Helper function to calculate average and total amounts
+    def get_avg_total(queryset):
+        total = queryset.aggregate(total=Sum('amount'))['total'] or 0
+        avg = queryset.aggregate(avg=Avg('amount'))['avg'] or 0
+        return round(avg, 2), round(total, 2)
+
+    # Calculate average and total amounts for different time ranges
+    current_day_avg, current_day_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=current_day).exclude(amount=0)
+    )
+    seven_day_avg, seven_day_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=seven_days_ago).exclude(amount=0)
+    )
+    thirty_day_avg, thirty_day_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=thirty_days_ago).exclude(amount=0)
+    )
+    six_month_avg, six_month_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=six_months_ago).exclude(amount=0)
+    )
+    twelve_month_avg, twelve_month_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=twelve_months_ago).exclude(amount=0)
+    )
+
+    # Pagination
+    paginate = Paginator(all_invoice, 30)
+    page = request.GET.get('page')
+    invoices = paginate.get_page(page)
+
+    # Calculate overall total
+    overall_total = RelyPaid.objects.aggregate(total=Sum('amount'))['total'] or 0
+    overall_total = round(overall_total, 2)
+
+    # Search functionality
     if request.method == "POST":
         inv_data = request.POST.get('inv_data', '').strip()
         messages.success(request, f"You searched {inv_data}")
         
         if inv_data:
             search_results = RelyPaid.objects.filter(dispatch_number__icontains=inv_data) | \
-                             RelyPaid.objects.filter(customer__icontains=inv_data)
+                           RelyPaid.objects.filter(customer__icontains=inv_data)
+
     context = {
         "all_invoice": all_invoice,
         "all_statuses": all_statuses,
-        'search_results':search_results
+        'search_results': search_results,
+        'invoices': invoices,
+        "current_day_avg": current_day_avg,
+        "current_day_total": current_day_total,
+        "seven_day_avg": seven_day_avg,
+        "seven_day_total": seven_day_total,
+        "thirty_day_avg": thirty_day_avg,
+        "thirty_day_total": thirty_day_total,
+        "six_month_avg": six_month_avg,
+        "six_month_total": six_month_total,
+        "twelve_month_avg": twelve_month_avg,
+        "twelve_month_total": twelve_month_total,
+        "overall_total": overall_total,
+        "current_year_total": round(current_year_total, 2),
+        "last_year_total": round(last_year_total, 2),
     }
-    return render(request, 'rely_paid.html', context) 
+    return render(request, 'rely_paid.html', context)
 
 def rely_invoice_problem(request):
     all_invoice = RelyProblem.objects.all().order_by('-id')
@@ -1012,6 +1088,9 @@ def rely_invoice_reassign(request):
     check_str = str(diff)
     negative = "-" in check_str
     search_results = None
+    paginate = Paginator(total, 20)
+    page = request.GET.get('page')
+    invoices = paginate.get_page(page)
 
     if request.method == "POST":
         inv_data = request.POST.get('inv_data', '').strip()
@@ -1042,7 +1121,8 @@ def rely_invoice_reassign(request):
         "total_amount": total_amount,
         "total_gmmm_amount": total_gmmm_amount,
         "diff": diff,
-        "negative": negative
+        "negative": negative,
+        "invoices":invoices
     }
     return render(request, 'rely_reassign.html', context)
 
@@ -1180,5 +1260,47 @@ def make_gmmm_invoice(request):
         messages.success(request, (f"{customer} Invoice Added."))
         return redirect('rely_invoice_reassign')
     return render(request, "make_rely_gmmm.html", context)
+
+def update_problem_invoice(request, pk):
+    get_invoice = RelyProblem.objects.get(id=pk)
+    inv_id = get_invoice.id
+    get_status = Status.objects.get(name="Paid")
+    print(f"Before Update:- {get_invoice.date_paid}", flush=True)
+    context = {
+        "customer":get_invoice.customer,
+        "dispatch_no":get_invoice.dispatch_number,
+        "inv_amount":get_invoice.amount,
+        'date_invoiced':get_invoice.date_invoiced,
+        'date_received':get_invoice.date_received,
+        'note':get_invoice.note,
+        "inv_id":inv_id,
+    }
+
+    print(get_invoice.date_invoiced, flush=True)
+    if request.method=="POST":
+        dispatch_no = request.POST.get('dispatch_no')
+        customer = request.POST.get('name')
+        inv_amount = request.POST.get('invoiced_amount')
+        note = request.POST.get('note')
+        date_added_str = request.POST.get('date_added')
+        date_received_str = request.POST.get('date_received')
+        date_added = datetime.strptime(date_added_str, "%Y-%m-%d").date() if date_added_str else today.date()
+        date_received = datetime.strptime(date_received_str, "%Y-%m-%d").date() if date_received_str else today.date()
+        get_invoice.dispatch_number = dispatch_no
+        get_invoice.customer = customer
+        get_invoice.note = note
+        get_invoice.amount = float(inv_amount)
+        get_invoice.date_invoiced = date_added
+        get_invoice.date_received = date_received
+        get_invoice.save()
+        messages.success(request, ("Invoice updated."))
+        return redirect('rely_invoice_problem')
+    return render(request, 'update_problem_inv.html', context)
+
+def delete_problem_invoice(request, pk):
+    invoice = get_object_or_404(RelyProblem, id=pk)
+    invoice.delete()
+    messages.success(request, ("Invoice Deleted."))
+    return redirect("rely_invoice_problem")
 
 #0135788,12345,5678912

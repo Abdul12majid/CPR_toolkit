@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2 style="text-align: center;">Update Invoice</h2></br>
+	
+	<div class="container">
+		<a style="display: block; float: right;" class="btn btn-danger" href="{% url 'delete_problem_invoice' inv_id %}">Delete Invoice</a></br>
+		<form method="POST" validate>
+			{% csrf_token %}
+		  <div class="form-group">
+		    <label for="exampleInputEmail1">Dispatch Number</label>
+		    <input name="dispatch_no" type="number" class="form-control" value="{{dispatch_no}}" id="exampleInputEmail1" aria-describedby="emailHelp">
+		  </div>
+		  
+		  <div class="form-group">
+		    <label for="exampleInputEmail1">Customer</label>
+		    <input name="name" value="{{customer}}" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">	
+		  </div>
+		  <div>
+		  <label for="exampleInputEmail1">Invoiced Amount</label>
+		    <input name="invoiced_amount" value="{{inv_amount|floatformat:2}}" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp"> 
+		  </div>
+		  <div class="form-group">
+		    <label for="exampleFormControlTextarea1">Note</label>
+		    <textarea name="note" class="form-control" id="exampleFormControlTextarea1" rows="3">{{note}}</textarea>
+		  </div>
+		  <div class="form-group">
+		  <label for="exampleInputEmail1">Date Received</label>
+		    <input name="date_received" value="{{date_received|date:'Y-m-d'}}" type="date" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		  </div>
+		  <div class="form-group">
+		  <label for="exampleInputEmail1">Date Invoiced</label>
+		    <input name="date_added" value="{{date_invoiced|date:'Y-m-d'}}" type="date" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+		  </div></br>
+		  <div class="form-group">
+		  
+		  <center>
+		  	<button type="submit" class="btn btn-primary btn-sm">Update</button>
+		  </center>
+		</form>
+	</div>
+{% endblock %}

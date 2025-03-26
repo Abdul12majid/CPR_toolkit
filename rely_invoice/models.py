@@ -9,7 +9,16 @@ class Status(models.Model):
 	name = models.CharField(max_length=50, blank=True, null=False)
 
 	def __str__(self):
-		return self.name
+		return self.name 
+
+class Work_Order(models.Model):
+    dispatch_number = models.CharField(max_length=50, blank=True, null=True)
+    customer = models.CharField(max_length=50, blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.customer + " " + self.dispatch_number
+
 
 class RelyInvoice(models.Model):
 	dispatch_number = models.CharField(max_length=50, blank=True, null=True)
@@ -134,7 +143,7 @@ class RelyPaid(models.Model):
         """
 		if self.date_invoiced:
 			current_date = timezone.now().date()
-			difference = (current_date - self.date_invoiced).days
+			difference = (self.date_paid - self.date_invoiced).days
 			# If difference is 0, set it to 1
 			return 1 if difference == 0 else difference
 		return None

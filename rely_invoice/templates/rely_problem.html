@@ -27,6 +27,7 @@
                             <th>Date Received</th>
                             <th>Date Invoiced</th>
                             <th>Amount</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,7 +75,7 @@
                                 <td>{{ invoice.date_received }}</td>
                                 <td>{{ invoice.date_invoiced }}</td>
                                 <td>{{ invoice.amount }}</td>
-                                
+                                <td><a class="btn btn-primary" href="{% url 'update_problem_invoice' invoice.id %}">Update</a></td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -128,7 +129,7 @@
                                 <td>{{ invoice.date_received }}</td>
                                 <td>{{ invoice.date_invoiced }}</td>
                                 <td>{{ invoice.amount }}</td>
-                                
+                                <td><a class="btn btn-primary" href="{% url 'update_problem_invoice' invoice.id %}">Update</a></td>
                             </tr>
                             {% empty %}
                             <tr>

@@ -3,6 +3,9 @@
 {% block content %}
     
     <div class="container mt-5">
+        <button style="float:right" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">Find</button>
+    </div>
+    <div class="container mt-5">
         {% include 'rely_nav.html' %}
     </div>
     {% if the_result is not None %}
@@ -25,9 +28,7 @@
         <center></center>
         
     {% endif %}
-    <div class="container mt-5">
-        <button style="float:right" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">Find</button>
-    </div>
+    
 	<div class="container mt-5">
 		<h2 style="text-align: center;" class="mb-4">New</h2>
 	    	<div class="table-responsive">
@@ -68,6 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!--
                         {% if the_result is not None %}
                             <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
                             {% for invoice in the_result %}
@@ -91,7 +93,7 @@
                             </tr>
                             {% endfor %}
                             
-                        {% endif %}
+                        {% endif %} -->
                         {% if search_results is not None %}
                             <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
                             {% for invoice in search_results %}
