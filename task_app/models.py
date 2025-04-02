@@ -6,6 +6,13 @@ from datetime import timedelta
 
 # Create your models here.
 
+class Work_Journal(models.Model):
+    description = models.TextField(blank=False, null=False)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.description)
+
 class Task(models.Model):
     description = models.TextField(blank=False, null=False)
     status = models.BooleanField(default=False)
@@ -42,13 +49,33 @@ class Journal(models.Model):
 class Ebay(models.Model):
     name = models.CharField(max_length=200, blank=True, null=True)
     tracking_number = models.CharField(max_length=200, blank=True, null=True)
-    order_number = models.CharField(max_length=200, blank=True, null=True)
+    order_number = models.CharField(default="0.0", max_length=200, blank=True, null=True)
     link = models.CharField(max_length=500, blank=True, null=True)
+    amount = models.CharField(max_length=500, blank=True, null=True)
     date_pushed = models.DateField(default=timezone.now)
+    date_updated = models.DateField(default=timezone.now)
     delivery_time = models.CharField(max_length=200, blank=True, null=True)
+    transaction_date = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Ebay"
+
+    def __str__(self):
+        return self.name + " " + self.order_number
+
+class Merchant(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    tracking_number = models.CharField(max_length=200, blank=True, null=True)
+    order_number = models.CharField(default="0.0", max_length=200, blank=True, null=True)
+    link = models.CharField(max_length=500, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date_pushed = models.DateField(default=timezone.now)
+    date_updated = models.DateField(default=timezone.now)
+    delivery_time = models.CharField(max_length=200, blank=True, null=True)
+    transaction_date = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Merchant"
 
     def __str__(self):
         return self.name + " " + self.order_number

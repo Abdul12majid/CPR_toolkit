@@ -1,11 +1,11 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from .models import Task, Journal, Invoice, Ebay
+from .models import Task, Journal, Invoice, Ebay, Merchant, Work_Journal
 from .models import Belle_Task, Marvin_Task, Today_order
 from rely_invoice.models import Work_Order, RelyProcessed, RelyGMMM, RelyReassigned
 from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
-from django.db.models import Sum, Avg, F
+from django.db.models import Sum, Avg, F, Count, FloatField
 from django.core.paginator import Paginator
 import pytz
 from django.utils import timezone
@@ -15,6 +15,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.utils.timezone import make_aware, datetime
 from django.db.models import Sum
 from .push_over import belle_push_notis
+from django.db.models.functions import Cast 
 
 # Create your views here.
 @login_required(login_url='login')
@@ -58,6 +59,7 @@ def index(request):
     # Calculate overall total
     overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
     work_orders = Work_Order.objects.all().order_by('-id')[:10]
+    work_journals = Work_Journal.objects.all().order_by('-id')[:10]
     overall_total = round(overall_total, 2)
 
     # Calculate overall averages on rely
@@ -89,6 +91,7 @@ def index(request):
         "total_gmmm_amount": total_gmmm_amount,
         "negative": negative,
         "work_orders": work_orders,
+        "work_journals": work_journals,
     }
     return render(request, "dashboard.html", context)
 
@@ -110,7 +113,7 @@ def belle_task(request):
         description = request.POST['description']
         task = Belle_Task.objects.create(description=description)
         task.save()
-        belle_push_notis()
+        belle_push_notis(description)
         print("task created, notification sent", flush=True)
         messages.success(request, ("Task Added for Belle"))
         return redirect('index')
@@ -534,7 +537,7 @@ def update_journal(request, pk):
 
 @login_required(login_url='login')
 def ebay(request):
-    all_ebay = Ebay.objects.all()
+    all_ebay = Ebay.objects.all().order_by("-id")[:30]
     pst_tz = pytz.timezone("America/Los_Angeles")
     now_pst = now().astimezone(pst_tz)
     today_pst = now_pst.date()
@@ -556,6 +559,103 @@ def ebay(request):
         "today_order":today_order,
     }
     return render(request, 'ebay.html', context)
+
+from datetime import date, timedelta
+
+@login_required(login_url='login')
+def merchant(request):
+    # Get all transactions with converted amounts
+    transactions = Merchant.objects.all().order_by("-id").annotate(
+        amount_float=Cast('amount', FloatField())
+    )
+
+    # Time setup (PST)
+    pst = pytz.timezone("America/Los_Angeles")
+    now_pst = timezone.now().astimezone(pst)
+    today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Calculate time periods
+    start_of_week = today - timedelta(days=today.weekday())
+    start_of_month = today.replace(day=1)
+    start_of_year = today.replace(month=1, day=1)
+    start_of_last_year = start_of_year - timedelta(days=365)
+    end_of_last_year = start_of_year - timedelta(days=1)
+
+    # Calculate totals using the converted amount_float
+    def get_total(queryset):
+        return queryset.aggregate(total=Sum('amount_float'))['total'] or 0.0
+
+    today_total = get_total(transactions.filter(date_pushed__gte=today))
+    week_total = get_total(transactions.filter(date_pushed__gte=start_of_week))
+    month_total = get_total(transactions.filter(date_pushed__gte=start_of_month))
+    year_total = get_total(transactions.filter(date_pushed__gte=start_of_year))
+    last_year_total = get_total(transactions.filter(
+        date_pushed__gte=start_of_last_year,
+        date_pushed__lte=end_of_last_year
+    ))
+
+    # Calculate average per day
+    avg_per_day = transactions.exclude(amount_float=0).aggregate(
+        avg=Avg('amount_float')
+    )['avg'] or 0.0
+
+    # NEW: Calculate accurate average per month
+    from django.db.models.functions import ExtractMonth, ExtractYear
+    from calendar import monthrange
+
+    # Get all unique month-year combinations
+    month_years = transactions.annotate(
+        month=ExtractMonth('date_pushed'),
+        year=ExtractYear('date_pushed')
+    ).values('month', 'year').distinct()
+
+    monthly_averages = []
+    for my in month_years:
+        year = my['year']
+        month = my['month']
+        
+        # Get first and last day of month
+        _, last_day = monthrange(year, month)
+        start_date = date(year, month, 1)
+        end_date = date(year, month, last_day)
+        
+        # Get transactions for this month
+        month_trans = transactions.filter(
+            date_pushed__gte=start_date,
+            date_pushed__lte=end_date
+        )
+        
+        # Calculate total for month and divide by days in month
+        month_sum = get_total(month_trans)
+        monthly_averages.append(month_sum / last_day)
+
+    # Calculate overall monthly average
+    avg_per_month = sum(monthly_averages) / len(monthly_averages) if monthly_averages else 0.0
+
+    # Search functionality
+    search_results = None
+    if request.method == "POST":
+        query = request.POST.get('ebay_data', '').strip()
+        messages.success(request, f"You searched {query}")
+
+        if query:
+            search_results = Merchant.objects.filter(
+                order_number__icontains=query
+            ).annotate(amount_float=Cast('amount', FloatField()))
+
+    context = {
+        'today_total': today_total,
+        'week_total': week_total,
+        'month_total': month_total,
+        'year_total': year_total,
+        'last_year_total': last_year_total,
+        'avg_per_day': avg_per_day,
+        'avg_per_month': avg_per_month,
+        'all_transactions': transactions,
+        'search_results': search_results,
+    }
+
+    return render(request, 'merchant.html', context)
 
 
 @login_required(login_url='login')
@@ -579,3 +679,11 @@ def create_ebay(request):
         return redirect('ebay')
     return render(request, 'create_ebay.html')
 
+
+def db_page(request):
+    range_20 = range(1, 21)  # Just for the template loop
+    context = {
+        'range_20': range_20,
+        
+    }
+    return render(request, 'db_page.html', context)

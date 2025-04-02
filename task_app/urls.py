@@ -25,5 +25,7 @@ urlpatterns = [
     path('delete/<int:pk>/', views.delete_journal, name='delete_journal'),
     path("robots.txt", robots_txt, name="robots_txt"),
     path('ebay', views.ebay, name="ebay"),
+    path('merchant', views.merchant, name="merchant"),
     path('create_ebay', views.create_ebay, name="create_ebay"),
+    path('db_page', views.db_page, name="db_page"),
 ]

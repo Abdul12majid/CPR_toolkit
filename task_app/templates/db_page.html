@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    <div class="container mt-5">
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>C3</th>
+                        <th>C4</th>
+                        <th>C5</th>
+                        <th>C6</th>
+                        <th>C7</th>
+                        <th>C8</th>
+                        <th>C9</th>
+                        <th>C10</th>
+                        <th>C11</th>
+                        <th>C12</th>
+                        <th>C13</th>
+                        <th>C14</th>
+                        <th>C15</th>
+                        <th>C16</th>
+                        <th>C17</th>
+                        <th>C18</th>
+                        <th>C19</th>
+                        <th>C20</th>
+                        <th>C21</th>
+                        <th>C22</th>
+                        <th>C23</th>
+                        <th>C24</th>
+                        <th>C25</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in range_20 %}
+                    <tr>
+                        <td>First{{ forloop.counter }}</td>
+                        <td>Last{{ forloop.counter }}</td>
+                        <td>C3 data</td>
+                        <td>C4 data</td>
+                        <td>C5 data</td>
+                        <td>C6 data</td>
+                        <td>C7 data</td>
+                        <td>C8 data</td>
+                        <td>C9 data</td>
+                        <td>C10 data</td>
+                        <td>C11 data</td>
+                        <td>C12 data</td>
+                        <td>C13 data</td>
+                        <td>C14 data</td>
+                        <td>C15 data</td>
+                        <td>C16 data</td>
+                        <td>C17 data</td>
+                        <td>C18 data</td>
+                        <td>C19 data</td>
+                        <td>C20 data</td>
+                        <td>C21 data</td>
+                        <td>C22 data</td>
+                        <td>C23 data</td>
+                        <td>C24 data</td>
+                        <td>C25 data</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            min-width: 100px;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+
+{% endblock %}

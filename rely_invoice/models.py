@@ -215,3 +215,10 @@ class RelyGMMM(models.Model):
         """
         total = cls.objects.aggregate(total_amount=Sum('amount'))['total_amount']
         return total if total is not None else 0
+
+class RelyMessage(models.Model):
+    message = models.TextField(blank=False, null=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.message)

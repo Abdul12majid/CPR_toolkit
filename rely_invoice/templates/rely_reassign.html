@@ -71,14 +71,20 @@
                 				            {{ invoice.status.name }}
                 				        </button>
                 				        <ul class="dropdown-menu">
-                				        	{% if invoice.status.name != "Added" %}
-                				                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
-                				            {% endif %}
+                                            {% if invoice.status.name != "Added" %}
+                                                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
+                                            {% endif %}
                                             {% if invoice.status.name != "Paid" %}
                                                 <li><a class="dropdown-item" href="{% url 'reassigned_paid_status' invoice.id %}">Paid</a></li>
                                             {% endif %}
-                				            
-                				        </ul>
+                                            {% if invoice.status.name != "Paid" %}
+                                                {% if invoice.status.name != "Reassigned" %}
+                                                  <li><a class="dropdown-item" href="{% url 'delete_gmmm_invoice' invoice.id %}">Delete</a></li>
+                                                {% else %}
+                                                  <li><a class="dropdown-item" href="{% url 'delete_reassigned_invoice' invoice.id %}">Delete</a></li>  
+                                                {% endif %}
+                                            {% endif %}    
+                                        </ul>
                 				    </div>
                 				</td>
                                 <td>{{ invoice.customer }}</td>
@@ -108,14 +114,20 @@
                 				            {{ invoice.status.name }}
                 				        </button>
                 				        <ul class="dropdown-menu">
-                				        	{% if invoice.status.name != "Added" %}
-                				                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
-                				            {% endif %}
+                                            {% if invoice.status.name != "Added" %}
+                                                <li><a class="dropdown-item" href="{% url 'reassigned_added_status' invoice.id %}">New</a></li>
+                                            {% endif %}
                                             {% if invoice.status.name != "Paid" %}
                                                 <li><a class="dropdown-item" href="{% url 'reassigned_paid_status' invoice.id %}">Paid</a></li>
                                             {% endif %}
-                				            
-                				        </ul>
+                                            {% if invoice.status.name != "Paid" %}
+                                                {% if invoice.status.name != "Reassigned" %}
+                                                  <li><a class="dropdown-item" href="{% url 'delete_gmmm_invoice' invoice.id %}">Delete</a></li>
+                                                {% else %}
+                                                  <li><a class="dropdown-item" href="{% url 'delete_reassigned_invoice' invoice.id %}">Delete</a></li>  
+                                                {% endif %}
+                                            {% endif %}    
+                                        </ul>
                 				    </div>
                 				</td>
                                 <td>{{ invoice.customer }}</td>

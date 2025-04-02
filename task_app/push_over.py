@@ -7,7 +7,7 @@ la_timezone = pytz.timezone('America/Los_Angeles')
 # Get current time in LA
 la_time = datetime.now(la_timezone)
 
-def belle_push_notis():
+def belle_push_notis(message):
     group_key = "g938i4h5rne5se29hhgvkd85kzjfne"
     api_token = "ahp8xpq6pcobmpeye54kd9x3n6fmdi"
     formatted_time = la_time.strftime("%m/%d %H:%M")
@@ -19,7 +19,7 @@ def belle_push_notis():
         "sound": "bike",
         "priority": 0,
         "title": "Sinnamon Alert!",
-        "message": f"New ToDO on your list, please check.", 
+        "message": message, 
         "url": f"https://spleecho.pythonanywhere.com/",
         "url_title": "Go To Dashboard",
         "ttl": 7200,

@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from .models import RelyInvoice, Status, RelyProcessed, RelyCompleted
+from .models import RelyInvoice, Status, RelyProcessed, RelyCompleted, RelyMessage
 from .models import RelyPaid, RelyProblem, RelyReassigned, RelyGMMM
 from django.contrib import messages 
 from django.contrib.auth.decorators import login_required
@@ -10,7 +10,7 @@ from django.db.models import Sum, Avg, F
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.utils.timezone import localtime
-from datetime import timedelta 
+from datetime import timedelta
 
 
 # Create your views here.
@@ -38,6 +38,8 @@ def rely_invoice(request):
             messages.success(request, f"You searched {inv_data}")
             
             if inv_data:
+                the_result0 = RelyInvoice.objects.filter(dispatch_number__icontains=inv_data) | \
+                              RelyInvoice.objects.filter(customer__icontains=inv_data)
                 the_result1 = RelyProcessed.objects.filter(dispatch_number__icontains=inv_data) | \
                               RelyProcessed.objects.filter(customer__icontains=inv_data)
                 the_result2 = RelyPaid.objects.filter(dispatch_number__icontains=inv_data) | \
@@ -48,7 +50,7 @@ def rely_invoice(request):
                               RelyReassigned.objects.filter(customer__icontains=inv_data)
                 the_result5 = RelyProblem.objects.filter(dispatch_number__icontains=inv_data) | \
                               RelyProblem.objects.filter(customer__icontains=inv_data)
-                the_result  = list(the_result1) + list(the_result2) + list(the_result3) + list(the_result4) + list(the_result5)
+                the_result  = list(the_result0) + list(the_result1) + list(the_result2) + list(the_result3) + list(the_result4) + list(the_result5)
 
     context = {
         "all_invoice": all_invoice,
@@ -410,7 +412,10 @@ def processed_reassigned_status(request, pk):
     return redirect(request.META.get("HTTP_REFERER"))
 
 def reassigned_added_status(request, pk):
-    invoice = get_object_or_404(RelyReassigned, id=pk)
+    try:
+        invoice = get_object_or_404(RelyReassigned, id=pk)
+    except:
+        invoice = get_object_or_404(RelyGMMM, id=pk)
     get_status = Status.objects.get(name="Added")
     invoice.status = get_status
     invoice.save()
@@ -1303,4 +1308,34 @@ def delete_problem_invoice(request, pk):
     messages.success(request, ("Invoice Deleted."))
     return redirect("rely_invoice_problem")
 
-#0135788,12345,5678912
+def delete_reassigned_invoice(request, pk):
+    invoice = get_object_or_404(RelyReassigned, id=pk)
+    invoice.delete()
+    messages.success(request, ("Invoice Deleted."))
+    return redirect(request.META.get("HTTP_REFERER"))
+
+def delete_gmmm_invoice(request, pk):
+    invoice = get_object_or_404(RelyGMMM, id=pk)
+    invoice.delete()
+    messages.success(request, ("Invoice Deleted."))
+    return redirect(request.META.get("HTTP_REFERER"))
+
+def rely_messages(request):
+    all_messages = RelyMessage.objects.all().order_by("-id")[:30]
+    pst_tz = pytz.timezone("America/Los_Angeles")
+    now_pst = now().astimezone(pst_tz)
+    today_pst = now_pst.date()
+    print(today_pst, flush=True)
+    search_results = None
+    # Handle search functionality
+    if request.method == "POST":
+        msg_data = request.POST.get('msg_data', '').strip()
+        messages.success(request, f"You searched {msg_data}")
+        
+        if msg_data:
+            search_results = RelyMessage.objects.filter(message__icontains=msg_data)
+    context = {
+        "all_messages":all_messages,
+        'search_results':search_results,
+    }
+    return render(request, 'rely_messages.html', context)

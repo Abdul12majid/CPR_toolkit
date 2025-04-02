@@ -24,7 +24,7 @@
                             <tbody>
                                 {% for task in belle_task %}
                                 <tr>
-                                    <td style="padding: 2.2px;" class="description-cell">{{ task.description }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.description|safe }}</td>
                                     <td style="padding: 2.2px;" class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
                                     <td style="padding: 2.2px;" class="description-cell">
                                         <a href="{% url 'update_belle_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
@@ -54,6 +54,61 @@
                                     <tr>
                                         <td style="padding: 2.2px;">{{ wo.customer }}</td>
                                         <td style="padding: 2.2px;">{{ wo.dispatch_number }} - {{ wo.date_created|date:"m/d H:i" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table></br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="projects" class="dashboard-section">
+            <div class="row">
+               <div class="col-lg-8">
+                    <!--<div class="task-table">
+                        <h3 class="p-3">Belle Tasks</h3>
+                        <a href="{% url 'belle_task' %}" class="btn btn-sm btn-danger">New Task</a>
+                        <table class="table" style="padding: 0; margin-bottom: 0; padding-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 2px;">Task Description</th>
+                                    <th style="padding: 2px;">Date Created</th>
+                                    <th style="padding: 2px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in belle_task %}
+                                <tr>
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.description }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">{{ task.date_created|date:"m/d H:i" }}</td>
+                                    <td style="padding: 2.2px;" class="description-cell">
+                                        <a href="{% url 'update_belle_task' task.id %}" class="btn btn-sm btn-primary">Update</a>
+                                        <a href="{% url 'complete_belle_task' task.id %}" class="btn btn-sm btn-success">Complete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>-->
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Work Journal</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered" style="padding: 0; margin-bottom: 0; padding-bottom: 0;">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="padding: 0;">Updates</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for wo in work_journals %}
+                                    <tr>
+                                        <td style="padding: 2.2px;">{{ wo.description }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

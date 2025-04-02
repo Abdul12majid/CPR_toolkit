@@ -11,6 +11,8 @@ urlpatterns = [
     path('update_processed_paid/<int:pk>', views.update_processed_paid, name="update_processed_paid"),
     path('delete_r_invoice/<int:pk>', views.delete_r_invoice, name="delete_r_invoice"),
     path('delete_problem_invoice/<int:pk>', views.delete_problem_invoice, name="delete_problem_invoice"),
+    path('delete_reassigned_invoice/<int:pk>', views.delete_reassigned_invoice, name="delete_reassigned_invoice"),
+    path('delete_gmmm_invoice/<int:pk>', views.delete_gmmm_invoice, name="delete_gmmm_invoice"),
     path('invoice_status/<int:pk>', views.invoice_status, name="invoice_status"),
 
     path('added_status/<int:pk>', views.added_status, name="added_status"),
@@ -47,6 +49,7 @@ urlpatterns = [
     path('rely_invoice_paid', views.rely_invoice_paid, name="rely_invoice_paid"),
     path('rely_invoice_problem', views.rely_invoice_problem, name="rely_invoice_problem"),
     path('rely_invoice_reassign', views.rely_invoice_reassign, name="rely_invoice_reassign"),
+    path('rely_messages', views.rely_messages, name="rely_messages"),
 
 
     path('move_dispatches', views.move_dispatches, name='move_dispatches'),
