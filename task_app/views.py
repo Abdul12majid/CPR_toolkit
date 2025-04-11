@@ -1,7 +1,8 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from .models import Task, Journal, Invoice, Ebay, Merchant, Work_Journal
-from .models import Belle_Task, Marvin_Task, Today_order
+from .models import Belle_Task, Marvin_Task, Today_order, Amex, us_bank
 from rely_invoice.models import Work_Order, RelyProcessed, RelyGMMM, RelyReassigned
+from rely_invoice.models import Status, RelyPaid, RelyProcessed
 from django.contrib import messages
 from django.utils.timezone import now
 from datetime import timedelta
@@ -16,65 +17,206 @@ from django.utils.timezone import make_aware, datetime
 from django.db.models import Sum
 from .push_over import belle_push_notis
 from django.db.models.functions import Cast 
+from django.db import models
 
 # Create your views here.
 @login_required(login_url='login')
 def index(request):
+    # Task-related data
     all_task = Task.objects.filter(status=False).order_by('-id')
     belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
     marvin_task = Marvin_Task.objects.filter(status=False).order_by('-id')
+    
+    # Rely data
+    all_rely_paid = RelyPaid.objects.all().order_by('-id')
+    all_rely_processed = RelyProcessed.objects.all().order_by('-date_invoiced')
+    all_statuses = Status.objects.all()
 
+    # Set up timezone and date ranges 
     pst_tz = pytz.timezone("America/Los_Angeles")
-    now_pst = now().astimezone(pst_tz)
+    now_pst = timezone.now().astimezone(pst_tz)
     today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
-    print(today, flush=True)
     current_day = today
     seven_days_ago = today - timedelta(days=7)
     thirty_days_ago = today - timedelta(days=30)
     six_months_ago = today - timedelta(days=180)
     twelve_months_ago = today - timedelta(days=365)
 
-    # Function to calculate average and total for a given queryset
-    def get_avg_total(queryset):
-        total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-        avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+    # Current year calculations for RelyPaid
+    current_year_start = datetime(now_pst.year, 1, 1).astimezone(pst_tz)
+    current_year_total = RelyPaid.objects.filter(
+        date_paid__gte=current_year_start,
+        date_paid__lte=today
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    # Last year calculations for RelyPaid
+    last_year_start = datetime(now_pst.year - 1, 1, 1).astimezone(pst_tz)
+    last_year_end = datetime(now_pst.year - 1, 12, 31).astimezone(pst_tz)
+    last_year_total = RelyPaid.objects.filter(
+        date_paid__gte=last_year_start,
+        date_paid__lte=last_year_end
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    # Helper function to calculate average and total amounts
+    def get_avg_total(queryset, amount_field='amount'):
+        total = queryset.aggregate(total=Sum(amount_field))['total'] or 0
+        avg = queryset.aggregate(avg=Avg(amount_field))['avg'] or 0
         return round(avg, 2), round(total, 2)
-    
-    # Filter invoices excluding those with 0$ amount
+
+    # Calculate average and total amounts for different time ranges (Invoice)
     current_day_avg, current_day_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0)
+        Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0),
+        'invoiced_amount'
     )
     seven_day_avg, seven_day_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=seven_days_ago).exclude(invoiced_amount=0)
+        Invoice.objects.filter(created_at__gte=seven_days_ago).exclude(invoiced_amount=0),
+        'invoiced_amount'
     )
     thirty_day_avg, thirty_day_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=thirty_days_ago).exclude(invoiced_amount=0)
+        Invoice.objects.filter(created_at__gte=thirty_days_ago).exclude(invoiced_amount=0),
+        'invoiced_amount'
     )
     six_month_avg, six_month_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=six_months_ago).exclude(invoiced_amount=0)
+        Invoice.objects.filter(created_at__gte=six_months_ago).exclude(invoiced_amount=0),
+        'invoiced_amount'
     )
     twelve_month_avg, twelve_month_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=twelve_months_ago).exclude(invoiced_amount=0)
+        Invoice.objects.filter(created_at__gte=twelve_months_ago).exclude(invoiced_amount=0),
+        'invoiced_amount'
     )
-    # Calculate overall total
-    overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-    work_orders = Work_Order.objects.all().order_by('-id')[:10]
-    work_journals = Work_Journal.objects.all().order_by('-id')[:10]
-    overall_total = round(overall_total, 2)
 
-    # Calculate overall averages on rely
-    overall_rely_total = RelyProcessed.objects.aggregate(total=Sum('amount'))['total'] or 0
-    overall_rely_total = round(overall_rely_total, 2)
+    # Calculate average and total amounts for RelyPaid
+    rely_paid_current_day_avg, rely_paid_current_day_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=current_day).exclude(amount=0)
+    )
+    rely_paid_seven_day_avg, rely_paid_seven_day_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=seven_days_ago).exclude(amount=0)
+    )
+    rely_paid_thirty_day_avg, rely_paid_thirty_day_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=thirty_days_ago).exclude(amount=0)
+    )
+    rely_paid_six_month_avg, rely_paid_six_month_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=six_months_ago).exclude(amount=0)
+    )
+    rely_paid_twelve_month_avg, rely_paid_twelve_month_total = get_avg_total(
+        RelyPaid.objects.filter(date_paid__gte=twelve_months_ago).exclude(amount=0)
+    )
+
+    # Calculate average and total amounts for RelyProcessed
+    rely_proc_current_day_avg, rely_proc_current_day_total = get_avg_total(
+        RelyProcessed.objects.filter(date_invoiced__gte=current_day).exclude(amount=0)
+    )
+    rely_proc_seven_day_avg, rely_proc_seven_day_total = get_avg_total(
+        RelyProcessed.objects.filter(date_invoiced__gte=seven_days_ago).exclude(amount=0)
+    )
+    rely_proc_thirty_day_avg, rely_proc_thirty_day_total = get_avg_total(
+        RelyProcessed.objects.filter(date_invoiced__gte=thirty_days_ago).exclude(amount=0)
+    )
+    rely_proc_six_month_avg, rely_proc_six_month_total = get_avg_total(
+        RelyProcessed.objects.filter(date_invoiced__gte=six_months_ago).exclude(amount=0)
+    )
+    rely_proc_twelve_month_avg, rely_proc_twelve_month_total = get_avg_total(
+        RelyProcessed.objects.filter(date_invoiced__gte=twelve_months_ago).exclude(amount=0)
+    )
+
+    # Helper function to calculate average days difference for RelyProcessed
+    def get_avg_days(queryset):
+        total_days = 0
+        count = 0
+        for invoice in queryset:
+            if invoice.date_invoiced and invoice.date_received:
+                days_diff = (invoice.date_invoiced - invoice.date_received).days
+                if days_diff != 0:  # Exclude cases where date_invoiced == date_received
+                    total_days += days_diff
+                    count += 1
+        return round(total_days / count, 2) if count > 0 else 0
+
+    # Helper function to calculate average due_days for RelyProcessed
+    def get_avg_due_days(queryset):
+        total_due_days = 0
+        count = 0
+        for invoice in queryset:
+            if invoice.due_days is not None:
+                total_due_days += invoice.due_days
+                count += 1
+        return round(total_due_days / count, 2) if count > 0 else 0
+
+    # Calculate average days difference for RelyProcessed
+    current_day_avg_days = get_avg_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=current_day).exclude(amount=0)
+    )
+    seven_day_avg_days = get_avg_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=seven_days_ago).exclude(amount=0)
+    )
+    thirty_day_avg_days = get_avg_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=thirty_days_ago).exclude(amount=0)
+    )
+    six_month_avg_days = get_avg_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=six_months_ago).exclude(amount=0)
+    )
+    twelve_month_avg_days = get_avg_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=twelve_months_ago).exclude(amount=0)
+    )
+
+    # Calculate average due_days for RelyProcessed
+    current_day_avg_due_days = get_avg_due_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=current_day).exclude(amount=0)
+    )
+    seven_day_avg_due_days = get_avg_due_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=seven_days_ago).exclude(amount=0)
+    )
+    thirty_day_avg_due_days = get_avg_due_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=thirty_days_ago).exclude(amount=0)
+    )
+    six_month_avg_due_days = get_avg_due_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=six_months_ago).exclude(amount=0)
+    )
+    twelve_month_avg_due_days = get_avg_due_days(
+        RelyProcessed.objects.filter(date_invoiced__gte=twelve_months_ago).exclude(amount=0)
+    )
+
+    # Calculate overall totals
+    overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    overall_total = round(overall_total, 2)
+    
+    overall_rely_paid_total = RelyPaid.objects.aggregate(total=Sum('amount'))['total'] or 0
+    overall_rely_paid_total = round(overall_rely_paid_total, 2)
+    
+    overall_rely_proc_total = RelyProcessed.objects.aggregate(total=Sum('amount'))['total'] or 0
+    overall_rely_proc_total = round(overall_rely_proc_total, 2)
+    
+    # Calculate overall averages for RelyProcessed
+    overall_avg_days = get_avg_days(RelyProcessed.objects.exclude(amount=0))
+    overall_avg_due_days = get_avg_due_days(RelyProcessed.objects.exclude(amount=0))
+
+    # Rely reassigned and GMMM calculations
     total_amount = RelyReassigned.get_total_amount()
     total_gmmm_amount = RelyGMMM.get_total_amount()
     diff = total_amount - total_gmmm_amount
-    check_str = str(overall_rely_total)
+    check_str = str(overall_rely_proc_total)
     negative = "-" in check_str
 
+    # Other dashboard data
+    work_orders = Work_Order.objects.all().order_by('-id')[:10]
+    work_journals = Work_Journal.objects.all().order_by('-id')[:12]
+
+    # Pagination for Rely data
+    paid_paginate = Paginator(all_rely_paid, 30)
+    paid_page = request.GET.get('paid_page')
+    rely_paid_invoices = paid_paginate.get_page(paid_page)
+
+    proc_paginate = Paginator(all_rely_processed, 20)
+    proc_page = request.GET.get('proc_page')
+    rely_proc_invoices = proc_paginate.get_page(proc_page)
+
+    
     context = {
+        # Task data
         "all_task": all_task,
         "belle_task": belle_task,
         "marvin_task": marvin_task,
+        
+        # Invoice data
         "current_day_avg": current_day_avg,
         "current_day_total": current_day_total,
         "seven_day_avg": seven_day_avg,
@@ -86,7 +228,54 @@ def index(request):
         "twelve_month_avg": twelve_month_avg,
         "twelve_month_total": twelve_month_total,
         "overall_total": overall_total,
-        "overall_rely_total": overall_rely_total,
+        
+        # RelyPaid data
+        "rely_paid_current_day_avg": rely_paid_current_day_avg,
+        "rely_paid_current_day_total": rely_paid_current_day_total,
+        "rely_paid_seven_day_avg": rely_paid_seven_day_avg,
+        "rely_paid_seven_day_total": rely_paid_seven_day_total,
+        "rely_paid_thirty_day_avg": rely_paid_thirty_day_avg,
+        "rely_paid_thirty_day_total": rely_paid_thirty_day_total,
+        "rely_paid_six_month_avg": rely_paid_six_month_avg,
+        "rely_paid_six_month_total": rely_paid_six_month_total,
+        "rely_paid_twelve_month_avg": rely_paid_twelve_month_avg,
+        "rely_paid_twelve_month_total": rely_paid_twelve_month_total,
+        "current_year_total": round(current_year_total, 2),
+        "last_year_total": round(last_year_total, 2),
+        "overall_rely_paid_total": overall_rely_paid_total,
+        "all_rely_paid": all_rely_paid,
+        "rely_paid_invoices": rely_paid_invoices,
+        
+        # RelyProcessed data
+        "rely_proc_current_day_avg": rely_proc_current_day_avg,
+        "rely_proc_current_day_total": rely_proc_current_day_total,
+        "rely_proc_seven_day_avg": rely_proc_seven_day_avg,
+        "rely_proc_seven_day_total": rely_proc_seven_day_total,
+        "rely_proc_thirty_day_avg": rely_proc_thirty_day_avg,
+        "rely_proc_thirty_day_total": rely_proc_thirty_day_total,
+        "rely_proc_six_month_avg": rely_proc_six_month_avg,
+        "rely_proc_six_month_total": rely_proc_six_month_total,
+        "rely_proc_twelve_month_avg": rely_proc_twelve_month_avg,
+        "rely_proc_twelve_month_total": rely_proc_twelve_month_total,
+        "current_day_avg_days": current_day_avg_days,
+        "seven_day_avg_days": seven_day_avg_days,
+        "thirty_day_avg_days": thirty_day_avg_days,
+        "six_month_avg_days": six_month_avg_days,
+        "twelve_month_avg_days": twelve_month_avg_days,
+        "current_day_avg_due_days": current_day_avg_due_days,
+        "seven_day_avg_due_days": seven_day_avg_due_days,
+        "thirty_day_avg_due_days": thirty_day_avg_due_days,
+        "six_month_avg_due_days": six_month_avg_due_days,
+        "twelve_month_avg_due_days": twelve_month_avg_due_days,
+        "overall_avg_days": overall_avg_days,
+        "overall_avg_due_days": overall_avg_due_days,
+        "overall_rely_proc_total": overall_rely_proc_total,
+        "all_rely_processed": all_rely_processed,
+        "rely_proc_invoices": rely_proc_invoices,
+        "all_statuses": all_statuses,
+        
+        # Other data
+        "overall_rely_total": overall_rely_proc_total,  # Keeping for backward compatibility
         "diff": diff,
         "total_gmmm_amount": total_gmmm_amount,
         "negative": negative,
@@ -109,11 +298,15 @@ def add_task(request):
 
 @login_required(login_url='login')
 def belle_task(request):
-    if request.method == "POST":        
+    if request.method == "POST":
         description = request.POST['description']
         task = Belle_Task.objects.create(description=description)
         task.save()
+        words = description.split()[:5]  # Split into words and take first 5
+        truncated_description = "BELLE: " + ' '.join(words) + '... ' if len(words) >= 5 else "BELLE: " + str(description)
         belle_push_notis(description)
+        journal = Work_Journal.objects.create(description=truncated_description)
+        journal.save()
         print("task created, notification sent", flush=True)
         messages.success(request, ("Task Added for Belle"))
         return redirect('index')
@@ -193,11 +386,22 @@ def complete_belle_task(request, pk):
 
 @login_required(login_url='login')
 def complete_marvin_task(request, pk):
-	task = Marvin_Task.objects.get(id=pk)
-	task.status = True
-	task.save()
-	messages.success(request, ("Task completed"))
-	return redirect('index')
+    task = Marvin_Task.objects.get(id=pk)
+    
+    # Truncate description to first 5 words + "..."
+    words = task.description.split()[:25]  # Split into words and take first 25
+    truncated_description = ' '.join(words) + '...' if len(words) >= 25 else task.description
+    
+    task.status = True
+    task.save()
+    
+    # Save truncated description in Work_Journal
+    journal = Journal.objects.create(notes=truncated_description)
+    journal.save()
+    
+    messages.success(request, "Task completed")
+    return redirect('index')
+
 
 @login_required(login_url='login')
 def thread(request):
@@ -238,6 +442,10 @@ def invoices(request):
     thirty_days_ago = today - timedelta(days=30)
     six_months_ago = today - timedelta(days=180)
     twelve_months_ago = today - timedelta(days=365)
+
+    ten_days_ago = today - timedelta(days=10)
+
+    old_invoices = Invoice.objects.filter(date_received__lt=ten_days_ago, invoiced_amount=0)
 
     # Function to calculate average and total for a given queryset
     def get_avg_total(queryset):
@@ -375,6 +583,7 @@ def invoices(request):
         "twelve_month_total": twelve_month_total,
         "overall_total": overall_total,
         "invoices": invoices,
+        "old_invoices": old_invoices,
         "current_day_avg_days": current_day_avg_days,
         "seven_day_avg_days": seven_day_avg_days,
         "thirty_day_avg_days": thirty_day_avg_days,
@@ -561,14 +770,11 @@ def ebay(request):
     return render(request, 'ebay.html', context)
 
 from datetime import date, timedelta
-
+from itertools import chain
 @login_required(login_url='login')
 def merchant(request):
-    # Get all transactions with converted amounts
-    transactions = Merchant.objects.all().order_by("-id").annotate(
-        amount_float=Cast('amount', FloatField())
-    )
-
+    user = request.user
+    
     # Time setup (PST)
     pst = pytz.timezone("America/Los_Angeles")
     now_pst = timezone.now().astimezone(pst)
@@ -581,82 +787,196 @@ def merchant(request):
     start_of_last_year = start_of_year - timedelta(days=365)
     end_of_last_year = start_of_year - timedelta(days=1)
 
-    # Calculate totals using the converted amount_float
-    def get_total(queryset):
-        return queryset.aggregate(total=Sum('amount_float'))['total'] or 0.0
-
-    today_total = get_total(transactions.filter(date_pushed__gte=today))
-    week_total = get_total(transactions.filter(date_pushed__gte=start_of_week))
-    month_total = get_total(transactions.filter(date_pushed__gte=start_of_month))
-    year_total = get_total(transactions.filter(date_pushed__gte=start_of_year))
-    last_year_total = get_total(transactions.filter(
-        date_pushed__gte=start_of_last_year,
-        date_pushed__lte=end_of_last_year
-    ))
-
-    # Calculate average per day
-    avg_per_day = transactions.exclude(amount_float=0).aggregate(
-        avg=Avg('amount_float')
-    )['avg'] or 0.0
-
-    # NEW: Calculate accurate average per month
-    from django.db.models.functions import ExtractMonth, ExtractYear
-    from calendar import monthrange
-
-    # Get all unique month-year combinations
-    month_years = transactions.annotate(
-        month=ExtractMonth('date_pushed'),
-        year=ExtractYear('date_pushed')
-    ).values('month', 'year').distinct()
-
-    monthly_averages = []
-    for my in month_years:
-        year = my['year']
-        month = my['month']
-        
-        # Get first and last day of month
-        _, last_day = monthrange(year, month)
-        start_date = date(year, month, 1)
-        end_date = date(year, month, last_day)
-        
-        # Get transactions for this month
-        month_trans = transactions.filter(
-            date_pushed__gte=start_date,
-            date_pushed__lte=end_date
+    def calculate_model_stats(model, date_field='date_pushed'):
+        """Helper function to calculate statistics for a given model"""
+        # Get all transactions with converted amounts
+        transactions = model.objects.all().order_by("-id").annotate(
+            amount_float=Cast('amount', FloatField())
         )
-        
-        # Calculate total for month and divide by days in month
-        month_sum = get_total(month_trans)
-        monthly_averages.append(month_sum / last_day)
 
-    # Calculate overall monthly average
-    avg_per_month = sum(monthly_averages) / len(monthly_averages) if monthly_averages else 0.0
+        # Calculate totals using the converted amount_float
+        def get_total(queryset):
+            return queryset.aggregate(total=Sum('amount_float'))['total'] or 0.0
 
-    # Search functionality
+        today_total = get_total(transactions.filter(**{f'{date_field}__gte': today}))
+        week_total = get_total(transactions.filter(**{f'{date_field}__gte': start_of_week}))
+        month_total = get_total(transactions.filter(**{f'{date_field}__gte': start_of_month}))
+        year_total = get_total(transactions.filter(**{f'{date_field}__gte': start_of_year}))
+        last_year_total = get_total(transactions.filter(
+            **{f'{date_field}__gte': start_of_last_year,
+               f'{date_field}__lte': end_of_last_year}
+        ))
+
+        # Calculate average per day
+        avg_per_day = transactions.exclude(amount_float=0).aggregate(
+            avg=Avg('amount_float')
+        )['avg'] or 0.0
+
+        # Calculate accurate average per month
+        from django.db.models.functions import ExtractMonth, ExtractYear
+        from calendar import monthrange
+
+        # Get all unique month-year combinations
+        month_years = transactions.annotate(
+            month=ExtractMonth(date_field),
+            year=ExtractYear(date_field)
+        ).values('month', 'year').distinct()
+
+        monthly_averages = []
+        for my in month_years:
+            year = my['year']
+            month = my['month']
+            
+            # Get first and last day of month
+            _, last_day = monthrange(year, month)
+            start_date = date(year, month, 1)
+            end_date = date(year, month, last_day)
+            
+            # Get transactions for this month
+            month_trans = transactions.filter(
+                **{f'{date_field}__gte': start_date,
+                   f'{date_field}__lte': end_date}
+            )
+            
+            # Calculate total for month and divide by days in month
+            month_sum = get_total(month_trans)
+            monthly_averages.append(month_sum / last_day)
+
+        # Calculate overall monthly average
+        avg_per_month = sum(monthly_averages) / len(monthly_averages) if monthly_averages else 0.0
+
+        return {
+            'today_total': today_total,
+            'week_total': week_total,
+            'month_total': month_total,
+            'year_total': year_total,
+            'last_year_total': last_year_total,
+            'avg_per_day': avg_per_day,
+            'avg_per_month': avg_per_month,
+            'all_transactions': transactions,
+        }
+
+    # Calculate stats for both models
+    merchant_stats = calculate_model_stats(Merchant)
+    amex_stats = calculate_model_stats(Amex, date_field='date_pushed')  # Adjust if Amex uses different date field
+    bank_data = us_bank.objects.all().order_by("-date_sent")
+    month_start = today.replace(day=1)
+    thirty_days_ago = today - timedelta(days=30)
+    current_year = today.year
+    last_year = current_year - 1
+    year_start = today.replace(month=1, day=1)
+    last_year_start = year_start.replace(year=last_year)
+    last_year_end = year_start - timedelta(days=1)
+
+    #today
+    today_in = us_bank.objects.filter(
+        date_sent=today,
+        transaction_type__in=["Deposit", "Check Deposit"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    today_out = us_bank.objects.filter(
+        date_sent=today,
+        transaction_type__in=["Withdrawn", "Zelle Payment"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    # This month's transactions
+    month_in = us_bank.objects.filter(
+        date_sent__gte=month_start,
+        transaction_type__in=["Deposit", "Check Deposit"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    month_out = us_bank.objects.filter(
+        date_sent__gte=month_start,
+        transaction_type__in=["Withdrawn", "Zelle Payment"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    # All-time transactions
+    total_in = us_bank.objects.filter(
+        transaction_type__in=["Deposit", "Check Deposit"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    total_out = us_bank.objects.filter(
+        transaction_type__in=["Withdrawn", "Zelle Payment"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    # Last 30 days transactions
+    last30_in = us_bank.objects.filter(
+        date_sent__gte=thirty_days_ago,
+        transaction_type__in=["Deposit", "Check Deposit"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+
+    #year in totals
+    this_year_in = us_bank.objects.filter(
+        date_sent__gte=year_start,
+        transaction_type__in=["Deposit", "Check Deposit"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    last_year_in = us_bank.objects.filter(
+        date_sent__gte=last_year_start,
+        date_sent__lte=last_year_end,
+        transaction_type__in=["Deposit", "Check Deposit"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+
+
+    # Combined search functionality for both models
     search_results = None
+    amex_search_results = None
     if request.method == "POST":
         query = request.POST.get('ebay_data', '').strip()
-        messages.success(request, f"You searched {query}")
-
         if query:
-            search_results = Merchant.objects.filter(
+            messages.success(request, f"You searched {query}")
+            # Search both models
+            m_search_results = Merchant.objects.filter(
                 order_number__icontains=query
             ).annotate(amount_float=Cast('amount', FloatField()))
+            
+            amex_search_results = Amex.objects.filter(
+                order_number__icontains=query
+            ).annotate(amount_float=Cast('amount', FloatField()))
+            
+            # Combine the search results if needed
+            search_results = list(m_search_results) + list(amex_search_results)
 
-    context = {
-        'today_total': today_total,
-        'week_total': week_total,
-        'month_total': month_total,
-        'year_total': year_total,
-        'last_year_total': last_year_total,
-        'avg_per_day': avg_per_day,
-        'avg_per_month': avg_per_month,
-        'all_transactions': transactions,
-        'search_results': search_results,
+    # Combine stats with model prefixes
+    combined_stats = {
+        'today_total': merchant_stats['today_total'],
+        'week_total': merchant_stats['week_total'],
+        'month_total': merchant_stats['month_total'],
+        'year_total': merchant_stats['year_total'],
+        'last_year_total': merchant_stats['last_year_total'],
+        'avg_per_day': merchant_stats['avg_per_day'],
+        'avg_per_month': merchant_stats['avg_per_month'],
+        'all_transactions': merchant_stats['all_transactions'],
+        
+        'amex_today_total': amex_stats['today_total'],
+        'amex_week_total': amex_stats['week_total'],
+        'amex_month_total': amex_stats['month_total'],
+        'amex_year_total': amex_stats['year_total'],
+        'amex_last_year_total': amex_stats['last_year_total'],
+        'amex_avg_per_day': amex_stats['avg_per_day'],
+        'amex_avg_per_month': amex_stats['avg_per_month'],
+        'amex_all_transactions': amex_stats['all_transactions'],
+        'search_results':search_results,
+
+        "bank_data":bank_data,
+        'today_in': today_in,
+        'today_out': today_out,
+        'month_in': month_in,
+        'month_out': month_out,
+        'total_in': total_in,
+        'total_out': total_out,
+        'last30_in': last30_in,
+        'this_year_in': this_year_in,
+        'last_year_in': last_year_in,
+        
     }
 
-    return render(request, 'merchant.html', context)
+    
 
+    return render(request, 'merchant.html', combined_stats)
+    
 
 @login_required(login_url='login')
 def create_ebay(request):

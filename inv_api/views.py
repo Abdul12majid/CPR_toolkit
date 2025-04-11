@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import InvoiceSerializer, EbaySerializer, RelyInvoiceSerializer, WoSerializer
 from .serializers import TaskSerializer, Today_orderSerializer, BelleTaskSerializer
-from .serializers import Work_JournalSerializer, RelyMessageSerializer
-from .serializers import OrderUpdateSerializer, MerchantSerializer
+from .serializers import Work_JournalSerializer, RelyMessageSerializer, USBankSerializer
+from .serializers import USBankSerializer, USBankListSerializer
+from .serializers import OrderUpdateSerializer, MerchantSerializer, AmexSerializer
 from task_app.models import Ebay
 from django.utils import timezone
+
 
 @api_view(['POST'])
 @authentication_classes([])  
@@ -34,6 +36,16 @@ def create_ebay_api(request):
 @permission_classes([])  
 def create_merchant_api(request):
     serializer = MerchantSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "data added successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@authentication_classes([])  
+@permission_classes([])  
+def amex_api(request):
+    serializer = AmexSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "data added successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -160,3 +172,23 @@ def work_journal_api(request):
         serializer.save()
         return Response({"message": "update added successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def usbank_api(request):
+    # Check if data is a list (bulk) or single object
+    many = isinstance(request.data, list)
+    
+    serializer = USBankSerializer(data=request.data, many=many)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Success",
+            "count": len(serializer.data) if many else 1,
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

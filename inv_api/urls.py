@@ -13,5 +13,7 @@ urlpatterns = [
     path('rely_message_api', views.rely_message_api, name="rely_message_api"),
     path('update_order', views.update_order_details, name='update_order'),
     path('work_journal_api', views.work_journal_api, name="work_journal_api"),
+    path('amex_api', views.amex_api, name="amex_api"),
+    path('usbank_api', views.usbank_api, name="usbank_api"),
 
 ]

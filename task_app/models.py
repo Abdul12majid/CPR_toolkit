@@ -80,6 +80,33 @@ class Merchant(models.Model):
     def __str__(self):
         return self.name + " " + self.order_number
 
+
+class Amex(models.Model):
+    order_number = models.CharField(max_length=200, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date_pushed = models.DateField(default=timezone.now)
+    transaction_date = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Amex"
+
+    def __str__(self):
+        return self.name + " " + self.amount
+
+class us_bank(models.Model):
+    order_number = models.CharField(max_length=200, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date_pushed = models.DateField(default=timezone.now)
+    date_sent = models.DateField(default=timezone.now)
+    transaction_type = models.CharField(max_length=200, blank=True, null=True)
+    transaction_date = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "US_BANK"
+
+    def __str__(self):
+        return self.transaction_type + " " + str(self.amount)
+
 class Today_order(models.Model):
     name = models.CharField(max_length=200, blank=True, null=True)
     tracking_number = models.CharField(max_length=200, blank=True, null=True)

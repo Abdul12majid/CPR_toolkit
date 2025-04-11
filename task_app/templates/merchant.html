@@ -10,102 +10,310 @@
             word-wrap: break-word;
         }
 </style>
-    <center>
-    <div class="container mt-5">
-        <h2>Summary</h2>
-        <table style="width:500px; ali" class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Period</th>
-                    <th>Total Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Today</td>
-                    <td>${{ today_total|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td>This Week</td>
-                    <td>${{ week_total|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td>This Month</td>
-                    <td>${{ month_total|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td>This Year</td>
-                    <td>${{ year_total|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td>Last Year</td>
-                    <td>${{ last_year_total|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td>Average per Day</td>
-                    <td>${{ avg_per_day|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td>Average per Month</td>
-                    <td>${{ avg_per_month|floatformat:2 }}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="row">
+        <div class="col-lg-4">
+            <center>
+            <div class="container mt-5">
+                <h5>Discover Summary</h5>
+                <table style="width:500px; ali" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Today</td>
+                            <td>${{ today_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Week</td>
+                            <td>${{ week_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Month</td>
+                            <td>${{ month_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Year</td>
+                            <td>${{ year_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Year</td>
+                            <td>${{ last_year_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average per Day</td>
+                            <td>${{ avg_per_day|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average per Month</td>
+                            <td>${{ avg_per_month|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            </center>
+
+            <div class="container mt-5">
+                <h5 style="float:center">Discover</h5>
+
+                <form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
+                    {% csrf_token %}
+                    <input name="ebay_data" class="form-control mr-sm-2" type="search" placeholder="Search Order" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <br>
+                <!--<a style="text-align: left;" class="btn btn-primary" href="{% url 'create_ebay' %}">Create Ebay</a><br><br>-->
+
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Merchant</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if search_results is not None %}
+                            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
+                            {% for ebay in search_results %}
+                            <tr>
+                                <td>{{ ebay.transaction_date }}</td>
+                                <td>{{ ebay.order_number }}</td>
+                                <td>{{ ebay.amount }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No matching Data found.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr><td colspan="6"><hr></td></tr>
+                        {% endif %}
+
+                        {% if search_results is None %}
+                            
+                            {% for ebay in all_transactions %}
+                            <tr>
+                                <td>{{ ebay.transaction_date }}</td>
+                                <td>{{ ebay.order_number }}</td>
+                                <td>{{ ebay.amount }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No Data available.</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <center>
+            <div class="container mt-5">
+                <h5>Amex Summary</h5>
+                <table style="width:500px; ali" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Today</td>
+                            <td>${{ amex_today_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Week</td>
+                            <td>${{ amex_week_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Month</td>
+                            <td>${{ amex_month_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Year</td>
+                            <td>${{ amex_year_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Year</td>
+                            <td>${{ last_year_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average per Day</td>
+                            <td>${{ amex_avg_per_day|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average per Month</td>
+                            <td>${{ amex_avg_per_month|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            </center>
+
+            <div class="container mt-5">
+                <h5 style="float:center">AMEX</h5>
+
+                <form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
+                    {% csrf_token %}
+                    <input name="ebay_data" class="form-control mr-sm-2" type="search" placeholder="Search Order" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <br>
+                <!--<a style="text-align: left;" class="btn btn-primary" href="{% url 'create_ebay' %}">Create Ebay</a><br><br>-->
+
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Merchant</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if search_results is not None %}
+                            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
+                            {% for ebay in search_results %}
+                            <tr>
+                                <td>{{ ebay.transaction_date }}</td>
+                                <td>{{ ebay.order_number }}</td>
+                                <td>{{ ebay.amount }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No matching Data found.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr><td colspan="6"><hr></td></tr>
+                        {% endif %}
+
+                        {% if search_results is None %}
+                            
+                            {% for ebay in amex_all_transactions %}
+                            <tr>
+                                <td>{{ ebay.transaction_date }}</td>
+                                <td>{{ ebay.order_number }}</td>
+                                <td>{{ ebay.amount }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No Data available.</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <center>
+            <div class="container mt-5">
+                <h5>Us Bank Summary</h5>
+                <table style="width:500px; ali" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Today In</td>
+                            <td>${{ today_in|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Today Out</td>
+                            <td>${{ today_out|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Month In</td>
+                            <td>${{ month_in|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>This Month Out</td>
+                            <td>${{ month_out|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Last 30days</td>
+                            <td>${{ last30_in|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            {% load humanize %}
+                            <td>Total In ${{ total_in|floatformat:2|intcomma }}</td>
+                            <td>Total Out ${{ total_out|floatformat:2|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Year In ${{ last_year_in|floatformat:2 }}</td>
+                            <td>This Year In ${{ this_year_in|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            </center>
+
+            <div class="container mt-5">
+                <h5 style="float:center">US Bank</h5>
+
+                <form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
+                    {% csrf_token %}
+                    <input name="ebay_data" class="form-control mr-sm-2" type="search" placeholder="Search Order" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <br>
+                <!--<a style="text-align: left;" class="btn btn-primary" href="{% url 'create_ebay' %}">Create Ebay</a><br><br>-->
+
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Transaction Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if search_results is not None %}
+                            <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
+                            {% for ebay in search_results %}
+                            <tr>
+                                <td>{{ ebay.date_sent }}</td>
+                                <td>{{ ebay.transaction_type }}</td>
+                                <td>{{ ebay.amount }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No matching Data found.</td>
+                            </tr>
+                            {% endfor %}
+                            <tr><td colspan="6"><hr></td></tr>
+                        {% endif %}
+
+                        {% if search_results is None %}
+                            
+                            {% for ebay in bank_data %}
+                            <tr>
+                                <td>{{ ebay.date_sent }}</td>
+                                <td>{{ ebay.transaction_type }}</td>
+                                <td class="{% if ebay.transaction_type == 'Deposit' or ebay.transaction_type == 'Check Deposit' %}
+                                    table-success
+                                    {% else %}
+                                    table-danger
+                                    {% endif %}">{{ ebay.amount }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No Data available.</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    </center>
 
-    <div class="container mt-5">
-        <center><h3 style="float:center">Transactions</h3></center>
-
-        <form style="float:right;" method="POST" class="form-inline my-2 my-lg-0">
-            {% csrf_token %}
-            <input name="ebay_data" class="form-control mr-sm-2" type="search" placeholder="Search Order" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-        <br>
-        <!--<a style="text-align: left;" class="btn btn-primary" href="{% url 'create_ebay' %}">Create Ebay</a><br><br>-->
-
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Date</th>
-                    <th>Merchant</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if search_results is not None %}
-                    <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
-                    {% for ebay in search_results %}
-                    <tr>
-                        <td>{{ ebay.transaction_date }}</td>
-                        <td>{{ ebay.order_number }}</td>
-                        <td>{{ ebay.amount }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">No matching Data found.</td>
-                    </tr>
-                    {% endfor %}
-                    <tr><td colspan="6"><hr></td></tr>
-                {% endif %}
-
-                {% if search_results is None %}
-                    
-                    {% for ebay in all_transactions %}
-                    <tr>
-                        <td>{{ ebay.transaction_date }}</td>
-                        <td>{{ ebay.order_number }}</td>
-                        <td>{{ ebay.amount }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">No Data available.</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
 
 {% endblock %}
