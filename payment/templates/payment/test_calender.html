@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2 style="text-align: center;">New</h2></br>
+
+	<div class="container">
+		<div id='calendar'></div>
+	</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        editable: true,  // enable draggable events
+        selectable: true,  // enable date selection
+        select: function(info) {
+            // Handle new event creation
+            var title = prompt('Event Title:');
+            if (title) {
+                // Send AJAX request to create event
+                fetch('/payment/test_events/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        name: title,
+                        start: info.startStr,
+                        end: info.endStr,
+                        participants: []  // You can add participant selection logic
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    calendar.addEvent({
+                        id: data.id,
+                        title: title,
+                        start: info.startStr,
+                        end: info.endStr
+                    });
+                });
+            }
+            calendar.unselect();
+        },
+        eventClick: function(info) {
+            // Handle event click (for update/delete)
+            var action = prompt("Edit or delete? (edit/delete)");
+            if (action === 'edit') {
+                var newTitle = prompt("New title:", info.event.title);
+                if (newTitle) {
+                    fetch(`/events/${info.event.id}/update/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            name: newTitle,
+                            start: info.event.startStr,
+                            end: info.event.endStr
+                        })
+                    })
+                    .then(() => {
+                        info.event.setProp('title', newTitle);
+                    });
+                }
+            } else if (action === 'delete') {
+                if (confirm("Are you sure?")) {
+                    fetch(`/events/${info.event.id}/delete/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(() => {
+                        info.event.remove();
+                    });
+                }
+            }
+        },
+        events: '/events/json/'  // URL to fetch events from
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}

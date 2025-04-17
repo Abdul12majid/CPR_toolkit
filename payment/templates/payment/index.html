@@ -1,0 +1,668 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+	<div class="row">
+		<div class="col-lg-4">
+			<div class="container mt-5">
+				<h3 style="text-align: center;">Sam</h3>
+			    <table class="table table-striped table-bordered">
+			      <thead class="table-dark">
+			        <tr>
+			          <th>Column 1</th>
+			          <th>Column 2</th>
+			          <th>Column 3</th>
+			        </tr>
+			      </thead>
+			      <tbody>
+			        <tr>
+			          <td>{{ sam.total_amount }}</td>
+			          <td>Row 1, Col 2</td>
+			          <td>Row 1, Col 3</td>
+			        </tr>
+			        <tr>
+			          <td>Row 2, Col 1</td>
+			          <td>Row 2, Col 2</td>
+			          <td>Row 2, Col 3</td>
+			        </tr>
+			        <tr>
+			          <td>Row 3, Col 1</td>
+			          <td>Row 3, Col 2</td>
+			          <td>Row 3, Col 3</td>
+			        </tr>
+			        <tr>
+			          <td>Row 4, Col 1</td>
+			          <td>Row 4, Col 2</td>
+			          <td>Row 4, Col 3</td>
+			        </tr>
+			      </tbody>
+			    </table>
+			</div>
+		</div>
+
+		{% if request.user.username == "Bojan" or request.user.username == "Sergio" or request.user.username == "spleecho" %}
+			<div class="col-lg-4">
+				<div class="container mt-5">
+					<h3 style="text-align: center;">Sergio</h3>
+				    <table class="table table-striped table-bordered">
+				      <thead class="table-dark">
+				        <tr>
+				          <th>Column 1</th>
+				          <th>Column 2</th>
+				          <th>Column 3</th>
+				        </tr>
+				      </thead>
+				      <tbody>
+				        <tr>
+				          <td>{{ sergio.total_amount }}</td>
+				          <td>Row 1, Col 2</td>
+				          <td>Row 1, Col 3</td>
+				        </tr>
+				        <tr>
+				          <td>Row 2, Col 1</td>
+				          <td>Row 2, Col 2</td>
+				          <td>Row 2, Col 3</td>
+				        </tr>
+				        <tr>
+				          <td>Row 3, Col 1</td>
+				          <td>Row 3, Col 2</td>
+				          <td>Row 3, Col 3</td>
+				        </tr>
+				        <tr>
+				          <td>Row 4, Col 1</td>
+				          <td>Row 4, Col 2</td>
+				          <td>Row 4, Col 3</td>
+				        </tr>
+				      </tbody>
+				    </table>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="container mt-5">
+					<h3 style="text-align: center;">Bojan</h3>
+				    <table class="table table-striped table-bordered">
+				      <thead class="table-dark">
+				        <tr>
+				          <th>Column 1</th>
+				          <th>Column 2</th>
+				          <th>Column 3</th>
+				        </tr>
+				      </thead>
+				      <tbody>
+				        <tr>
+				          <td>{{ bojan.total_amount }}</td>
+				          <td>Row 1, Col 2</td>
+				          <td>Row 1, Col 3</td>
+				        </tr>
+				        <tr>
+				          <td>Row 2, Col 1</td>
+				          <td>Row 2, Col 2</td>
+				          <td>Row 2, Col 3</td>
+				        </tr>
+				        <tr>
+				          <td>Row 3, Col 1</td>
+				          <td>Row 3, Col 2</td>
+				          <td>Row 3, Col 3</td>
+				        </tr>
+				        <tr>
+				          <td>Row 4, Col 1</td>
+				          <td>Row 4, Col 2</td>
+				          <td>Row 4, Col 3</td>
+				        </tr>
+				      </tbody>
+				    </table>
+				</div>
+			</div>
+		{% endif %}
+	</div></br></br>
+</div>
+
+	<center>
+			<h2 class="mt-5">Calendar</h2>
+			<div id="calendar"></div>
+	</center>
+
+<div class="container">
+	{% if request.user.username == "Bojan" or request.user.username == "Sergio" or request.user.username == "spleecho" %}
+		<div class="container mt-5">
+			<h3 style="text-align: center;">Sergio Students</h3>
+			<a href="{% url 'new_student' %}" class="btn btn-outline-primary">New</a></br>
+		    <table class="table table-striped table-bordered">
+		      <thead class="table-dark">
+		        <tr>
+		          <th>First Name</th>
+		          <th>Last Name</th>
+		          <th>Hourly Rate</th>
+		        </tr>
+		      </thead>
+		      <tbody>
+		      	{% for student in sergio_students %}
+		        <tr>
+		          <td>{{ student.first_name }}</td>
+		          <td>{{ student.last_name }}</td>
+		          <td>{{ student.hourly_rate }}</td>
+		        </tr>
+		        {% endfor %}
+		      </tbody>
+		    </table>
+		</div>
+		<div class="container mt-5">
+			<h3 style="text-align: center;">Sam Students</h3>
+			<a href="{% url 'new_student' %}" class="btn btn-outline-primary">New</a></br>
+		    <table class="table table-striped table-bordered">
+		      <thead class="table-dark">
+		        <tr>
+		          <th>First Name</th>
+		          <th>Last Name</th>
+		          <th>Hourly Rate</th>
+		        </tr>
+		      </thead>
+		      <tbody>
+		      	{% for student in sam_students %}
+		        <tr>
+		          <td>{{ student.first_name }}</td>
+		          <td>{{ student.last_name }}</td>
+		          <td>{{ student.hourly_rate }}</td>
+		        </tr>
+		        {% endfor %}
+		      </tbody>
+		    </table>
+		</div>
+	{% else %}
+		<div class="container mt-5">
+			<h3 style="text-align: center;">Students</h3>
+			<a href="{% url 'new_student' %}" class="btn btn-outline-primary">New</a></br>
+		    <table class="table table-striped table-bordered">
+		      <thead class="table-dark">
+		        <tr>
+		          <th>First Name</th>
+		          <th>Last Name</th>
+		          <th>Hourly Rate</th>
+		        </tr>
+		      </thead>
+		      <tbody>
+		      	{% for student in sam_students %}
+		        <tr>
+		          <td>{{ student.first_name }}</td>
+		          <td>{{ student.last_name }}</td>
+		          <td>{{ student.hourly_rate }}</td>
+		        </tr>
+		        {% endfor %}
+		      </tbody>
+		    </table>
+		</div>
+	{% endif %}
+
+	<!-- Modal for Adding Events -->
+	  <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+		    <div class="modal-dialog">
+		        <form id="eventForm">
+		            <div class="modal-content">
+		                <div class="modal-header">
+		                    <h5 class="modal-title" id="eventModalLabel">Add Event</h5>
+		                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+		                </div>
+		                <div class="modal-body">
+		                    <input type="hidden" id="eventDateTime">
+		                    <div class="mb-3">
+		                        <label for="eventTitle" class="form-label">Event Title</label>
+		                        <input type="text" class="form-control" id="eventTitle" required>
+		                    </div>
+		                    <div class="mb-3">
+		                        <label for="eventParticipants" class="form-label">Participants</label>
+		                        <select class="form-select" id="eventParticipants" multiple>
+		                            {% for user in users %}
+		                            <option value="{{ user.username }}">{{ user.get_full_name|default:user.username }}</option>
+		                            {% endfor %}
+		                        </select>
+		                    </div>
+		                    <div class="mb-3">
+		                        <label for="eventStart" class="form-label">Start</label>
+		                        <input type="datetime-local" class="form-control" id="eventStart" required>
+		                    </div>
+		                    <div class="mb-3">
+		                        <label for="eventEnd" class="form-label">End</label>
+		                        <input type="datetime-local" class="form-control" id="eventEnd">
+		                    </div>
+		                    <div class="mb-3 form-check">
+		                        <input type="checkbox" class="form-check-input" id="eventAllDay">
+		                        <label class="form-check-label" for="eventAllDay">All Day Event</label>
+		                    </div>
+		                    <div class="mb-3 form-check">
+		                        <input type="checkbox" class="form-check-input" id="eventRepeat">
+		                        <label class="form-check-label" for="eventRepeat">Repeat (5)</label>
+		                    </div>
+		                    <div class="mb-3" id="repeatFrequencyContainer" style="display: none;">
+		                        <label class="form-label">Repeat every</label>
+		                        <select class="form-select" id="repeatFrequency">
+		                            <option value="weekly">Week</option>
+		                            <option value="daily">Day</option>
+		                            <option value="monthly">Month</option>
+		                        </select>
+		                    </div>
+				                </div>
+		                <div class="modal-footer">
+		                	
+		                    <button type="button" class="btn btn-danger me-auto" id="deleteEvent" style="display: none;">Delete Event</button>
+		                  
+		                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		                    <button type="submit" class="btn btn-primary">Save Event</button>
+		                </div>
+		            </div>
+		        </form>
+		    </div>
+		</div>	
+</div>
+
+{% if request.user.username == "Bojan" or request.user.username == "Sergio" %}
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-4">
+				<div class="container mt-5">
+					<h3 style="text-align: center;">Sam</h3>
+				    <div class="card" style="width: 18rem;">
+					  <div class="card-header">
+					    Account Details
+					  </div>
+					  <ul class="list-group list-group-flush">
+					    <li class="list-group-item">Balance: ${{sam.total_amount}}</li>
+					    <li class="list-group-item"></li>
+					    <li class="list-group-item"></li>
+					  </ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="container mt-5">
+					<h3 style="text-align: center;">Sergio</h3>
+				    <div class="card" style="width: 18rem;">
+					  <div class="card-header">
+					    Account Details
+					  </div>
+					  <ul class="list-group list-group-flush">
+					    <li class="list-group-item">Balance: ${{sergio.total_amount}}</li>
+					    <li class="list-group-item"></li>
+					    <li class="list-group-item"></li>
+					  </ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="container mt-5">
+					<h3 style="text-align: center;">Bojan</h3>
+				    <div class="card" style="width: 18rem;">
+					  <div class="card-header">
+					    Account Details
+					  </div>
+					  <ul class="list-group list-group-flush">
+					    <li class="list-group-item">Balance: ${{bojan.total_amount}}</li>
+					    <li class="list-group-item"></li>
+					    <li class="list-group-item"></li>
+					  </ul>
+					</div>
+				</div>
+			</div>
+		</div></br></br>
+	</div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-6">
+				<h3>Add</h3>
+				<form action="{% url 'add_money' %}" method="POST" validate>
+		            {% csrf_token %}
+					<div class="form-group">
+		                <label for="exampleInputEmail1">Amount</label>
+		                <input name="amount" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required> 
+		            </div>
+		            <div class="form-group">
+		                <label for="ownerSelect">User</label>
+		                <select name="owner" class="form-control" id="ownerSelect">
+		                    {% for user in s_app_users %}
+		                         <option value="{{ user.id }}">{{ user.first_name }}</option>
+		                    {% endfor %}
+		                    
+		                </select>
+		            </div></br>
+
+		            <center>
+		                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+		            </center>
+		        </form>
+		    </div>
+		    <div class="col-lg-6">
+				<h3>Deduct</h3>
+				<form action="{% url 'deduct_money' %}" method="POST" validate>
+		            {% csrf_token %}
+					<div class="form-group">
+		                <label for="exampleInputEmail1">Amount</label>
+		                <input name="amount" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required> 
+		            </div>
+		            <div class="form-group">
+		                <label for="ownerSelect">User</label>
+		                <select name="owner" class="form-control" id="ownerSelect">
+		                        {% for user in s_app_users %}
+		                            <option value="{{ user.id }}">{{ user.first_name }}</option>
+		                        {% endfor %}
+		                </select>
+		            </div></br>
+
+		            <center>
+		                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+		            </center>
+		        </form>
+		    </div>
+	    </div>
+	</div>
+{% endif %}
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    
+    // Participant color mapping
+    const participantColors = {
+        'Bojan': 'Blue', // Green
+        'Sam': 'Green',   // Yellow
+        'Sergio': 'Red' // Blue
+    };
+    const defaultColor = '#6c757d'; // Gray
+    
+    // Get current user from Django template
+    const currentUser = "{{ request.user.username }}";
+    console.log('Current user:', currentUser);
+
+    const calendarEl = document.getElementById('calendar');
+    const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+    const deleteBtn = document.getElementById('deleteEvent');
+    let currentEvent = null;
+    
+    // Hide delete button if user is Sam
+    if (currentUser === "Sam") {
+        deleteBtn.style.display = 'none';
+        console.log('Delete button hidden for Sam');
+    }
+    
+    // Toggle repeat options visibility
+    document.getElementById('eventRepeat').addEventListener('change', function() {
+        document.getElementById('repeatFrequencyContainer').style.display = 
+            this.checked ? 'block' : 'none';
+    });
+
+    console.log('Initializing FullCalendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        timeZone: 'local',
+        slotMinTime: "07:00:00",
+        editable: true,
+        selectable: true,
+        // Week starts on Monday configuration
+        firstDay: 1, // Monday
+        views: {
+            timeGridWeek: {
+                type: 'timeGrid',
+                duration: { weeks: 1 },
+                firstDay: 1
+            }
+        },
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: {
+            url: "{% url 'calendar_events' %}",
+            method: 'GET',
+            failure: function(error) {
+                console.error('Error loading events:', error);
+                alert('Failed to load events. Please refresh the page.');
+            }
+        },
+        eventContent: function(arg) {
+            // Determine color based on participants
+            let color = defaultColor;
+            const participants = arg.event.extendedProps.participants || [];
+            
+            for (const participant of participants) {
+                if (participantColors[participant]) {
+                    color = participantColors[participant];
+                    break;
+                }
+            }
+            
+            // Create custom event element
+            let eventEl = document.createElement('div');
+            eventEl.style.backgroundColor = color;
+            eventEl.style.padding = '2px 5px';
+            eventEl.style.borderRadius = '3px';
+            eventEl.style.color = '#fff';
+            eventEl.style.margin = '1px 0';
+            eventEl.style.fontSize = '0.85em';
+            
+            // Add recurrence indicator if needed
+            const textContent = arg.event.extendedProps.isRecurring ? 
+                '🔁 ' + arg.event.title : arg.event.title;
+            eventEl.textContent = textContent;
+            
+            return { domNodes: [eventEl] };
+        },
+        select: function(info) {
+				    console.log('Date selected:', info.start, 'to', info.end);
+				    currentEvent = null;
+				    if (currentUser !== "Sam") {
+				        deleteBtn.style.display = 'none';
+				    }
+				    
+				    // Reset the form completely
+				    resetEventForm();
+				    
+				    // Set the new event values
+				    document.getElementById('eventStart').value = info.start.toISOString().slice(0, 16);
+				    document.getElementById('eventEnd').value = info.end.toISOString().slice(0, 16);
+				    document.getElementById('eventAllDay').checked = info.allDay;
+				    
+				    // Explicitly enable and reset repeat options
+				    const repeatCheckbox = document.getElementById('eventRepeat');
+				    repeatCheckbox.disabled = false;  // Ensure checkbox is enabled
+				    repeatCheckbox.checked = false;   // Uncheck the box
+				    document.getElementById('repeatFrequencyContainer').style.display = 'none';
+				    
+				    // Show the modal
+				    eventModal.show();
+				},
+        eventClick: function(info) {
+            console.log('Event clicked:', info.event);
+            console.log('Event ID:', info.event.id, 'Title:', info.event.title);
+            currentEvent = info.event;
+            
+            // Only show delete button if user is not Sam
+            if (currentUser !== "Sam") {
+                deleteBtn.style.display = 'block';
+            }
+            
+            resetEventForm(false);
+            document.getElementById('eventTitle').value = info.event.title;
+            document.getElementById('eventStart').value = info.event.start.toISOString().slice(0, 16);
+            document.getElementById('eventEnd').value = info.event.end ? info.event.end.toISOString().slice(0, 16) : '';
+            document.getElementById('eventAllDay').checked = info.event.allDay;
+            
+            // Disable repeat options when editing existing event
+            document.getElementById('eventRepeat').disabled = true;
+            document.getElementById('repeatFrequencyContainer').style.display = 'none';
+            
+            // Load participants
+            if (info.event.extendedProps.participants) {
+                console.log('Participants:', info.event.extendedProps.participants);
+                const select = document.getElementById('eventParticipants');
+                Array.from(select.options).forEach(option => {
+                    option.selected = info.event.extendedProps.participants.includes(option.value);
+                });
+            }
+            
+            eventModal.show();
+        }
+    });
+    
+    calendar.render();
+    console.log('Calendar rendered');
+    
+    document.getElementById('eventForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('Form submitted');
+        
+        const eventBeingUpdated = currentEvent;
+        console.log('Event being processed:', eventBeingUpdated ? 
+                   `ID: ${eventBeingUpdated.id}, Title: ${eventBeingUpdated.title}` : 'New event');
+        
+        const baseFormData = {
+            title: document.getElementById('eventTitle').value.trim(),
+            start: document.getElementById('eventStart').value,
+            end: document.getElementById('eventEnd').value || null,
+            allDay: document.getElementById('eventAllDay').checked,
+            participants: Array.from(
+                document.getElementById('eventParticipants').selectedOptions
+            ).map(option => option.value),
+            isRecurring: document.getElementById('eventRepeat').checked,
+            recurrenceFrequency: document.getElementById('eventRepeat').checked ? 
+                document.getElementById('repeatFrequency').value : null
+        };
+        
+        console.log('Form data to submit:', JSON.stringify(baseFormData, null, 2));
+        
+        // Validate required fields
+        if (!baseFormData.title) {
+            console.warn('Validation failed: Title is required');
+            alert('Event title is required');
+            return;
+        }
+        if (!baseFormData.start) {
+            console.warn('Validation failed: Start time is required');
+            alert('Start time is required');
+            return;
+        }
+        
+        try {
+            const url = eventBeingUpdated ? 
+                `/payment/events/update/${eventBeingUpdated.id}/` : 
+                '/payment/events/create/';
+            
+            const method = eventBeingUpdated ? 'PUT' : 'POST';
+            
+            console.log(`Making ${method} request to: ${url}`);
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(baseFormData)
+            });
+            
+            console.log('Response status:', response.status);
+            const data = await response.json();
+            console.log('Response data:', data);
+            
+            if (!response.ok) {
+                console.error('Request failed:', data.message || 'No error message');
+                throw new Error(data.message || 'Request failed');
+            }
+            
+            if (data.status === 'success') {
+                // Refresh calendar to show new events
+                calendar.refetchEvents();
+                
+                resetEventForm();
+                eventModal.hide();
+            } else {
+                console.error('Server returned error status:', data.message);
+                throw new Error(data.message || 'Unknown error occurred');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        }
+    });
+    
+    // Delete event handler
+    deleteBtn.addEventListener('click', async function() {
+        if (!currentEvent || !confirm('Are you sure you want to permanently delete this event?')) {
+            return;
+        }
+        
+        console.log('Deleting event:', currentEvent.id);
+        
+        try {
+            const response = await fetch(`/payment/events/delete/${currentEvent.id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            console.log('Delete response status:', response.status);
+            const data = await response.json();
+            console.log('Delete response data:', data);
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Request failed');
+            }
+            
+            if (data.status === 'success') {
+                console.log('Removing event from calendar');
+                currentEvent.remove();
+                resetEventForm();
+                eventModal.hide();
+            } else {
+                throw new Error(data.message || 'Failed to delete event');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        }
+    });
+    
+    // Reset form when modal is hidden
+    eventModal._element.addEventListener('hidden.bs.modal', function() {
+		    console.log('Modal hidden - clearing current event');
+		    resetEventForm();
+		    if (currentUser !== "Sam") {
+		        deleteBtn.style.display = 'none';
+		    }
+		    // Explicitly ensure repeat checkbox is enabled
+		    document.getElementById('eventRepeat').disabled = false;
+		});
+    
+    // Function to reset form
+    function resetEventForm(clearCurrentEvent = true) {
+        console.log('Resetting event form', clearCurrentEvent ? 'with' : 'without', 'clearing currentEvent');
+        document.getElementById('eventForm').reset();
+        document.getElementById('eventTitle').value = '';
+        document.getElementById('eventStart').value = '';
+        document.getElementById('eventEnd').value = '';
+        document.getElementById('eventAllDay').checked = false;
+        
+        const select = document.getElementById('eventParticipants');
+        if (select) {
+            Array.from(select.options).forEach(option => {
+                option.selected = false;
+            });
+        }
+        
+        // Reset repeat options
+        document.getElementById('eventRepeat').checked = false;
+        document.getElementById('repeatFrequencyContainer').style.display = 'none';
+        
+        if (clearCurrentEvent) {
+            currentEvent = null;
+        }
+    }
+	});
+</script>
+
+
+
+{% endblock %}

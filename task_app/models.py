@@ -77,8 +77,7 @@ class Merchant(models.Model):
     class Meta:
         verbose_name_plural = "Merchant"
 
-    def __str__(self):
-        return self.name + " " + self.order_number
+    
 
 
 class Amex(models.Model):

@@ -42,7 +42,7 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ message.message }}</td>
-                    <td>{{ message.date_created|date:"m/d H:i" }}</td>
+                    <td style="white-space: nowrap;">{{ message.date_created|date:"m/d H:i" }}</td>
                 {% empty %}
                 <tr>
                     <td colspan="6" class="text-center">No Data available.</td>

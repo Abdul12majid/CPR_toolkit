@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rely_invoice',
     "inv_api",
     "django_sse",
+    "payment",
     
 ]
 

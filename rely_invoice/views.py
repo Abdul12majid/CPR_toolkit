@@ -14,6 +14,7 @@ from datetime import timedelta
 
 
 # Create your views here.
+@login_required(login_url='login')
 def rely_invoice(request):
     all_invoice = RelyInvoice.objects.all().order_by('-id')
     all_statuses = Status.objects.all()
@@ -117,6 +118,7 @@ def delete_r_invoice(request, pk):
     messages.success(request, ("Invoice Deleted."))
     return redirect("rely_invoice")
 
+@login_required(login_url='login')
 def invoice_status(request, pk):
     invoice = get_object_or_404(RelyProcessed, id=pk)
     get_status = Status.objects.get(name="Invoiced")
@@ -125,6 +127,7 @@ def invoice_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def added_status(request, pk):
     try:
         invoice = get_object_or_404(RelyCompleted, id=pk)
@@ -155,6 +158,7 @@ def added_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def added_paid_status(request, pk):
     try:
         invoice = get_object_or_404(RelyPaid, id=pk)
@@ -185,6 +189,7 @@ def added_paid_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def update_processed_paid(request, pk):
     get_invoice = RelyProcessed.objects.get(id=pk)
     inv_id = get_invoice.id
@@ -238,6 +243,7 @@ def update_processed_paid(request, pk):
         return redirect('rely_invoice_processed')
     return render(request, 'update_paid_invoice.html', context)
 
+@login_required(login_url='login')
 def added_reassign_status(request, pk):
     invoice = get_object_or_404(RelyInvoice, id=pk)
     get_status = Status.objects.get(name="Reassigned")
@@ -264,6 +270,7 @@ def added_reassign_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def added_problem_status(request, pk):
     invoice = get_object_or_404(RelyInvoice, id=pk)
     get_status = Status.objects.get(name="Problem")
@@ -290,6 +297,7 @@ def added_problem_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def completed_status(request, pk):
     invoice = get_object_or_404(RelyInvoice, id=pk)
     get_status = Status.objects.get(name="Completed")
@@ -316,6 +324,7 @@ def completed_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def completed_reassigned_status(request, pk):
     invoice = get_object_or_404(RelyCompleted, id=pk)
     get_status = Status.objects.get(name="Reassigned")
@@ -342,6 +351,7 @@ def completed_reassigned_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def completed_problem_status(request, pk):
     invoice = get_object_or_404(RelyCompleted, id=pk)
     get_status = Status.objects.get(name="Problem")
@@ -368,6 +378,7 @@ def completed_problem_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def completed_denied_status(request, pk):
     invoice = get_object_or_404(RelyCompleted, id=pk)
     get_status = Status.objects.get(name="Denied")
@@ -376,6 +387,7 @@ def completed_denied_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def completed_cancelled_status(request, pk):
     invoice = get_object_or_404(RelyCompleted, id=pk)
     get_status = Status.objects.get(name="Cancelled")
@@ -384,6 +396,7 @@ def completed_cancelled_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def processed_reassigned_status(request, pk):
     invoice = get_object_or_404(RelyProcessed, id=pk)
     get_status = Status.objects.get(name="Reassigned")
@@ -411,6 +424,7 @@ def processed_reassigned_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def reassigned_added_status(request, pk):
     try:
         invoice = get_object_or_404(RelyReassigned, id=pk)
@@ -441,6 +455,7 @@ def reassigned_added_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def rely_invoice_processed(request):
     all_invoice = RelyProcessed.objects.all().order_by('date_invoiced')
     all_statuses = Status.objects.all()
@@ -584,6 +599,7 @@ def rely_invoice_processed(request):
     }
     return render(request, 'rely_inv_pro.html', context)
 
+@login_required(login_url='login')
 def denied_status(request, pk):
     invoice = get_object_or_404(RelyInvoice, id=pk)
     get_status = Status.objects.get(name="Denied")
@@ -610,6 +626,7 @@ def denied_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def cancelled_status(request, pk):
     invoice = get_object_or_404(RelyInvoice, id=pk)
     get_status = Status.objects.get(name="Cancelled")
@@ -636,6 +653,7 @@ def cancelled_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def paid_status(request, pk):
     invoice = get_object_or_404(RelyProcessed, id=pk)
     get_status = Status.objects.get(name="Paid")
@@ -662,6 +680,7 @@ def paid_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def paid_reassigned_status(request, pk):
     invoice = get_object_or_404(RelyPaid, id=pk)
     get_status = Status.objects.get(name="Reassigned")
@@ -689,6 +708,7 @@ def paid_reassigned_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def reassigned_paid_status(request, pk):
     invoice = get_object_or_404(RelyReassigned, id=pk)
     get_status = Status.objects.get(name="Paid")
@@ -715,6 +735,7 @@ def reassigned_paid_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_paid_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Paid")
@@ -741,6 +762,7 @@ def problem_paid_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_added_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Added")
@@ -768,6 +790,7 @@ def problem_added_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_invoice_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Invoiced")
@@ -795,6 +818,7 @@ def problem_invoice_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_completed_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Completed")
@@ -821,6 +845,7 @@ def problem_completed_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_denied_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Denied")
@@ -847,6 +872,7 @@ def problem_denied_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_cancelled_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Cancelled")
@@ -873,6 +899,7 @@ def problem_cancelled_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_reassigned_status(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     get_status = Status.objects.get(name="Reassigned")
@@ -900,6 +927,7 @@ def problem_reassigned_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_status(request, pk):
     invoice = get_object_or_404(RelyPaid, id=pk)
     get_status = Status.objects.get(name="Problem")
@@ -926,6 +954,7 @@ def problem_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def problem_inv_status(request, pk):
     invoice = get_object_or_404(RelyProcessed, id=pk)
     get_status = Status.objects.get(name="Problem")
@@ -952,6 +981,7 @@ def problem_inv_status(request, pk):
     messages.success(request, ("Invoice Status updated."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def rely_invoice_completed(request):
     all_invoice = RelyCompleted.objects.all().order_by('-id')
     all_statuses = Status.objects.all()
@@ -970,6 +1000,7 @@ def rely_invoice_completed(request):
     }
     return render(request, 'rely_completed.html', context) 
 
+@login_required(login_url='login')
 def rely_invoice_paid(request):
     all_invoice = RelyPaid.objects.all().order_by('-id')
     all_statuses = Status.objects.all()
@@ -1064,6 +1095,7 @@ def rely_invoice_paid(request):
     }
     return render(request, 'rely_paid.html', context)
 
+@login_required(login_url='login')
 def rely_invoice_problem(request):
     all_invoice = RelyProblem.objects.all().order_by('-id')
     all_statuses = Status.objects.all()
@@ -1082,6 +1114,7 @@ def rely_invoice_problem(request):
     }
     return render(request, 'rely_problem.html', context)
 
+@login_required(login_url='login')
 def rely_invoice_reassign(request):
     all_invoice = RelyReassigned.objects.all().order_by('-id')
     all_gmmm_invoice = RelyGMMM.objects.all().order_by('-id')
@@ -1131,6 +1164,7 @@ def rely_invoice_reassign(request):
     }
     return render(request, 'rely_reassign.html', context)
 
+@login_required(login_url='login')
 def move_dispatches(request):
     if request.method == 'POST':
         dispatch_numbers = request.POST.get('dispatch_numbers', '').split(',')
@@ -1173,6 +1207,7 @@ def move_dispatches(request):
     
     return render(request, 'test_move.html')
 
+@login_required(login_url='login')
 def make_invoice(request):
     status = Status.objects.get(name="Added")
     pst_tz = pytz.timezone("America/Los_Angeles")
@@ -1204,6 +1239,7 @@ def make_invoice(request):
         return redirect('rely_invoice')
     return render(request, "make_invoice.html", context)
 
+@login_required(login_url='login')
 def make_reassigned_invoice(request):
     status = Status.objects.get(name="Reassigned")
     pst_tz = pytz.timezone("America/Los_Angeles")
@@ -1235,6 +1271,7 @@ def make_reassigned_invoice(request):
         return redirect('rely_invoice_reassign')
     return render(request, "make_reassigned_invoice.html", context)
 
+@login_required(login_url='login')
 def make_gmmm_invoice(request):
     status = Status.objects.get(name="GMMM")
     pst_tz = pytz.timezone("America/Los_Angeles")
@@ -1266,6 +1303,7 @@ def make_gmmm_invoice(request):
         return redirect('rely_invoice_reassign')
     return render(request, "make_rely_gmmm.html", context)
 
+@login_required(login_url='login')
 def update_problem_invoice(request, pk):
     get_invoice = RelyProblem.objects.get(id=pk)
     inv_id = get_invoice.id
@@ -1302,25 +1340,32 @@ def update_problem_invoice(request, pk):
         return redirect('rely_invoice_problem')
     return render(request, 'update_problem_inv.html', context)
 
+@login_required(login_url='login')
 def delete_problem_invoice(request, pk):
     invoice = get_object_or_404(RelyProblem, id=pk)
     invoice.delete()
     messages.success(request, ("Invoice Deleted."))
     return redirect("rely_invoice_problem")
 
+@login_required(login_url='login')
 def delete_reassigned_invoice(request, pk):
     invoice = get_object_or_404(RelyReassigned, id=pk)
     invoice.delete()
     messages.success(request, ("Invoice Deleted."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def delete_gmmm_invoice(request, pk):
     invoice = get_object_or_404(RelyGMMM, id=pk)
     invoice.delete()
     messages.success(request, ("Invoice Deleted."))
     return redirect(request.META.get("HTTP_REFERER"))
 
+@login_required(login_url='login')
 def rely_messages(request):
+    user = request.user
+    if user.username == "Sergio" or user.username == "spleecho":
+        return redirect("payment_home")
     all_messages = RelyMessage.objects.all().order_by("-id")[:30]
     pst_tz = pytz.timezone("America/Los_Angeles")
     now_pst = now().astimezone(pst_tz)

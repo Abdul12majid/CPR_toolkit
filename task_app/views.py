@@ -22,6 +22,9 @@ from django.db import models
 # Create your views here.
 @login_required(login_url='login')
 def index(request):
+    user = request.user
+    if user.username == "Sergio" or user.username == "Sam":
+        return redirect("payment_home")
     # Task-related data
     all_task = Task.objects.filter(status=False).order_by('-id')
     belle_task = Belle_Task.objects.filter(status=False).order_by('-id')
@@ -423,175 +426,190 @@ def thread(request):
 
 @login_required(login_url='login')
 def invoices(request):
+    # Get all invoices ordered by most recent first
     all_invoices = Invoice.objects.all().order_by("-id")
     search_results = None
     
     # Set PST timezone
     pst_tz = pytz.timezone("America/Los_Angeles")
     
-    # Get the current time in PST
+    # Get current time in PST
     now_pst = timezone.now().astimezone(pst_tz)
     
-    # Set today to the start of the day (00:00:00) in PST
+    # Define time periods
     today = now_pst.replace(hour=0, minute=0, second=0, microsecond=0)
-    
-    print(f"Today: {today}", flush=True) 
-    
+    yesterday_start = today - timedelta(days=1)
+    yesterday_end = today  # Midnight this morning
     current_day = today
     seven_days_ago = today - timedelta(days=7)
     thirty_days_ago = today - timedelta(days=30)
     six_months_ago = today - timedelta(days=180)
     twelve_months_ago = today - timedelta(days=365)
-
     ten_days_ago = today - timedelta(days=10)
 
+    # Get old unpaid invoices
     old_invoices = Invoice.objects.filter(date_received__lt=ten_days_ago, invoiced_amount=0)
 
-    # Function to calculate average and total for a given queryset
+    # Helper functions
     def get_avg_total(queryset):
-        total = queryset.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-        avg = queryset.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
+        """Returns (average, total) for non-zero invoices"""
+        filtered = queryset.exclude(invoiced_amount=0)
+        total = filtered.aggregate(total=Sum('invoiced_amount'))['total'] or 0
+        avg = filtered.aggregate(avg=Avg('invoiced_amount'))['avg'] or 0
         return round(avg, 2), round(total, 2)
 
-    # Filter invoices excluding those with 0$ amount
-    current_day_avg, current_day_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=current_day).exclude(invoiced_amount=0)
+    def get_count(queryset):
+        """Returns count of all invoices (including $0)"""
+        return queryset.count()
+
+    def get_avg_days(queryset):
+        """Returns average days between date_received and created_at"""
+        result = queryset.exclude(
+            invoiced_amount=0
+        ).exclude(
+            created_at=F('date_received')
+        ).aggregate(
+            avg_days=Avg(F('created_at') - F('date_received'))
+        )['avg_days'] or timedelta(0)
+        return result.days if result else 0
+
+    # Get stats for each time period
+    ## Yesterday stats
+    yesterday_queryset = Invoice.objects.filter(
+        created_at__gte=yesterday_start,
+        created_at__lt=yesterday_end
     )
-    seven_day_avg, seven_day_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=seven_days_ago).exclude(invoiced_amount=0)
-    )
-    thirty_day_avg, thirty_day_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=thirty_days_ago).exclude(invoiced_amount=0)
-    )
-    six_month_avg, six_month_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=six_months_ago).exclude(invoiced_amount=0)
-    )
-    twelve_month_avg, twelve_month_total = get_avg_total(
-        Invoice.objects.filter(created_at__gte=twelve_months_ago).exclude(invoiced_amount=0)
-    )
+    yesterday_count = get_count(yesterday_queryset)
+    yesterday_avg, yesterday_total = get_avg_total(yesterday_queryset)
+    yesterday_avg_days = get_avg_days(yesterday_queryset)
+    
+    ## Current day stats
+    current_day_queryset = Invoice.objects.filter(created_at__gte=current_day)
+    current_day_avg, current_day_total = get_avg_total(current_day_queryset)
+    current_day_count = get_count(current_day_queryset)
+    current_day_avg_days = get_avg_days(current_day_queryset)
 
-    # Calculate overall total
-    overall_total = Invoice.objects.aggregate(total=Sum('invoiced_amount'))['total'] or 0
-    overall_total = round(overall_total, 2)
+    ## 7-day stats
+    seven_day_queryset = Invoice.objects.filter(created_at__gte=seven_days_ago)
+    seven_day_avg, seven_day_total = get_avg_total(seven_day_queryset)
+    seven_day_count = get_count(seven_day_queryset)
+    seven_day_avg_days = get_avg_days(seven_day_queryset)
 
-    # Calculate average days to invoice for each period
-    current_day_avg_days = Invoice.objects.filter(
-        created_at__gte=current_day
-    ).exclude(
-        invoiced_amount=0
-    ).exclude(
-        created_at=F('date_received')  # Exclude invoices where created_at == date_received
-    ).aggregate(
-        avg_days=Avg(F('created_at') - F('date_received'))
-    )['avg_days'] or timedelta(0)
-    current_day_avg_days = current_day_avg_days.days  # Extract days
+    ## 30-day stats
+    thirty_day_queryset = Invoice.objects.filter(created_at__gte=thirty_days_ago)
+    thirty_day_avg, thirty_day_total = get_avg_total(thirty_day_queryset)
+    thirty_day_count = get_count(thirty_day_queryset)
+    thirty_day_avg_days = get_avg_days(thirty_day_queryset)
 
-    seven_day_avg_days = Invoice.objects.filter(
-        created_at__gte=seven_days_ago
-    ).exclude(
-        invoiced_amount=0
-    ).exclude(
-        created_at=F('date_received')  # Exclude invoices where created_at == date_received
-    ).aggregate(
-        avg_days=Avg(F('created_at') - F('date_received'))
-    )['avg_days'] or timedelta(0)
-    seven_day_avg_days = seven_day_avg_days.days  # Extract days
+    ## 6-month stats
+    six_month_queryset = Invoice.objects.filter(created_at__gte=six_months_ago)
+    six_month_avg, six_month_total = get_avg_total(six_month_queryset)
+    six_month_count = get_count(six_month_queryset)
+    six_month_avg_days = get_avg_days(six_month_queryset)
 
-    thirty_day_avg_days = Invoice.objects.filter(
-        created_at__gte=thirty_days_ago
-    ).exclude(
-        invoiced_amount=0
-    ).exclude(
-        created_at=F('date_received')  # Exclude invoices where created_at == date_received
-    ).aggregate(
-        avg_days=Avg(F('created_at') - F('date_received'))
-    )['avg_days'] or timedelta(0)
-    thirty_day_avg_days = thirty_day_avg_days.days  # Extract days
+    ## 12-month stats
+    twelve_month_queryset = Invoice.objects.filter(created_at__gte=twelve_months_ago)
+    twelve_month_avg, twelve_month_total = get_avg_total(twelve_month_queryset)
+    twelve_month_count = get_count(twelve_month_queryset)
+    twelve_month_avg_days = get_avg_days(twelve_month_queryset)
 
-    six_month_avg_days = Invoice.objects.filter(
-        created_at__gte=six_months_ago
-    ).exclude(
-        invoiced_amount=0
-    ).exclude(
-        created_at=F('date_received')  # Exclude invoices where created_at == date_received
-    ).aggregate(
-        avg_days=Avg(F('created_at') - F('date_received'))
-    )['avg_days'] or timedelta(0)
-    six_month_avg_days = six_month_avg_days.days  # Extract days
+    ## Overall stats
+    overall_total = round(Invoice.objects.exclude(invoiced_amount=0).aggregate(total=Sum('invoiced_amount'))['total'] or 0, 2)
+    overall_count = get_count(Invoice.objects.all())
+    overall_avg_days = get_avg_days(Invoice.objects.all())
 
-    twelve_month_avg_days = Invoice.objects.filter(
-        created_at__gte=twelve_months_ago
-    ).exclude(
-        invoiced_amount=0
-    ).exclude(
-        created_at=F('date_received')  # Exclude invoices where created_at == date_received
-    ).aggregate(
-        avg_days=Avg(F('created_at') - F('date_received'))
-    )['avg_days'] or timedelta(0)
-    twelve_month_avg_days = twelve_month_avg_days.days  # Extract days
-
-    overall_avg_days = Invoice.objects.exclude(
-        invoiced_amount=0
-    ).exclude(
-        created_at=F('date_received')  # Exclude invoices where created_at == date_received
-    ).aggregate(
-        avg_days=Avg(F('created_at') - F('date_received'))
-    )['avg_days'] or timedelta(0)
-    overall_avg_days = overall_avg_days.days  # Extract days
-
+    # Yearly stats
     current_year_start = datetime(now_pst.year, 1, 1).astimezone(pst_tz)
-    current_year_total = Invoice.objects.filter(
+    current_year_total = round(Invoice.objects.filter(
         created_at__gte=current_year_start,
         created_at__lte=today
-    ).aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    ).exclude(invoiced_amount=0).aggregate(total=Sum('invoiced_amount'))['total'] or 0, 2)
+    current_year_count = get_count(Invoice.objects.filter(
+        created_at__gte=current_year_start,
+        created_at__lte=today
+    ))
     
-    # Last year calculations using created_at
     last_year_start = datetime(now_pst.year - 1, 1, 1).astimezone(pst_tz)
     last_year_end = datetime(now_pst.year - 1, 12, 31).astimezone(pst_tz)
-    last_year_total = Invoice.objects.filter(
+    last_year_total = round(Invoice.objects.filter(
         created_at__gte=last_year_start,
         created_at__lte=last_year_end
-    ).aggregate(total=Sum('invoiced_amount'))['total'] or 0
+    ).exclude(invoiced_amount=0).aggregate(total=Sum('invoiced_amount'))['total'] or 0, 2)
+    last_year_count = get_count(Invoice.objects.filter(
+        created_at__gte=last_year_start,
+        created_at__lte=last_year_end
+    ))
 
-    # Paginate invoices
+    # Pagination
     paginate = Paginator(all_invoices, 15)
     page = request.GET.get('page')
     invoices = paginate.get_page(page)
 
-    # Handle search functionality
+    # Search functionality
     if request.method == "POST":
         inv_data = request.POST.get('inv_data', '').strip()
         messages.success(request, f"You searched {inv_data}") 
         
         if inv_data:
             search_results = Invoice.objects.filter(dispatch_no__icontains=inv_data) | \
-                             Invoice.objects.filter(name__icontains=inv_data) | \
-                             Invoice.objects.filter(invoiced_amount__icontains=inv_data)
+                           Invoice.objects.filter(name__icontains=inv_data) | \
+                           Invoice.objects.filter(invoiced_amount__icontains=inv_data)
 
+    # Prepare context
     context = {
         "all_invoices": all_invoices,
         "search_results": search_results,
+        
+        # Yesterday stats
+        "yesterday_count": yesterday_count,
+        "yesterday_avg": yesterday_avg,
+        "yesterday_total": yesterday_total,
+        "yesterday_avg_days": yesterday_avg_days,
+        
+        # Current day stats
         "current_day_avg": current_day_avg,
         "current_day_total": current_day_total,
+        "current_day_count": current_day_count,
+        "current_day_avg_days": current_day_avg_days,
+        
+        # 7-day stats
         "seven_day_avg": seven_day_avg,
         "seven_day_total": seven_day_total,
+        "seven_day_count": seven_day_count,
+        "seven_day_avg_days": seven_day_avg_days,
+        
+        # 30-day stats
         "thirty_day_avg": thirty_day_avg,
         "thirty_day_total": thirty_day_total,
+        "thirty_day_count": thirty_day_count,
+        "thirty_day_avg_days": thirty_day_avg_days,
+        
+        # 6-month stats
         "six_month_avg": six_month_avg,
         "six_month_total": six_month_total,
+        "six_month_count": six_month_count,
+        "six_month_avg_days": six_month_avg_days,
+        
+        # 12-month stats
         "twelve_month_avg": twelve_month_avg,
         "twelve_month_total": twelve_month_total,
+        "twelve_month_count": twelve_month_count,
+        "twelve_month_avg_days": twelve_month_avg_days,
+        
+        # Overall stats
         "overall_total": overall_total,
+        "overall_count": overall_count,
+        "overall_avg_days": overall_avg_days,
+        
+        # Yearly stats
+        "current_year_total": current_year_total,
+        "current_year_count": current_year_count,
+        "last_year_total": last_year_total,
+        "last_year_count": last_year_count,
+        
+        # Other data
         "invoices": invoices,
         "old_invoices": old_invoices,
-        "current_day_avg_days": current_day_avg_days,
-        "seven_day_avg_days": seven_day_avg_days,
-        "thirty_day_avg_days": thirty_day_avg_days,
-        "six_month_avg_days": six_month_avg_days,
-        "twelve_month_avg_days": twelve_month_avg_days,
-        "overall_avg_days": overall_avg_days,
-        "current_year_total": round(current_year_total, 2),
-        "last_year_total": round(last_year_total, 2),
     }
     
     return render(request, "AHS_invoices.html", context)
@@ -871,7 +889,7 @@ def merchant(request):
     #today
     today_in = us_bank.objects.filter(
         date_sent=today,
-        transaction_type__in=["Deposit", "Check Deposit"]
+        transaction_type__in=["Deposit"]
     ).aggregate(total=models.Sum('amount'))['total'] or 0
     
     today_out = us_bank.objects.filter(
@@ -882,7 +900,7 @@ def merchant(request):
     # This month's transactions
     month_in = us_bank.objects.filter(
         date_sent__gte=month_start,
-        transaction_type__in=["Deposit", "Check Deposit"]
+        transaction_type__in=["Deposit"]
     ).aggregate(total=models.Sum('amount'))['total'] or 0
     
     month_out = us_bank.objects.filter(
@@ -892,7 +910,7 @@ def merchant(request):
 
     # All-time transactions
     total_in = us_bank.objects.filter(
-        transaction_type__in=["Deposit", "Check Deposit"]
+        transaction_type__in=["Deposit"]
     ).aggregate(total=models.Sum('amount'))['total'] or 0
     
     total_out = us_bank.objects.filter(
@@ -902,20 +920,28 @@ def merchant(request):
     # Last 30 days transactions
     last30_in = us_bank.objects.filter(
         date_sent__gte=thirty_days_ago,
-        transaction_type__in=["Deposit", "Check Deposit"]
+        transaction_type__in=["Deposit"]
     ).aggregate(total=models.Sum('amount'))['total'] or 0
 
 
     #year in totals
     this_year_in = us_bank.objects.filter(
         date_sent__gte=year_start,
-        transaction_type__in=["Deposit", "Check Deposit"]
+        transaction_type__in=["Deposit"]
     ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+
+    this_year_in_cd = us_bank.objects.filter(
+        date_sent__gte=year_start,
+        transaction_type__in=["Check Deposit"]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    print(f"This year in check deposit {this_year_in_cd}", flush=True)
 
     last_year_in = us_bank.objects.filter(
         date_sent__gte=last_year_start,
         date_sent__lte=last_year_end,
-        transaction_type__in=["Deposit", "Check Deposit"]
+        transaction_type__in=["Deposit"]
     ).aggregate(total=models.Sum('amount'))['total'] or 0
 
 

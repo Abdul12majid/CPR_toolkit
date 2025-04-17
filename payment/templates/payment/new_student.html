@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2 style="text-align: center;">New</h2></br>
+
+    <div class="container">
+        <form method="POST" validate>
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="exampleInputEmail1">First Name</label>
+                <input name="first_name" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+
+            <div class="form-group">
+                <label for="exampleInputEmail1">Last Name</label>
+                <input name="last_name" type="text" class="form-control form-control" id="exampleInputEmail1" aria-describedby="emailHelp">  
+            </div>
+
+            <div class="form-group">
+                <label for="exampleInputEmail1">Hourly Rate</label>
+                <input name="hourly_rate" type="number" class="form-control form-control" id="exampleInputEmail1" value="0" aria-describedby="emailHelp">  
+            </div>
+
+            <div class="form-group">
+                <label for="exampleInputEmail1">Google Meet Link</label>
+                <input name="google_meet" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+
+            <div class="form-group">
+                <label for="exampleInputEmail1">New Field 2</label>
+                <input name="second_field" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"> 
+            </div>
+
+            <div class="form-group">
+                <label for="ownerSelect">Owner</label>
+                <select name="owner" class="form-control" id="ownerSelect">
+                    {% if request.user.username == "Sam" %}
+                        <option value="{{ request.user.id }}">Sam</option>
+                    {% else %}
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div></br>
+
+            <center>
+                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            </center>
+        </form>
+    </div>
+{% endblock %}

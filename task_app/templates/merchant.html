@@ -82,7 +82,9 @@
                             <tr>
                                 <td>{{ ebay.transaction_date }}</td>
                                 <td>{{ ebay.order_number }}</td>
-                                <td>{{ ebay.amount }}</td>
+                                <td class="{% if '[RE]' in ebay.order_number %} 
+                                table-danger
+                                {% endif %}">{{ ebay.amount }}</td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -179,7 +181,7 @@
                             <tr><td colspan="6" class="text-center"><strong>Search Results:</strong></td></tr>
                             {% for ebay in search_results %}
                             <tr>
-                                <td>{{ ebay.transaction_date }}</td>
+                                <td>{{ ebay.transaction_date|date:"M j, Y" }}</td>
                                 <td>{{ ebay.order_number }}</td>
                                 <td>{{ ebay.amount }}</td>
                             </tr>
